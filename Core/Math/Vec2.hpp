@@ -41,22 +41,18 @@ public:
 	auto operator + (const vector2<t_rightType> &vec) const
 	{
 		ASSERT_IS_ARITHMETIC(t_rightType);
+		using resultType = decltype(x + vec.x);
 
-		auto sumX = x + vec.x;
-		auto sumY = y + vec.y;
-
-		return vector2<decltype(sumX)>(sumX, sumY);
+		return vector2<resultType>(x + vec.x, y + vec.y);
 	}
 
 	template<typename t_rightType>
 	auto operator - (const vector2<t_rightType> &vec) const
 	{
 		ASSERT_IS_ARITHMETIC(t_rightType);
+		using resultType = decltype(x - vec.x);
 
-		auto subX = x - vec.x;
-		auto subY = y - vec.y;
-
-		return vector2<decltype(subX)>(subX, subY);
+		return vector2<resultType>(x - vec.x, y - vec.y);
 	}
 
 	vector2<t_type> operator - () const
@@ -69,10 +65,9 @@ public:
 	{
 		ASSERT_IS_ARITHMETIC(t_scalarType);
 
-		auto mulX = x * value;
-		auto mulY = y * value;
+		using resultType = decltype(x * value);
 
-		return vector2<decltype(mulX)>(mulX, mulY);
+		return vector2<resultType>(x * value, y * value);
 	}
 
 	template<typename t_scalarType>
@@ -136,10 +131,10 @@ static t_type dot(const vector2<t_type> &vecA, const vector2<t_type> &vecB)
 template<typename t_type>
 static vector2<float> normalize(const vector2<t_type> &vec)
 {
-	float mag = length(vec);
-	mag = (mag == 0) ? 1 : mag;
+	float len = length(vec);
+	len = (len == 0) ? 1 : len;
 	
-	return static_cast<vector2<float>>(vec) / mag;
+	return static_cast<vector2<float>>(vec) / len;
 }
 
 using vec2	= vector2<float>;

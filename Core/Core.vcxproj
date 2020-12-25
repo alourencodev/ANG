@@ -97,6 +97,7 @@
     <ClInclude Include="Math\Interpolation.hpp" />
     <ClInclude Include="Math\Values.h" />
     <ClInclude Include="Math\Vec2.hpp" />
+    <ClInclude Include="Math\Vec3.hpp" />
     <ClInclude Include="Types.hpp" />
   </ItemGroup>
   <ItemGroup>

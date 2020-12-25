@@ -34,7 +34,7 @@ TEST_CASE("2D Vector Constructors")
 	}
 }
 
-TEST_CASE("Alternative Names Access")
+TEST_CASE("2D Vector Alternative Names Access")
 {
 	vec2i vec(1, 2);
 
@@ -232,7 +232,7 @@ TEST_CASE("2D Vector Unary Operators")
 	}
 }
 
-TEST_CASE("Stream Operators")
+TEST_CASE("2D Vector Stream Operators")
 {
 	SECTION("Stream In")
 	{
@@ -254,7 +254,7 @@ TEST_CASE("Stream Operators")
 	}
 }
 
-TEST_CASE("Lerping Vector")
+TEST_CASE("2D Vector Lerping Vector")
 {
 	vec2i vecA(1, -1);
 	vec2i vecB(2, -2);

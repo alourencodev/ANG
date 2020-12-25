@@ -22,6 +22,9 @@
     <ClInclude Include="Math\Interpolation.hpp">
       <Filter>Source Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Math\Vec3.hpp">
+      <Filter>Source Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dummy.cpp">
