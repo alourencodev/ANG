@@ -81,7 +81,9 @@ public:
 	vector3<float> operator / (t_scalarType value) const
 	{
 		ASSERT_IS_ARITHMETIC(t_scalarType);
-		return vector3<float>(x / value, y / value, z / value);
+		const float divisor = static_cast<float>(value);
+
+		return vector3<float>(x / divisor, y / divisor, z / divisor);
 	}
 
 	bool operator == (const vector3<t_type> &vec) const
