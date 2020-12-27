@@ -96,6 +96,7 @@
     <ClCompile Include="mainTest.cpp" />
     <ClCompile Include="Math\Vec2_Test.cpp" />
     <ClCompile Include="Math\Vec3_Test.cpp" />
+    <ClCompile Include="Math\Vec4_Test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

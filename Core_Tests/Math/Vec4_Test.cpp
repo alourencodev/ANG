@@ -4,63 +4,86 @@
 #include <sstream>
 
 #include <Core/Math/Interpolation.hpp>
-#include <Core/Math/Vec3.hpp>
+#include <Core/Math/Vec4.hpp>
 #include <Core/Math/Values.h>
 
-TEST_CASE("3D Vector Constructors")
+TEST_CASE("4D Vector Constructors")
 {
 	SECTION("Default Constructor")
 	{
-		vec3i vec;
+		vec4i vec;
 
 		REQUIRE(vec.x == 0);
 		REQUIRE(vec.y == 0);
 		REQUIRE(vec.z == 0);
+		REQUIRE(vec.w == 0);
 	}
 
 	SECTION("Single Parameter Constructor")
 	{
-		vec3i vec(1);
+		vec4i vec(1);
 
 		REQUIRE(vec.x == 1);
 		REQUIRE(vec.y == 1);
 		REQUIRE(vec.z == 1);
+		REQUIRE(vec.w == 1);
 	}
 
 	SECTION("Individual Parameter Constructor")
 	{
-		vec3i vec(2, 3, 4);
+		vec4i vec(2, 3, 4, 5);
 
 		REQUIRE(vec.x == 2);
 		REQUIRE(vec.y == 3);
 		REQUIRE(vec.z == 4);
+		REQUIRE(vec.w == 5);
 	}
 
 	SECTION("2D Vector Constructor")
 	{
-		vec3i vecA(vec2i(1, 2));
+		vec4i vecA(vec2i(1, 2));
 
 		REQUIRE(vecA.x == 1);
 		REQUIRE(vecA.y == 2);
 		REQUIRE(vecA.z == 0);
+		REQUIRE(vecA.w == 0);
 
-		vec3i vecB(vec2i(1, 2), 3);
+		vec4i vecB(vec2i(1, 2), 3, 4);
 
 		REQUIRE(vecB.x == 1);
 		REQUIRE(vecB.y == 2);
 		REQUIRE(vecB.z == 3);
+		REQUIRE(vecB.w == 4);
+	}
+
+	SECTION("3D Vector Constructor")
+	{
+		vec4i vecA(vec3i(1, 2, 3));
+
+		REQUIRE(vecA.x == 1);
+		REQUIRE(vecA.y == 2);
+		REQUIRE(vecA.z == 3);
+		REQUIRE(vecA.w == 0);
+
+		vec4i vecB(vec3i(2, 3, 4), 5);
+
+		REQUIRE(vecB.x == 2);
+		REQUIRE(vecB.y == 3);
+		REQUIRE(vecB.z == 4);
+		REQUIRE(vecB.w == 5);
 	}
 }
 
-TEST_CASE("3D Vector Alternative Names Access")
+TEST_CASE("4D Vector Alternative Names Access")
 {
-	vec3i vec(1, 2, 3);
+	vec4i vec(1, 2, 3, 4);
 
 	SECTION("Access as Color")
 	{
 		REQUIRE(vec.r == 1);
 		REQUIRE(vec.g == 2);
 		REQUIRE(vec.b == 3);
+		REQUIRE(vec.a == 4);
 	}
 
 	SECTION("Access as Array")
@@ -68,6 +91,7 @@ TEST_CASE("3D Vector Alternative Names Access")
 		REQUIRE(vec[0] == 1);
 		REQUIRE(vec[1] == 2);
 		REQUIRE(vec[2] == 3);
+		REQUIRE(vec[3] == 4);
 	}
 
 	SECTION("Assignment as Array")
@@ -75,44 +99,47 @@ TEST_CASE("3D Vector Alternative Names Access")
 		vec[0] = 3;
 		vec[1] = 4;
 		vec[2] = 5;
+		vec[3] = 6;
 
 		REQUIRE(vec[0] == 3);
 		REQUIRE(vec[1] == 4);
 		REQUIRE(vec[2] == 5);
+		REQUIRE(vec[3] == 6);
 	}
 }
 
-TEST_CASE("3D Vector Properties")
+TEST_CASE("4D Vector Properties")
 {
-	vec3i vec(2, 4, 4);
-
-	SECTION("Vector Length")
-	{
-		REQUIRE(length(vec) == 6.0f);
-	}
+	vec4i vec(4, 4, 4, 4);
 
 	SECTION("Vector Squared Length")
 	{
-		REQUIRE(sqrLength(vec) == 36.0f);
+		REQUIRE(sqrLength(vec) == 64.0f);
+	}
+
+	SECTION("Vector Length")
+	{
+		REQUIRE(length(vec) == 8.0f);
 	}
 }
 
-TEST_CASE("3D Vector General Arithmetic Operators")
+TEST_CASE("4D Vector General Arithmetic Operators")
 {
-	vec3i vecA(1, 2, 3);
-	vec3i vecB(4, 5, 6);
-	vec3 vecC(7.0f, 8.0f, 9.0f);
+	vec4i vecA(1, 2, 3, 4);
+	vec4i vecB(5, 6, 7, 8);
+	vec4 vecC(9.0f, 10.0f, 11.0f, 12.0f);
 
 	SECTION("Assign Operator")
 	{
-		vec3i testVec = vecA;
+		vec4i testVec = vecA;
 
 		REQUIRE(testVec.x == 1);
 		REQUIRE(testVec.y == 2);
 		REQUIRE(testVec.z == 3);
+		REQUIRE(testVec.w == 4);
 	}
 
-	SECTION("Assign to 2D Vector")
+	SECTION("Assign to a 2D Vector")
 	{
 		vec2i vec2D = static_cast<vec2i>(vecA);
 		
@@ -120,13 +147,23 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 		REQUIRE(vec2D.y == 2);
 	}
 
+	SECTION("Assign to a 3D Vector")
+	{
+		vec3i vec3D = static_cast<vec3i>(vecA);
+
+		REQUIRE(vec3D.x == 1);
+		REQUIRE(vec3D.y == 2);
+		REQUIRE(vec3D.z == 3);
+	}
+
 	SECTION("Sum Operator")
 	{
-		vec3i sum = vecA + vecB;
+		vec4i sum = vecA + vecB;
 		
-		REQUIRE(sum.x == 5);
-		REQUIRE(sum.y == 7);
-		REQUIRE(sum.z == 9);
+		REQUIRE(sum.x == 6);
+		REQUIRE(sum.y == 8);
+		REQUIRE(sum.z == 10);
+		REQUIRE(sum.w == 12);
 	}
 
 	SECTION("Cross type sum operator")
@@ -134,21 +171,23 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 		auto sumA = vecA + vecC;
 		auto sumB = vecC + vecA;
 
-		REQUIRE(typeid(sumA) == typeid(vec3));
-		REQUIRE(typeid(sumB) == typeid(vec3));
+		REQUIRE(typeid(sumA) == typeid(vec4));
+		REQUIRE(typeid(sumB) == typeid(vec4));
 
-		REQUIRE(sumB.x == 8.0f);
-		REQUIRE(sumB.y == 10.0f);
-		REQUIRE(sumB.z == 12.0f);
+		REQUIRE(sumB.x == 10.0f);
+		REQUIRE(sumB.y == 12.0f);
+		REQUIRE(sumB.z == 14.0f);
+		REQUIRE(sumB.w == 16.0f);
 	}
 
 	SECTION("Subtraction Operator")
 	{
 		auto sub = vecB - vecA;
 
-		REQUIRE(sub.x == 3);
-		REQUIRE(sub.y == 3);
-		REQUIRE(sub.z == 3);
+		REQUIRE(sub.x == 4);
+		REQUIRE(sub.y == 4);
+		REQUIRE(sub.z == 4);
+		REQUIRE(sub.w == 4);
 	}
 
 	SECTION("Cross type sub operator")
@@ -156,11 +195,12 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 		auto subA = vecC - vecA;
 		auto subB = vecA - vecC;
 
-		REQUIRE(typeid(subA) == typeid(vec3));
-		REQUIRE(typeid(subB) == typeid(vec3));
-		REQUIRE(subA.x == 6.0f);
-		REQUIRE(subA.y == 6.0f);
-		REQUIRE(subA.z == 6.0f);
+		REQUIRE(typeid(subA) == typeid(vec4));
+		REQUIRE(typeid(subB) == typeid(vec4));
+		REQUIRE(subA.x == 8.0f);
+		REQUIRE(subA.y == 8.0f);
+		REQUIRE(subA.z == 8.0f);
+		REQUIRE(subA.w == 8.0f);
 	}
 
 	SECTION("Scalar Multiplication")
@@ -170,6 +210,7 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 		REQUIRE(mul.x == 2);
 		REQUIRE(mul.y == 4);
 		REQUIRE(mul.z == 6);
+		REQUIRE(mul.w == 8);
 	}
 
 	SECTION("Scalar Multiplication Commutation")
@@ -179,6 +220,7 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 		REQUIRE(mul.x == 2);
 		REQUIRE(mul.y == 4);
 		REQUIRE(mul.z == 6);
+		REQUIRE(mul.w == 8);
 	}
 
 	SECTION("Cross type multiplication")
@@ -186,74 +228,67 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 		auto mulA = vecA * 2.0f;
 		auto mulB = 2.0f * vecA;
 
-		REQUIRE(typeid(mulA) == typeid(vec3));
-		REQUIRE(typeid(mulB) == typeid(vec3));
+		REQUIRE(typeid(mulA) == typeid(vec4));
+		REQUIRE(typeid(mulB) == typeid(vec4));
 		REQUIRE(mulA.x == 2.0f);
 		REQUIRE(mulA.y == 4.0f);
 		REQUIRE(mulA.z == 6.0f);
+		REQUIRE(mulA.w == 8.0f);
 	}
 
 	SECTION("Scalar Division")
 	{
-		vec3i testVec(2, 4, 6);
+		vec4i testVec(2, 4, 6, 8);
 		auto div = testVec / 2;
 
-		REQUIRE(typeid(div) == typeid(vec3));
+		REQUIRE(typeid(div) == typeid(vec4));
 		REQUIRE(div.x == 1.0f);
 		REQUIRE(div.y == 2.0f);
 		REQUIRE(div.z == 3.0f);
+		REQUIRE(div.w == 4.0f);
 	}
 
 	SECTION("Scalar multiplication must generate a vector of the type of the scalar")
 	{
 		auto floatVec = vecA * 0.5f;
 
-		REQUIRE(typeid(floatVec) == typeid(vector3<float>));
+		REQUIRE(typeid(floatVec) == typeid(vector4<float>));
 	}
 
 	SECTION("Scalar division must generate a float vector")
 	{
 		auto floatVec = vecB / 2;
 
-		REQUIRE(typeid(floatVec) == typeid(vector3<float>));
+		REQUIRE(typeid(floatVec) == typeid(vector4<float>));
 	}
 }
 
-TEST_CASE("3D Vector Vectorial Operators")
+TEST_CASE("4D Vector Vectorial Operators")
 {
-	vec3 vecA(1.0f, 2.0f, 3.0f);
-	vec3 vecB(4.0f, 5.0f, 6.0f);
+	vec4 vecA(1.0f, 2.0f, 3.0f, 4.0f);
+	vec4 vecB(5.0f, 6.0f, 7.0f, 8.0f);
 
 	SECTION("Dot Product")
 	{
 		float result = dot(vecA, vecB);
 
-		REQUIRE(result == 32.0f);
-	}
-
-	SECTION("Cross Product")
-	{
-		vec3 crossVec = cross(vecA, vecB);
-
-		REQUIRE(crossVec.x == -3.0f);
-		REQUIRE(crossVec.y == 6.0f);
-		REQUIRE(crossVec.z == -3.0f);
+		REQUIRE(result == 70.0f);
 	}
 
 	SECTION("Normalize")
 	{
-		vec3 normalized = normalize(vecA);
+		vec4 normalized = normalize(vecA);
 		float mag = length(normalized);
 
 		REQUIRE((abs(mag) - 1.0f) < k_epsilon);
 	}
 }
 
-TEST_CASE("3D Vector Boolean Operators")
+TEST_CASE("4D Vector Boolean Operators")
 {
-	vec3i vecA(1, 2, 3);
-	vec3i vecB(1, 2, 3);
-	vec3i vecC(2, 3, 1);
+	vec4i vecA(1, 2, 3, 4);
+	vec4i vecB(1, 2, 3, 4);
+	vec4i vecC(1, 3, 1, 6);
 
 	SECTION("Equals")
 	{
@@ -268,51 +303,54 @@ TEST_CASE("3D Vector Boolean Operators")
 	}
 }
 
-TEST_CASE("3D Vector Unary Operators")
+TEST_CASE("4D Vector Unary Operators")
 {
-	vec3i vecA(1, 2, 3);
+	vec4i vecA(1, 2, 3, 4);
 
 	SECTION("Negative")
 	{
-		vec3i minusVec = -vecA;
+		vec4i minusVec = -vecA;
 
 		REQUIRE(minusVec.x == -1);
 		REQUIRE(minusVec.y == -2);
 		REQUIRE(minusVec.z == -3);
+		REQUIRE(minusVec.w == -4);
 	}
 }
 
-TEST_CASE("3D Vector Stream Operators")
+TEST_CASE("4D Vector Stream Operators")
 {
 	SECTION("Stream In")
 	{
-		vec3i vec;
-		std::istringstream is("2 3 4");
-
+		vec4i vec;
+		std::istringstream is("2 3 4 5");
 		is >> vec;
+
 		REQUIRE(vec.x == 2);
 		REQUIRE(vec.y == 3);
 		REQUIRE(vec.z == 4);
+		REQUIRE(vec.w == 5);
 	}
 
 	SECTION("Stream Out")
 	{
-		vec3i vec(1, 2, 3);
+		vec4i vec(1, 2, 3, 4);
 		std::stringstream ss;
-
 		ss << vec;
-		REQUIRE(ss.str() == "(1, 2, 3)");
+
+		REQUIRE(ss.str() == "(1, 2, 3, 4)");
 	}
 }
 
-TEST_CASE("3D Vector Lerping Vector")
+TEST_CASE("4D Vector Lerping Vector")
 {
-	vec3i vecA(1, -1, 2);
-	vec3i vecB(2, -2, 4);
+	vec4i vecA(1, -1, 2, 3);
+	vec4i vecB(2, -2, 4, 6);
 	auto lerpedVec = lerp(vecA, vecB, 0.5f);
 
 	REQUIRE(lerpedVec.x == 1.5f);
 	REQUIRE(lerpedVec.y == -1.5f);
 	REQUIRE(lerpedVec.z == 3.0f);
+	REQUIRE(lerpedVec.w == 4.5f);
 }
 

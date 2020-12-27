@@ -23,7 +23,7 @@ public:
 	vector3(t_type value) : vector3(value, value, value) {}
 	vector3() :	vector3(static_cast<t_type>(0)) {}
 
-	operator vector2<t_type>() const 
+	explicit operator vector2<t_type>() const 
 	{ 
 		return vector2<t_type>(x, y); 
 	}
@@ -158,6 +158,6 @@ static vector3<float> normalize(const vector3<t_type> &vec)
 using vec3	= vector3<float>;
 using vec3i = vector3<i32>;
 
-using color = vector3<float>;
-using colori = vector3<ui8>;
+using color3 = vector3<float>;
+using color3i = vector3<ui8>;
 
