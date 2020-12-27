@@ -3,7 +3,7 @@
 #include <cmath>
 #include <sstream>
 
-#include <Core/Math/Interpolation.hpp>
+#include <Core/Math/Math.hpp>
 #include <Core/Math/Vec2.hpp>
 #include <Core/Math/Values.h>
 
