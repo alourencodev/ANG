@@ -95,6 +95,7 @@
   <ItemGroup>
     <ClCompile Include="mainTest.cpp" />
     <ClCompile Include="Math\Math_Test.cpp" />
+    <ClCompile Include="Math\Mat_Tests.cpp" />
     <ClCompile Include="Math\Vec2_Test.cpp" />
     <ClCompile Include="Math\Vec3_Test.cpp" />
     <ClCompile Include="Math\Vec4_Test.cpp" />

@@ -94,6 +94,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BuildScheme.hpp" />
+    <ClInclude Include="Math\Mat.hpp" />
     <ClInclude Include="Math\Math.hpp" />
     <ClInclude Include="Math\Values.h" />
     <ClInclude Include="Math\Vec2.hpp" />
