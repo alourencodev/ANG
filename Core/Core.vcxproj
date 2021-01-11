@@ -98,7 +98,8 @@
     <ClInclude Include="BuildScheme.hpp" />
     <ClInclude Include="Math\Mat.hpp" />
     <ClInclude Include="Math\Math.hpp" />
-    <ClInclude Include="Math\Values.h" />
+    <ClInclude Include="Math\Quat.hpp" />
+    <ClInclude Include="Math\Values.hpp" />
     <ClInclude Include="Math\Vec2.hpp" />
     <ClInclude Include="Math\Vec3.hpp" />
     <ClInclude Include="Math\Vec4.hpp" />

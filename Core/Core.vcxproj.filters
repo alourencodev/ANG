@@ -16,9 +16,6 @@
     <ClInclude Include="Types.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Values.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Vec3.hpp">
       <Filter>Source Files\Math</Filter>
     </ClInclude>
@@ -36,6 +33,12 @@
     </ClInclude>
     <ClInclude Include="Attributes.hpp">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Quat.hpp">
+      <Filter>Source Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Values.hpp">
+      <Filter>Source Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

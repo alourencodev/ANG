@@ -5,7 +5,7 @@
 
 #include <Core/Math/Math.hpp>
 #include <Core/Math/Vec2.hpp>
-#include <Core/Math/Values.h>
+#include <Core/Math/Values.hpp>
 
 TEST_CASE("2D Vector Constructors")
 {
