@@ -195,3 +195,54 @@ TEST_CASE("Matrix Multiplication")
 		REQUIRE(resultMat.at(1, 1) == 50.0f);
 	}
 }
+
+TEST_CASE("Matrix vector multiplication")
+{
+	SECTION("Mat2 * Vec2")
+	{
+		vec2 vec(1, 2);
+		mat2 mat({1, 2, 
+				  3, 4});
+
+		auto result = mat * vec;
+
+		REQUIRE(typeid(result) == typeid(vec2));
+
+		REQUIRE(result.x == 5.0f);
+		REQUIRE(result.y == 11.0f);
+	}
+
+	SECTION("Mat3 * Vec3")
+	{
+		vec3 vec(1, 2, 3);
+		mat3 mat({1, 2, 3, 
+				  4, 5, 6,
+				  7, 8, 9});
+
+		auto result = mat * vec;
+
+		REQUIRE(typeid(result) == typeid(vec3));
+
+		REQUIRE(result.x == 14.0f);
+		REQUIRE(result.y == 32.0f);
+		REQUIRE(result.z == 50.0f);
+	}
+
+	SECTION("Mat3 * Vec3")
+	{
+		vec4 vec(1, 2, 3, 4);
+		mat4 mat({ 1,  2,  3,  4, 
+				   5,  6,  7,  8, 
+				   9, 10, 11, 12,
+				  13, 14, 15, 16});
+
+		auto result = mat * vec;
+
+		REQUIRE(typeid(result) == typeid(vec4));
+
+		REQUIRE(result.x == 30.0f);
+		REQUIRE(result.y == 70.0f);
+		REQUIRE(result.z == 110.0f);
+		REQUIRE(result.w == 150.0f);
+	}
+}

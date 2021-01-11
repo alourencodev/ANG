@@ -227,6 +227,47 @@ matrix<t_type, t_columns, t_rows> operator * (t_scalarType scalar, const matrix<
 	return lMat * scalar;
 }
 
+template<typename t_lType, typename t_rType>
+auto operator * (const matrix<t_lType, 2, 2> &mat, const vector2<t_rType> &vec)
+{
+	using resultType = decltype(mat.at(0, 0) * vec.x);
+
+	vector2<resultType> result;
+	result.x = (mat.at(0, 0) * vec.x) + (mat.at(1, 0) * vec.y);
+	result.y = (mat.at(0, 1) * vec.x) + (mat.at(1, 1) * vec.y);
+
+	return result;
+}
+
+template<typename t_lType, typename t_rType>
+auto operator * (const matrix<t_lType, 3, 3> &mat, const vector3<t_rType> &vec)
+{
+	using resultType = decltype(mat.at(0, 0) * vec.x);
+
+	vector3<resultType> result;
+	result.x = (mat.at(0, 0) * vec.x) + (mat.at(1, 0) * vec.y) + (mat.at(2, 0) * vec.z);
+	result.y = (mat.at(0, 1) * vec.x) + (mat.at(1, 1) * vec.y) + (mat.at(2, 1) * vec.z);
+	result.z = (mat.at(0, 2) * vec.x) + (mat.at(1, 2) * vec.y) + (mat.at(2, 2) * vec.z);
+
+	return result;
+}
+
+template<typename t_lType, typename t_rType>
+auto operator * (const matrix<t_lType, 4, 4> &mat, const vector4<t_rType> &vec)
+{
+	using resultType = decltype(mat.at(0, 0) * vec.x);
+
+	vector4<resultType> result;
+	result.x = (mat.at(0, 0) * vec.x) + (mat.at(1, 0) * vec.y) + (mat.at(2, 0) * vec.z) + (mat.at(3, 0) * vec.w);
+	result.y = (mat.at(0, 1) * vec.x) + (mat.at(1, 1) * vec.y) + (mat.at(2, 1) * vec.z) + (mat.at(3, 1) * vec.w);
+	result.z = (mat.at(0, 2) * vec.x) + (mat.at(1, 2) * vec.y) + (mat.at(2, 2) * vec.z) + (mat.at(3, 2) * vec.w);
+	result.w = (mat.at(0, 3) * vec.x) + (mat.at(1, 3) * vec.y) + (mat.at(2, 3) * vec.z) + (mat.at(3, 3) * vec.w);
+
+	return result;
+}
+
+
+
 using mat2 = matrix<float, 2, 2>;
 using mat3 = matrix<float, 3, 3>;
 using mat4 = matrix<float, 4, 4>;
