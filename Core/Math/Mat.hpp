@@ -3,8 +3,9 @@
 #include <array>
 #include <initializer_list>
 
-#include "../Types.hpp"
+#include "../Attributes.hpp"
 #include "../BuildScheme.hpp"
+#include "../Types.hpp"
 #include "Vec2.hpp"
 #include "Vec3.hpp"
 #include "Vec4.hpp"
@@ -13,9 +14,9 @@ namespace
 {
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-constexpr void addMat(const std::array<t_type, t_elementCount> &lMat, 
-						     const std::array<t_type, t_elementCount> &rMat, 
-						     std::array<t_type, t_elementCount> &outMat)
+force_inline constexpr void addMat(const std::array<t_type, t_elementCount> &lMat, 
+								   const std::array<t_type, t_elementCount> &rMat, 
+								   std::array<t_type, t_elementCount> &outMat)
 {
 	outMat[t_index] = lMat[t_index] + rMat[t_index];
 
@@ -24,9 +25,9 @@ constexpr void addMat(const std::array<t_type, t_elementCount> &lMat,
 }
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-constexpr void subMat(const std::array<t_type, t_elementCount> &lMat,
-						     const std::array<t_type, t_elementCount> &rMat,
-						     std::array<t_type, t_elementCount> &outMat)
+force_inline constexpr void subMat(const std::array<t_type, t_elementCount> &lMat,
+			 				       const std::array<t_type, t_elementCount> &rMat,
+			 					   std::array<t_type, t_elementCount> &outMat)
 {
 	outMat[t_index] = lMat[t_index] - rMat[t_index];
 
@@ -35,9 +36,9 @@ constexpr void subMat(const std::array<t_type, t_elementCount> &lMat,
 }
 
 template<typename t_type, typename t_scalarType, typename t_resultType, size_t t_elementCount, int t_index = 0>
-constexpr void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
-								   t_scalarType scalar, 
-								   std::array<t_resultType, t_elementCount> &resultMat)
+force_inline constexpr void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
+										 t_scalarType scalar, 
+										 std::array<t_resultType, t_elementCount> &resultMat)
 {
 	resultMat[t_index] = mat[t_index] * scalar;
 
@@ -46,17 +47,15 @@ constexpr void scalarMulMat(const std::array<t_type, t_elementCount> &mat,
 }
 
 template<typename t_type, typename t_scalarType, size_t t_elementCount, int t_index = 0>
-constexpr void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
-								   t_scalarType scalar, 
-								   std::array<float, t_elementCount> &resultMat)
+force_inline constexpr void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
+										 t_scalarType scalar, 
+										 std::array<float, t_elementCount> &resultMat)
 {
 	resultMat[t_index] = mat[t_index] / scalar;
 
 	if constexpr (t_index < t_elementCount - 1)
 		scalarMulDiv<t_type, t_scalarType, t_elementCount, t_index + 1>(mat, scalar, resultMat);
 }
-
-
 
 } // namespace Anon
 
@@ -152,7 +151,8 @@ namespace IF_TEST(test_matrix)
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 ui32 t_resultColumnIndex, ui32 t_resultRowIndex, ui32 t_lColumnIndex = 0>
-constexpr t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
+force_inline constexpr t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+												   const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
 {
 	if constexpr (t_lColumnIndex < t_lColumns)
 	{
@@ -169,9 +169,9 @@ constexpr t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows>
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 ui32 t_resultColumnIndex, ui32 t_resultRowsIndex = 0>
-constexpr void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
-								const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
-								matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
+force_inline constexpr void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+											 const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
+											 matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
 {
 	resultMat.at(t_resultColumnIndex, t_resultRowsIndex) = mulMatCalcCell<t_lType, t_rType, t_resultType,
 														   t_lColumns, t_lRows, t_rColumns,
@@ -189,9 +189,9 @@ constexpr void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 int t_rColumnIndex = 0>
-constexpr void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
-					  const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
-					  matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
+force_inline constexpr void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+								   const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
+								  matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
 {
 	mulMatCalcColumn<t_lType, t_rType, t_resultType,
 					 t_lColumns, t_lRows, t_rColumns,
@@ -205,10 +205,7 @@ constexpr void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat,
 			  (lMat, rMat, resultMat);
 }
 
-} // IF_TEST(matrixHelpers)
-
-IF_TEST(using namespace test_matrix);
-
+} IF_TEST(using namespace test_matrix);
 
 
 template <typename t_lType, typename t_rType, size_t t_lColumns, size_t t_lRows, size_t t_rColumns>
