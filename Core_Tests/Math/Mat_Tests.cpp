@@ -246,3 +246,19 @@ TEST_CASE("Matrix vector multiplication")
 		REQUIRE(result.w == 150.0f);
 	}
 }
+
+TEST_CASE("Generating Identity Matrix")
+{
+	mat3 id = mat3::identity();
+
+	for (int x = 0; x < 3; x++)
+	{
+		for (int y = 0; y < 3; y++)
+		{
+			if (y == x)
+				REQUIRE(id.at(x, y) == 1.0f);
+			else
+				REQUIRE(id.at(x, y) == 0.0f);
+		}
+	}
+}

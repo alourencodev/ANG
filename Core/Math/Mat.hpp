@@ -57,6 +57,15 @@ force_inline constexpr void scalarMulDiv(const std::array<t_type, t_elementCount
 		scalarMulDiv<t_type, t_scalarType, t_elementCount, t_index + 1>(mat, scalar, resultMat);
 }
 
+template<typename t_type, size_t t_size, int t_index = 0>
+force_inline void setDiagonal(std::array<std::array<t_type, t_size>, t_size> &grid, t_type scalar)
+{
+	grid[t_index][t_index] = scalar;
+
+	if constexpr (t_index < t_size - 1)
+		setDiagonal<t_type, t_size, t_index + 1>(grid, scalar);
+}
+
 } // namespace Anon
 
 
@@ -133,6 +142,15 @@ public:
 		scalarMulDiv<t_type, t_scalarType, t_columns * t_rows>(_elements, scalar, result._elements);
 
 		return result;
+	}
+
+	static t_self identity()
+	{
+		static_assert(t_columns == t_rows, "We can only retrieve an identity matrix from a square matrix.");
+		t_self mat;
+		setDiagonal(mat._grid, static_cast<t_type>(1));
+
+		return mat;
 	}
 
 private:
@@ -265,6 +283,7 @@ auto operator * (const matrix<t_lType, 4, 4> &mat, const vector4<t_rType> &vec)
 
 	return result;
 }
+
 
 
 
