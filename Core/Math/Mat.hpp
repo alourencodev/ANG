@@ -14,9 +14,9 @@ namespace
 {
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-force_inline constexpr void addMat(const std::array<t_type, t_elementCount> &lMat, 
-								   const std::array<t_type, t_elementCount> &rMat, 
-								   std::array<t_type, t_elementCount> &outMat)
+force_inline void addMat(const std::array<t_type, t_elementCount> &lMat, 
+						 const std::array<t_type, t_elementCount> &rMat, 
+						 std::array<t_type, t_elementCount> &outMat)
 {
 	outMat[t_index] = lMat[t_index] + rMat[t_index];
 
@@ -25,7 +25,7 @@ force_inline constexpr void addMat(const std::array<t_type, t_elementCount> &lMa
 }
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-force_inline constexpr void subMat(const std::array<t_type, t_elementCount> &lMat,
+force_inline void subMat(const std::array<t_type, t_elementCount> &lMat,
 			 				       const std::array<t_type, t_elementCount> &rMat,
 			 					   std::array<t_type, t_elementCount> &outMat)
 {
@@ -36,7 +36,7 @@ force_inline constexpr void subMat(const std::array<t_type, t_elementCount> &lMa
 }
 
 template<typename t_type, typename t_scalarType, typename t_resultType, size_t t_elementCount, int t_index = 0>
-force_inline constexpr void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
+force_inline void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
 										 t_scalarType scalar, 
 										 std::array<t_resultType, t_elementCount> &resultMat)
 {
@@ -47,7 +47,7 @@ force_inline constexpr void scalarMulMat(const std::array<t_type, t_elementCount
 }
 
 template<typename t_type, typename t_scalarType, size_t t_elementCount, int t_index = 0>
-force_inline constexpr void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
+force_inline void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
 										 t_scalarType scalar, 
 										 std::array<float, t_elementCount> &resultMat)
 {
@@ -92,7 +92,7 @@ public:
 		_elements = mtx._elements; 
 	}
 
-	constexpr t_self operator + (const t_self &mat) const
+	t_self operator + (const t_self &mat) const
 	{
 		t_self result;
 		addMat<t_type, t_columns * t_rows>(_elements, mat._elements, result._elements);
@@ -105,7 +105,7 @@ public:
 		*this = *this + mat;
 	}
 
-	constexpr t_self operator - (const t_self &mat) const
+	t_self operator - (const t_self &mat) const
 	{
 		t_self result;
 		subMat<t_type, t_columns * t_rows>(_elements, mat._elements, result._elements);
@@ -119,7 +119,7 @@ public:
 	}
 
 	template<typename t_scalarType>
-	constexpr auto operator * (t_scalarType scalar) const
+	auto operator * (t_scalarType scalar) const
 	{
 		ASSERT_IS_ARITHMETIC(t_scalarType);
 		using resultType = decltype(_elements[0] * scalar);
@@ -136,7 +136,7 @@ public:
 	}
 
 	template<typename t_scalarType>
-	constexpr auto operator / (t_scalarType scalar) const
+	auto operator / (t_scalarType scalar) const
 	{
 		matrix<float, t_columns, t_rows> result;
 		scalarMulDiv<t_type, t_scalarType, t_columns * t_rows>(_elements, scalar, result._elements);
@@ -169,7 +169,7 @@ namespace IF_TEST(test_matrix)
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 ui32 t_resultColumnIndex, ui32 t_resultRowIndex, ui32 t_lColumnIndex = 0>
-force_inline constexpr t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+force_inline t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 												   const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
 {
 	if constexpr (t_lColumnIndex < t_lColumns)
@@ -187,7 +187,7 @@ force_inline constexpr t_resultType mulMatCalcCell(const matrix<t_lType, t_lColu
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 ui32 t_resultColumnIndex, ui32 t_resultRowsIndex = 0>
-force_inline constexpr void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+force_inline void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 											 const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
 											 matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
 {
@@ -207,7 +207,7 @@ force_inline constexpr void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 int t_rColumnIndex = 0>
-force_inline constexpr void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+force_inline void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 								   const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
 								  matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
 {
@@ -227,7 +227,7 @@ force_inline constexpr void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &l
 
 
 template <typename t_lType, typename t_rType, size_t t_lColumns, size_t t_lRows, size_t t_rColumns>
-constexpr auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 						   const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
 {
 	using resultType = decltype(lMat.at(0, 0) * rMat.at(0, 0));
