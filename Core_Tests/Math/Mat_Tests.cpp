@@ -275,4 +275,15 @@ TEST_CASE("Generating Matrices")
 		REQUIRE(movedVec.z ==  2.0f);
 		REQUIRE(movedVec.w ==  1.0f);
 	}
+
+	SECTION("Scale Matrix")
+	{
+		vec4 vec(2.0f, 0.0, 2.0f, 1.0f);
+		vec4 scaledVec = mat::scale(1.0f, 2.0f, 2.0f) * vec;
+
+		REQUIRE(scaledVec.x == 2.0f);
+		REQUIRE(scaledVec.y == 0.0f);
+		REQUIRE(scaledVec.z == 4.0f);
+		REQUIRE(scaledVec.w == 1.0f);
+	}
 }

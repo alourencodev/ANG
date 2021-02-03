@@ -272,8 +272,6 @@ auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat,
 
 
 // Other multiplication operator
-
-
 template<typename t_lType, typename t_rType>
 auto operator * (const matrix<t_lType, 2, 2> &mat, const vector2<t_rType> &vec)
 {
@@ -331,6 +329,14 @@ force_inline mat4 translate(float x, float y, float z)
 	return mat4({1.0f, 0.0f, 0.0f,    x,
 				 0.0f, 1.0f, 0.0f,    y,
 				 0.0f, 0.0f, 1.0f,	  z,
+				 0.0f, 0.0f, 0.0f, 1.0f});
+}
+
+force_inline mat4 scale(float x, float y, float z)
+{
+	return mat4({	x, 0.0f, 0.0f, 0.0f,
+				 0.0f,	  y, 0.0f, 0.0f,
+				 0.0f, 0.0f,	z, 0.0f,
 				 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
