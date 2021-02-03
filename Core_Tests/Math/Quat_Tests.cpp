@@ -97,7 +97,7 @@ TEST_CASE("Quaternion Arithmetic Operations")
 		REQUIRE(result.z == 4.0f);
 	}
 
-	SECTION(" Quaternion Multiplication Operator")
+	SECTION("Quaternion Multiplication Operator")
 	{
 		quat result = q1 * q2;
 

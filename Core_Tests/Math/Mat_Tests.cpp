@@ -247,18 +247,32 @@ TEST_CASE("Matrix vector multiplication")
 	}
 }
 
-TEST_CASE("Generating Identity Matrix")
+TEST_CASE("Generating Matrices")
 {
-	mat3 id = mat3::identity();
-
-	for (int x = 0; x < 3; x++)
+	SECTION("Identity Matrix")
 	{
-		for (int y = 0; y < 3; y++)
+		mat3 id = mat3::identity();
+
+		for (int x = 0; x < 3; x++)
 		{
-			if (y == x)
-				REQUIRE(id.at(x, y) == 1.0f);
-			else
-				REQUIRE(id.at(x, y) == 0.0f);
+			for (int y = 0; y < 3; y++)
+			{
+				if (y == x)
+					REQUIRE(id.at(x, y) == 1.0f);
+				else
+					REQUIRE(id.at(x, y) == 0.0f);
+			}
 		}
+	}
+
+	SECTION("Translation Matrix")
+	{
+		vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+		vec4 movedVec = mat::translate(1.0f, -1.0f, 2.0f) * vec;
+
+		REQUIRE(movedVec.x ==  2.0f);
+		REQUIRE(movedVec.y == -1.0f);
+		REQUIRE(movedVec.z ==  2.0f);
+		REQUIRE(movedVec.w ==  1.0f);
 	}
 }

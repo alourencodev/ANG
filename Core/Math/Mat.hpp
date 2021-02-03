@@ -320,3 +320,18 @@ using mat2 = matrix<float, 2, 2>;
 using mat3 = matrix<float, 3, 3>;
 using mat4 = matrix<float, 4, 4>;
 
+
+
+// Matrix generators
+namespace mat
+{
+
+force_inline mat4 translate(float x, float y, float z)
+{
+	return mat4({1.0f, 0.0f, 0.0f,    x,
+				 0.0f, 1.0f, 0.0f,    y,
+				 0.0f, 0.0f, 1.0f,	  z,
+				 0.0f, 0.0f, 0.0f, 1.0f});
+}
+
+}	// namespace mat
