@@ -87,17 +87,11 @@ public:
 
 	const t_type at(ui32 column, ui32 row) const { return _grid[row][column]; }
 	t_type &at(ui32 column, ui32 row) { return _grid[row][column]; }
+
 	operator t_type * () const { return &_elements; }
 
-	void operator = (const t_self &mtx) 
-	{ 
-		_elements = mtx._elements; 
-	}
-
-	void operator = (const std::array<t_type, t_columns * t_rows> &&values)
-	{
-		_elements = values;
-	}
+	void operator = (const t_self &mtx) { _elements = mtx._elements; }
+	void operator = (const std::array<t_type, t_columns * t_rows> &&values) { _elements = values; }
 
 	t_self operator + (const t_self &mat) const
 	{
@@ -107,10 +101,7 @@ public:
 		return result;
 	}
 
-	void operator += (const t_self &mat)
-	{
-		*this = *this + mat;
-	}
+	void operator += (const t_self &mat) { *this = *this + mat; }
 
 	t_self operator - (const t_self &mat) const
 	{
@@ -119,26 +110,12 @@ public:
 		
 		return result;
 	}
+	
+	void operator -= (const t_self &mat) { *this = *this - mat; }
 
-	void operator -= (const t_self &mat)
-	{
-		*this = *this - mat;
-	}
-
-	auto operator * (int scalar)
-	{
-		return scalarMult<int>(scalar);
-	}
-
-	auto operator * (float scalar)
-	{
-		return scalarMult<float>(scalar);
-	}
-
-	void operator *= (t_type scalar)
-	{
-		*this = *this * scalar;
-	}
+	auto operator * (int scalar) { return scalarMult<int>(scalar); }
+	auto operator * (float scalar) { return scalarMult<float>(scalar); }
+	void operator *= (t_type scalar) { *this = *this * scalar; }
 
 	template<typename t_scalarType>
 	auto operator / (t_scalarType scalar) const
@@ -257,6 +234,7 @@ force_inline void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat,
 
 
 
+// Other multiplication operator
 template <typename t_lType, typename t_rType, size_t t_lColumns, size_t t_lRows, size_t t_rColumns>
 auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 				 const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
@@ -269,9 +247,6 @@ auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat,
 	return result;
 }
 
-
-
-// Other multiplication operator
 template<typename t_lType, typename t_rType>
 auto operator * (const matrix<t_lType, 2, 2> &mat, const vector2<t_rType> &vec)
 {
