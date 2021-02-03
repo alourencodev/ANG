@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <initializer_list>
 
 #include "../Attributes.hpp"
 #include "../BuildScheme.hpp"
@@ -10,6 +9,9 @@
 #include "Vec3.hpp"
 #include "Vec4.hpp"
 
+
+
+// Matrix constexpr helper functions
 namespace
 {
 
@@ -92,6 +94,11 @@ public:
 		_elements = mtx._elements; 
 	}
 
+	void operator = (const std::array<t_type, t_columns * t_rows> &&values)
+	{
+		_elements = values;
+	}
+
 	t_self operator + (const t_self &mat) const
 	{
 		t_self result;
@@ -118,16 +125,14 @@ public:
 		*this = *this - mat;
 	}
 
-	template<typename t_scalarType>
-	auto operator * (t_scalarType scalar) const
+	auto operator * (int scalar)
 	{
-		ASSERT_IS_ARITHMETIC(t_scalarType);
-		using resultType = decltype(_elements[0] * scalar);
+		return scalarMult<int>(scalar);
+	}
 
-		matrix<resultType, t_columns, t_rows> result;
-		scalarMulMat<t_type, t_scalarType, resultType, t_columns * t_rows>(_elements, scalar, result._elements);
-
-		return result;
+	auto operator * (float scalar)
+	{
+		return scalarMult<float>(scalar);
 	}
 
 	void operator *= (t_type scalar)
@@ -153,16 +158,41 @@ public:
 		return mat;
 	}
 
+	friend auto operator * (int scalar, const matrix<t_type, t_columns, t_rows> &rMat)
+	{
+		return rMat.scalarMult<int>(scalar);
+	}
+
+	friend auto operator * (float scalar, const matrix<t_type, t_columns, t_rows> &rMat)
+	{
+		return rMat.scalarMult<float>(scalar);
+	}
+
 private:
 	// Use grid to access matrix values as a 2D array
 	std::array<std::array<t_type, t_columns>, t_rows> _grid;
 
 	// Use elements to access the matrix values as a linear array
 	std::array<t_type, t_columns * t_rows> _elements;
+
+	// We need this private method so the scalar and matrix multiplication
+	// operators aren't confused with each other by templating
+	template<typename t_scalarType>
+	force_inline auto scalarMult(t_scalarType scalar) const
+	{
+		ASSERT_IS_ARITHMETIC(t_scalarType);
+		using resultType = decltype(_elements[0] * scalar);
+
+		matrix<resultType, t_columns, t_rows> result;
+		scalarMulMat<t_type, t_scalarType, resultType, t_columns * t_rows>(_elements, scalar, result._elements);
+
+		return result;
+	}
 };
 
 
 
+// Matrix multiplication constexpr helper functions
 namespace IF_TEST(test_matrix)
 {
 
@@ -226,9 +256,10 @@ force_inline void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat,
 } IF_TEST(using namespace test_matrix);
 
 
+
 template <typename t_lType, typename t_rType, size_t t_lColumns, size_t t_lRows, size_t t_rColumns>
 auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
-						   const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
+				 const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
 {
 	using resultType = decltype(lMat.at(0, 0) * rMat.at(0, 0));
 
@@ -239,11 +270,9 @@ auto operator * (const matrix<t_lType, t_lColumns, t_lRows> &lMat,
 }
 
 
-template<typename t_type, typename t_scalarType, int t_columns, int t_rows>
-matrix<t_type, t_columns, t_rows> operator * (t_scalarType scalar, const matrix<t_type, t_columns, t_rows> &lMat)
-{
-	return lMat * scalar;
-}
+
+// Other multiplication operator
+
 
 template<typename t_lType, typename t_rType>
 auto operator * (const matrix<t_lType, 2, 2> &mat, const vector2<t_rType> &vec)
@@ -286,7 +315,7 @@ auto operator * (const matrix<t_lType, 4, 4> &mat, const vector4<t_rType> &vec)
 
 
 
-
+// Aliases
 using mat2 = matrix<float, 2, 2>;
 using mat3 = matrix<float, 3, 3>;
 using mat4 = matrix<float, 4, 4>;
