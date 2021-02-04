@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cmath>
 
 #include "../Attributes.hpp"
 #include "../BuildScheme.hpp"
@@ -313,6 +314,45 @@ force_inline mat4 scale(float x, float y, float z)
 				 0.0f,	  y, 0.0f, 0.0f,
 				 0.0f, 0.0f,	z, 0.0f,
 				 0.0f, 0.0f, 0.0f, 1.0f});
+}
+
+force_inline mat4 view(vec3 eye, vec3 center, vec3 up)
+{
+	vec3 view = normalize(center - eye);
+	vec3 side = normalize(cross(view, up));
+	vec3 newUp = cross(side, view);
+
+	return mat4({ side.x,  side.y,  side.z,  -dot(side, eye),
+				 newUp.x, newUp.y, newUp.z, -dot(newUp, eye),
+				 -view.x, -view.y, -view.z,   dot(view, eye),
+					0.0f,	 0.0f,	  0.0f,				1.0f});
+}
+
+force_inline mat4 perspective(float fov, float aspectRatio, float near, float far)
+{
+	const float angle = fov * 0.5f;
+	const float frustumDepth = far - near;
+	const float a = 1 / tanf(angle);
+	const float b = b / aspectRatio;
+	const float c = -(far + near) / frustumDepth;
+	const float d = -(2 * near * far) / frustumDepth;
+
+	return mat4({	b, 0.0f,  0.0f, 0.0f,
+				 0.0f,    a,  0.0f, 0.0f,
+				 0.0f, 0.0f,     c,    d,
+				 0.0f, 0.0f, -1.0f, 0.0f});
+}
+
+force_inline mat4 ortho(float left, float right, float top, float bottom, float near, float far)
+{
+	const float width = right - left;
+	const float height = top - bottom;
+	const float depth = far - near;
+
+	return mat4({2 / width,		  0.0f,		 0.0f,  -(right + left) / width,
+					  0.0f, 2 / height,		 0.0f, -(top + bottom) / height,
+					  0.0f,		  0.0f, 2 / depth,     (far + near) / depth,
+					  0.0f,		  0.0f,		 0.0f,					   1.0f});
 }
 
 }	// namespace mat
