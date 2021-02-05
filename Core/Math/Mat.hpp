@@ -333,7 +333,7 @@ force_inline mat4 perspective(float fov, float aspectRatio, float near, float fa
 	const float angle = fov * 0.5f;
 	const float frustumDepth = far - near;
 	const float a = 1 / tanf(angle);
-	const float b = b / aspectRatio;
+	const float b = a / aspectRatio;
 	const float c = -(far + near) / frustumDepth;
 	const float d = -(2 * near * far) / frustumDepth;
 
