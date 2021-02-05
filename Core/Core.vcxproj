@@ -96,6 +96,7 @@
   <ItemGroup>
     <ClInclude Include="Attributes.hpp" />
     <ClInclude Include="BuildScheme.hpp" />
+    <ClInclude Include="Log\Log.h" />
     <ClInclude Include="Math\Mat.hpp" />
     <ClInclude Include="Math\Math.hpp" />
     <ClInclude Include="Math\Quat.hpp" />
@@ -107,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dummy.cpp" />
+    <ClCompile Include="Log\Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
