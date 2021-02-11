@@ -48,9 +48,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Dummy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Log\Log.cpp">
       <Filter>Source Files\Log</Filter>
     </ClCompile>

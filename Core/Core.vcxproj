@@ -107,7 +107,6 @@
     <ClInclude Include="Types.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Dummy.cpp" />
     <ClCompile Include="Log\Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
