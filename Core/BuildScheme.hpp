@@ -1,13 +1,19 @@
 #pragma once
 
 #ifdef _DEBUG
-#define IF_DEBUG(X) X
+#	define IF_DEBUG(X) X
 #else
-#define IF_DEBUG(X)
+#	define IF_DEBUG(X)
 #endif
 
 #ifdef _TESTS
-#define IF_TEST(X) X
+#	define IF_TEST(X) X
 #else
-#define IF_TEST(X)
+#	define IF_TEST(X)
+#endif
+
+#if _RELEASE_SYMB || _DEBUG
+#	define IF_RELEASE_SYMB(X) X
+#else
+#	define IF_RELEASE_SYMB(X)
 #endif

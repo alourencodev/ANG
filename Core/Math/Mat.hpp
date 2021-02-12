@@ -17,7 +17,7 @@ namespace
 {
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-force_inline void addMat(const std::array<t_type, t_elementCount> &lMat, 
+_force_inline void addMat(const std::array<t_type, t_elementCount> &lMat, 
 						 const std::array<t_type, t_elementCount> &rMat, 
 						 std::array<t_type, t_elementCount> &outMat)
 {
@@ -28,7 +28,7 @@ force_inline void addMat(const std::array<t_type, t_elementCount> &lMat,
 }
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-force_inline void subMat(const std::array<t_type, t_elementCount> &lMat,
+_force_inline void subMat(const std::array<t_type, t_elementCount> &lMat,
 			 				       const std::array<t_type, t_elementCount> &rMat,
 			 					   std::array<t_type, t_elementCount> &outMat)
 {
@@ -39,7 +39,7 @@ force_inline void subMat(const std::array<t_type, t_elementCount> &lMat,
 }
 
 template<typename t_type, typename t_scalarType, typename t_resultType, size_t t_elementCount, int t_index = 0>
-force_inline void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
+_force_inline void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
 										 t_scalarType scalar, 
 										 std::array<t_resultType, t_elementCount> &resultMat)
 {
@@ -50,7 +50,7 @@ force_inline void scalarMulMat(const std::array<t_type, t_elementCount> &mat,
 }
 
 template<typename t_type, typename t_scalarType, size_t t_elementCount, int t_index = 0>
-force_inline void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
+_force_inline void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
 										 t_scalarType scalar, 
 										 std::array<float, t_elementCount> &resultMat)
 {
@@ -61,7 +61,7 @@ force_inline void scalarMulDiv(const std::array<t_type, t_elementCount> &mat,
 }
 
 template<typename t_type, size_t t_size, int t_index = 0>
-force_inline void setDiagonal(std::array<std::array<t_type, t_size>, t_size> &grid, t_type scalar)
+_force_inline void setDiagonal(std::array<std::array<t_type, t_size>, t_size> &grid, t_type scalar)
 {
 	grid[t_index][t_index] = scalar;
 
@@ -156,7 +156,7 @@ private:
 	// We need this private method so the scalar and matrix multiplication
 	// operators aren't confused with each other by templating
 	template<typename t_scalarType>
-	force_inline auto scalarMult(t_scalarType scalar) const
+	_force_inline auto scalarMult(t_scalarType scalar) const
 	{
 		ASSERT_IS_ARITHMETIC(t_scalarType);
 		using resultType = decltype(_elements[0] * scalar);
@@ -177,7 +177,7 @@ namespace IF_TEST(test_matrix)
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 u32 t_resultColumnIndex, u32 t_resultRowIndex, u32 t_lColumnIndex = 0>
-force_inline t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+_force_inline t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 												   const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
 {
 	if constexpr (t_lColumnIndex < t_lColumns)
@@ -195,7 +195,7 @@ force_inline t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRo
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 u32 t_resultColumnIndex, u32 t_resultRowsIndex = 0>
-force_inline void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+_force_inline void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 											 const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
 											 matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
 {
@@ -215,7 +215,7 @@ force_inline void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &l
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
 		 int t_rColumnIndex = 0>
-force_inline void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
+_force_inline void mulMat(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 								   const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
 								  matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)
 {
@@ -300,7 +300,7 @@ using mat4 = matrix<float, 4, 4>;
 namespace mat
 {
 
-force_inline mat4 translate(float x, float y, float z)
+_force_inline mat4 translate(float x, float y, float z)
 {
 	return mat4({1.0f, 0.0f, 0.0f,    x,
 				 0.0f, 1.0f, 0.0f,    y,
@@ -308,7 +308,7 @@ force_inline mat4 translate(float x, float y, float z)
 				 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-force_inline mat4 scale(float x, float y, float z)
+_force_inline mat4 scale(float x, float y, float z)
 {
 	return mat4({	x, 0.0f, 0.0f, 0.0f,
 				 0.0f,	  y, 0.0f, 0.0f,
@@ -316,7 +316,7 @@ force_inline mat4 scale(float x, float y, float z)
 				 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-force_inline mat4 view(vec3 eye, vec3 center, vec3 up)
+_force_inline mat4 view(vec3 eye, vec3 center, vec3 up)
 {
 	vec3 view = normalize(center - eye);
 	vec3 side = normalize(cross(view, up));
@@ -328,7 +328,7 @@ force_inline mat4 view(vec3 eye, vec3 center, vec3 up)
 					0.0f,	 0.0f,	  0.0f,				1.0f});
 }
 
-force_inline mat4 perspective(float fov, float aspectRatio, float near, float far)
+_force_inline mat4 perspective(float fov, float aspectRatio, float near, float far)
 {
 	const float angle = fov * 0.5f;
 	const float frustumDepth = far - near;
@@ -343,7 +343,7 @@ force_inline mat4 perspective(float fov, float aspectRatio, float near, float fa
 				 0.0f, 0.0f, -1.0f, 0.0f});
 }
 
-force_inline mat4 ortho(float left, float right, float top, float bottom, float near, float far)
+_force_inline mat4 ortho(float left, float right, float top, float bottom, float near, float far)
 {
 	const float width = right - left;
 	const float height = top - bottom;

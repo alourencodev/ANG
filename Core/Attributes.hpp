@@ -4,10 +4,12 @@
 
 #include <intrin.h>
 
-#define force_inline __forceinline
-#define breakpoint() __debugbreak()
+#define _force_inline __forceinline
+#define _breakpoint() __debugbreak()
 #else
 #warning ("Attributes are only available for MSVC.")
-#define force_inline
-#define breakpoint()
+#define _force_inline
+#define _breakpoint()
 #endif
+
+#define _nodiscard [[nodiscard]]
