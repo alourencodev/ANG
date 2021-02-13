@@ -143,5 +143,5 @@ using vec2	= vector2<float>;
 using vec2i = vector2<i32>;
 
 using size	= vector2<float>;
-using sizei = vector2<ui32>;
+using sizei = vector2<u32>;
 

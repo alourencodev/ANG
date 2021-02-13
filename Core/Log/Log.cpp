@@ -12,7 +12,7 @@ namespace logger
 
 static std::set<std::string> s_loggerRegister;
 
-constexpr ui16 k_maxLogSize = 256;
+constexpr u16 k_maxLogSize = 256;
 constexpr char k_resetColor[] = "\033[0m";
 
 void rawLog(const LogSetting &setting, const char *file, long line, const std::string &tag, const char *format, ...)

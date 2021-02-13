@@ -86,8 +86,8 @@ public:
 	matrix(std::array<t_type, t_columns * t_rows> &&elements) : _elements(elements) {}
 	matrix(t_type value) { _elements.fill(value); }
 
-	const t_type at(ui32 column, ui32 row) const { return _grid[row][column]; }
-	t_type &at(ui32 column, ui32 row) { return _grid[row][column]; }
+	const t_type at(u32 column, u32 row) const { return _grid[row][column]; }
+	t_type &at(u32 column, u32 row) { return _grid[row][column]; }
 
 	operator t_type * () const { return &_elements; }
 
@@ -176,7 +176,7 @@ namespace IF_TEST(test_matrix)
 
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
-		 ui32 t_resultColumnIndex, ui32 t_resultRowIndex, ui32 t_lColumnIndex = 0>
+		 u32 t_resultColumnIndex, u32 t_resultRowIndex, u32 t_lColumnIndex = 0>
 force_inline t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 												   const matrix<t_rType, t_rColumns, t_lColumns> &rMat)
 {
@@ -194,7 +194,7 @@ force_inline t_resultType mulMatCalcCell(const matrix<t_lType, t_lColumns, t_lRo
 
 template<typename t_lType, typename t_rType, typename t_resultType, 
 		 size_t t_lColumns, size_t t_lRows, size_t t_rColumns, 
-		 ui32 t_resultColumnIndex, ui32 t_resultRowsIndex = 0>
+		 u32 t_resultColumnIndex, u32 t_resultRowsIndex = 0>
 force_inline void mulMatCalcColumn(const matrix<t_lType, t_lColumns, t_lRows> &lMat, 
 											 const matrix<t_rType, t_rColumns, t_lColumns> &rMat,
 											 matrix<t_resultType, t_rColumns, t_lColumns> &resultMat)

@@ -10,13 +10,13 @@ using i32 = int32_t;
 using i64 = int64_t;
 
 // Unsigned Integers
-using ui8 = uint8_t;
-using ui16 = uint16_t;
-using ui32 = uint32_t;
-using ui64 = uint64_t;
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
 
 // Other
-using byte = ui8;
+using byte = u8;
 
 #define ASSERT_IS_ARITHMETIC(type) static_assert(std::is_arithmetic<type>::value, "Given type must be arithmetic!")
 

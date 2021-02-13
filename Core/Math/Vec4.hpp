@@ -159,5 +159,5 @@ using vec4	= vector4<float>;
 using vec4i = vector4<i32>;
 
 using color4 = vector4<float>;
-using color4i = vector4<ui8>;
+using color4i = vector4<u8>;
 

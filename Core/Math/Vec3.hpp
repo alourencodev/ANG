@@ -161,5 +161,5 @@ using vec3	= vector3<float>;
 using vec3i = vector3<i32>;
 
 using color3 = vector3<float>;
-using color3i = vector3<ui8>;
+using color3i = vector3<u8>;
 

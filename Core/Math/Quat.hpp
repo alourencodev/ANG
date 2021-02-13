@@ -34,8 +34,8 @@ public:
 		z = other.z;
 	}
 
-	float operator [] (ui32 index) const { return _elements[index]; }
-	float &operator [] (ui32 index) { return _elements[index]; }
+	float operator [] (u32 index) const { return _elements[index]; }
+	float &operator [] (u32 index) { return _elements[index]; }
 
 	quat operator + (const quat &other) const
 	{
