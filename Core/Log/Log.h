@@ -36,15 +36,15 @@ void disable(const std::string &tag);
 #endif
 
 #if _DEBUG || _RELEASE_SYMB
-#	define assert(exp) assertMsg(exp, "(%s) is not true.", #exp);
-#	define assertMsg(exp, ...) if (!(exp)) { logger::rawLog(logger::k_assertLogSetting, __FILE__, __LINE__, "Assert", __VA_ARGS__); _breakpoint(); }
-#	define assertFatal(exp, ...) if (!(exp)) { logError("Assert Fatal", __VA_ARGS__)}
+#	define logAssert(exp) assertMsg(exp, "(%s) is not true.", #exp);
+#	define logAssertMsg(exp, ...) if (!(exp)) { logger::rawLog(logger::k_assertLogSetting, __FILE__, __LINE__, "Assert", __VA_ARGS__); _breakpoint(); }
+#	define logAssertFatal(exp, ...) if (!(exp)) { logError("Assert Fatal", __VA_ARGS__)}
 #	define logWarning(tag, ...) logger::rawLog(logger::k_warnLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
 #	define logError(tag, ...) { logger::rawLog(logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
 #else
-#	define assert(exp) ;
-#	define assertMsg(exp, tag, ...) ;
-#	define assertFatal(exp, ...) ;
+#	define logAssert(exp) ;
+#	define logAssertMsg(exp, tag, ...) ;
+#	define logAssertFatal(exp, ...) ;
 #	define logWarning(tag, ...) ;
 #	define logError(tag, ...) ;
 #endif

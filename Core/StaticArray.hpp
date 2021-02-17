@@ -132,21 +132,21 @@ public:
 		constexpr void _checkOffset(ptrdiff_t offset) const
 		{
 			if (offset != 0)
-				assertFatal(_ptr != nullptr, "Cannot seek uninitialized iterator.");
+				logAssertFatal(_ptr != nullptr, "Cannot seek uninitialized iterator.");
 			if (offset < 0)
-				assertFatal(_index >= offset, "Cannot seek array iterator before begin.");
+				logAssertFatal(_index >= offset, "Cannot seek array iterator before begin.");
 			if (offset > 0)
-				assertFatal((t_size - _index) >= offset, "Cannot seek array iterator after end.");
+				logAssertFatal((t_size - _index) >= offset, "Cannot seek array iterator after end.");
 		}
 
 		constexpr void _checkIndexBounds(const char operationName[]) const
 		{
-			assertFatal(_index < t_size, "Trying to %s iterator out of the array's range.", operationName)
+			logAssertFatal(_index < t_size, "Trying to %s iterator out of the array's range.", operationName)
 		}
 
 		constexpr void _checkIteratorCompatibility(const Iterator other) const
 		{
-			assertFatal(_ptr == other._ptr, "Incompatible array iterators. Both iterators must belong to the same array.");
+			logAssertFatal(_ptr == other._ptr, "Incompatible array iterators. Both iterators must belong to the same array.");
 		}
 
 		t_type *_ptr = nullptr;
@@ -167,13 +167,13 @@ public:
 
 	_force_inline constexpr const t_type &operator[](u32 index) const 
 	{ 
-		assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
+		logAssertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
 		return _data[index]; 
 	}
 
 	_force_inline constexpr t_type &operator[](u32 index) 
 	{ 
-		assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
+		logAssertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
 		return _data[index]; 
 	}
 
@@ -205,4 +205,3 @@ private:
 	t_type _data[t_size];
 };
 
-#undef CHECK_STATIC_ARRAY_ITERATOR(OpName) 
