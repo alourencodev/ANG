@@ -9,160 +9,8 @@ template<typename t_type, size_t t_size>
 class StaticArray
 {
 public:
-	
-	template<typename t_iterType>
-	class _Iterator
-	{
-	public:
-		using iterator_category = std::random_access_iterator_tag;
-		using difference_type = ptrdiff_t;
-		using value_type = t_type;
-		using pointer = t_type *;
-		using reference = t_type &;
-
-		_Iterator(t_iterType *ptr) : _ptr(ptr), _index(0) {}
-		_Iterator(t_iterType *ptr, size_t index) : _ptr(ptr), _index(index) {}
-
-		_nodiscard constexpr const t_iterType *operator->() const { _checkIndexBounds("derreference"); return _ptr + _index; }
-		_nodiscard constexpr t_iterType *operator->() { _checkIndexBounds("derreference"); return _ptr + _index; }
-
-		_nodiscard constexpr const t_iterType &operator*() const { return *operator->(); }
-		_nodiscard constexpr t_iterType &operator*() { return *operator->(); }
-
-		_nodiscard constexpr const t_iterType &operator[](ptrdiff_t offset) const { return *(*this + offset); }
-		_nodiscard constexpr t_iterType &operator[](ptrdiff_t offset) { return *(*this + offset); }
-
-		constexpr _Iterator &operator++()
-		{
-			_checkIndexBounds("increment");
-			++_index;
-			return *this;
-		}
-
-		_nodiscard constexpr _Iterator operator++(int)
-		{
-			_Iterator temp = *this;
-			++*this;
-			return temp;
-		}
-
-		constexpr _Iterator &operator--()
-		{
-			_checkIndexBounds("decrement");
-			--_index;
-			return *this;
-		}
-
-		_nodiscard constexpr _Iterator operator--(int)
-		{
-			_Iterator temp = *this;
-			--*this;
-			return temp;
-		}
-
-		constexpr _Iterator &operator+=(ptrdiff_t offset)
-		{
-			_checkOffset(offset);
-			_index += static_cast<size_t>(offset);
-			return *this;
-		}
-
-		_nodiscard constexpr _Iterator operator+(ptrdiff_t offset) const
-		{
-			_checkOffset(offset);
-			return *this + offset;
-		}
-
-		constexpr _Iterator &operator-=(ptrdiff_t offset)
-		{
-			_checkOffset(-offset);
-			_index -= static_cast<size_t>(offset);
-			return *this;
-		}
-
-		_nodiscard constexpr _Iterator operator-(ptrdiff_t offset) const
-		{
-			_checkOffset(-offset);
-			return *this - offset;
-		}
-
-		_nodiscard constexpr ptrdiff_t operator+(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			_checkOffset(other._index);
-			return static_cast<ptrdiff_t>(_index + other._index);
-		}
-
-		_nodiscard constexpr ptrdiff_t operator-(const _Iterator &other) const 
-		{
-			_checkIteratorCompatibility(other);
-			_checkOffset(-other._index);
-			return static_cast<ptrdiff_t>(_index - other._index);
-		}
-
-		_nodiscard constexpr bool operator==(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			return _index == other._index;
-		}
-
-		_nodiscard constexpr bool operator!=(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			return _index != other._index;
-		}
-
-		_nodiscard constexpr bool operator<(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			return _index < other._index;
-		}
-
-		_nodiscard constexpr bool operator>(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			return _index > other._index;
-		}
-
-		_nodiscard constexpr bool operator<=(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			return _index <= other._index;
-		}
-
-		_nodiscard constexpr bool operator>=(const _Iterator &other) const
-		{
-			_checkIteratorCompatibility(other);
-			return _index >= other._index;
-		}
-
-	private:
-		constexpr void _checkOffset(ptrdiff_t offset) const
-		{
-			if (offset != 0)
-				logAssertFatal(_ptr != nullptr, "Cannot seek uninitialized iterator.");
-			if (offset < 0)
-				logAssertFatal(_index >= offset, "Cannot seek array iterator before begin.");
-			if (offset > 0)
-				logAssertFatal((t_size - _index) >= offset, "Cannot seek array iterator after end.");
-		}
-
-		constexpr void _checkIndexBounds(const char operationName[]) const
-		{
-			logAssertFatal(_index < t_size, "Trying to %s iterator out of the array's range.", operationName)
-		}
-
-		constexpr void _checkIteratorCompatibility(const _Iterator other) const
-		{
-			logAssertFatal(_ptr == other._ptr, "Incompatible array iterators. Both iterators must belong to the same array.");
-		}
-
-		t_iterType *_ptr = nullptr;
-		size_t _index = 0;
-	};
-
-	using Iterator = _Iterator<t_type>;
-	using ConstIterator = _Iterator<const t_type>;
+	using Iterator = t_type *;
+	using ConstIterator = const t_type *;
 
 	StaticArray() = default;
 	StaticArray(const t_type &value) { fill(value); }
@@ -194,21 +42,81 @@ public:
 	_force_inline explicit constexpr operator const t_type *() { return _data; }
 	_force_inline explicit constexpr operator t_type *() { return _data; }
 
-	constexpr void fill(const t_type &value) { std::fill_n(_data, t_size, value); } // TODO: Use memset?
+	constexpr void fill(const t_type &value) { std::fill_n(_data, t_size, value); }
 
-	_nodiscard constexpr Iterator begin() { return Iterator(_data, 0); }
-	_nodiscard constexpr const ConstIterator begin() const { return ConstIterator(_data, 0); }
-	_nodiscard constexpr Iterator end() { return Iterator(_data, t_size - 1); }
-	_nodiscard constexpr const ConstIterator end() const { return ConstIterator(_data, t_size - 1); }
+	_nodiscard constexpr Iterator begin() { return _data; }
+	_nodiscard constexpr const ConstIterator begin() const { return _data; }
+	_nodiscard constexpr Iterator end() { return _data + lastIndex; }
+	_nodiscard constexpr const ConstIterator end() const { return _data + lastIndex; }
 
 	_nodiscard constexpr t_type &front() { return _data[0]; }
 	_nodiscard constexpr const t_type &front() const { return _data[0]; }
-	_nodiscard constexpr t_type &back() { return _data[t_size -1]; }
-	_nodiscard constexpr const t_type &back() const { return _data[t_size - 1]; }
+	_nodiscard constexpr t_type &back() { return _data[lastIndex]; }
+	_nodiscard constexpr const t_type &back() const { return _data[lastIndex]; }
+
+	const t_type *find(const t_type &value) const
+	{
+		for (int i = 0; i < t_size; i++) {
+			if (_data[i] == value) return &_data[i];
+		}
+
+		return end();
+	}
+
+	t_type *find(const t_type &value)
+	{
+		for (int i = 0; i < t_size; i++) {
+			if (_data[i] == value) return &_data[i];
+		}
+
+		return end();
+	}
+
+	const t_type *findBackwards(const t_type &value) const
+	{
+		for (int i = lastIndex; i >= 0; i--) {
+			if (_data[i] == value) return &_data[i];
+		}
+
+		return end();
+	}
+
+	t_type *findBackwards(const t_type &value)
+	{
+		for (int i = lastIndex; i >= 0; i--) {
+			if (_data[i] == value) return &_data[i];
+		}
+
+		return end();
+	}
+
+	const bool contains(const t_type &value) const { return find(value) != end(); }
+	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 
 	constexpr static size_t size = t_size;
-
+	constexpr static size_t lastIndex = size - 1;
+	
 private:
 	t_type _data[t_size];
 };
 
+template<typename t_type, size_t t_size>
+static std::ostream &operator<<(std::ostream &os, const StaticArray<t_type, t_size> &array)
+{
+	os << "[";
+	for (int i = 0; i < array.lastIndex; i++)
+		os << array[i] << ", ";
+
+	os << array.back() << "]";
+
+	return os;
+}
+
+template<typename t_type, size_t t_size>
+static std::istream &operator>>(std::istream &is, StaticArray<t_type, t_size> &array)
+{
+	for (int i = 0; i < array.size; i++)
+		is >> array[i];
+
+	return is;
+}
