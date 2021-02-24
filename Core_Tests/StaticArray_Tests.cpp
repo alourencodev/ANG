@@ -147,3 +147,14 @@ TEST_CASE("StaticArray Stream Operators")
 		REQUIRE(ss.str() == "[1, 2, 3, 4]");
 	}
 }
+
+TEST_CASE("StaticArray Copy")
+{
+	StaticArray<i32, 4> original = {1, 2, 3, 4};
+	auto copied = original.copy();
+
+	REQUIRE(original.data() != copied.data());
+
+	for (int i = 0; i < original.size; i++)
+		REQUIRE(copied[i] == original[i]);
+}

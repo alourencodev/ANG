@@ -23,8 +23,6 @@ public:
 		static_assert(meta::areSame<t_a, t_others...>::value, "Trying to initialize array with elements of different types.");
 	}
 
-	StaticArray(const StaticArray &other) = delete;
-
 	_force_inline constexpr const t_type &operator[](size_t index) const 
 	{ 
 		logAssertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
@@ -93,10 +91,19 @@ public:
 	const bool contains(const t_type &value) const { return find(value) != end(); }
 	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 
+	StaticArray<t_type, t_size> copy() const { return StaticArray(*this); }
+
 	constexpr static size_t size = t_size;
 	constexpr static size_t lastIndex = size - 1;
 	
 private:
+
+	explicit StaticArray(const StaticArray &other)
+	{
+		for (int i = 0; i < t_size; i++)
+			_data[i] = other._data[i];
+	}
+
 	t_type _data[t_size];
 };
 
