@@ -37,10 +37,10 @@
     <ClCompile Include="Preprocessor\Utils_Tests.cpp">
       <Filter>Source Files\Preprocessor</Filter>
     </ClCompile>
-    <ClCompile Include="StaticArray_Tests.cpp">
+    <ClCompile Include="Meta_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Meta_Tests.cpp">
+    <ClCompile Include="SArray_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
