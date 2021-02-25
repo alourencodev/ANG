@@ -52,10 +52,10 @@
     <ClInclude Include="Preprocessor\Utils.h">
       <Filter>Source Files\Preprocessor</Filter>
     </ClInclude>
-    <ClInclude Include="StaticArray.hpp">
+    <ClInclude Include="Meta.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Meta.hpp">
+    <ClInclude Include="SArray.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

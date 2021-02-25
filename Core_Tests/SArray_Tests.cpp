@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include <Core/StaticArray.hpp>
+#include <Core/SArray.hpp>
 
 
 TEST_CASE("StaticaArray Constructors")
@@ -10,13 +10,13 @@ TEST_CASE("StaticaArray Constructors")
 	// Default Constructor
 	SECTION ("Default Cnstructor")
 	{
-		StaticArray<i32, 2> a1;
+		SArray<i32, 2> a1;
 		a1 = {0, 0}; //Surpress warning
 	}
 
 	SECTION("Initialize from list")
 	{
-		StaticArray<i32, 3> a2 = {1, 2, 3};
+		SArray<i32, 3> a2 = {1, 2, 3};
 
 		REQUIRE(a2[0] == 1);
 		REQUIRE(a2[1] == 2);
@@ -25,7 +25,7 @@ TEST_CASE("StaticaArray Constructors")
 
 	SECTION("Initialize with filling value")
 	{
-		StaticArray <i32, 3> a3(100);
+		SArray <i32, 3> a3(100);
 
 		REQUIRE(a3[0] == 100);
 		REQUIRE(a3[1] == 100);
@@ -35,7 +35,7 @@ TEST_CASE("StaticaArray Constructors")
 
 TEST_CASE("StaticArray Iteration")
 {
-	StaticArray<i32, 4> testArray = {0, 1, 2, 3};
+	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
 	SECTION("Iterate by index")
 	{
@@ -62,12 +62,12 @@ TEST_CASE("StaticArray Iteration")
 
 TEST_CASE("StaticArray Iterator Access")
 {
-	StaticArray<i32, 4> testArray = {0, 1, 2, 3};
+	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
 	REQUIRE(*testArray.begin() == 0);
 	REQUIRE(*testArray.end() == 3);
 
-	const StaticArray<i32, 4> constTestArray = {0, 1, 2, 3};
+	const SArray<i32, 4> constTestArray = {0, 1, 2, 3};
 
 	REQUIRE(*constTestArray.begin() == 0);
 	REQUIRE(*constTestArray.end() == 3);
@@ -75,12 +75,12 @@ TEST_CASE("StaticArray Iterator Access")
 
 TEST_CASE("StaticArray Access")
 {
-	StaticArray<i32, 4> testArray = {0, 1, 2, 3};
+	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
 	REQUIRE(testArray.front() == 0);
 	REQUIRE(testArray.back() == 3);
 
-	const StaticArray<i32, 4> constTestArray = {0, 1, 2, 3};
+	const SArray<i32, 4> constTestArray = {0, 1, 2, 3};
 
 	REQUIRE(constTestArray.front() == 0);
 	REQUIRE(constTestArray.back() == 3);
@@ -90,7 +90,7 @@ TEST_CASE("StaticArray Access")
 
 TEST_CASE("StaticArray Query")
 {
-	const StaticArray<i32, 4> testArray = {1, 2, 3, 4};
+	const SArray<i32, 4> testArray = {1, 2, 3, 4};
 	
 	SECTION("Find elements")
 	{
@@ -121,7 +121,7 @@ TEST_CASE("StaticArray Query")
 
 TEST_CASE("StaticArray Compile Time Asserts")
 {
-	StaticArray<i32, 4> testArray = {1, 2, 3, 4};
+	SArray<i32, 4> testArray = {1, 2, 3, 4};
 	static_assert(testArray.size == 4);
 	static_assert(testArray.lastIndex == 3);
 }
@@ -130,7 +130,7 @@ TEST_CASE("StaticArray Stream Operators")
 {
 	SECTION("Stream In")
 	{
-		StaticArray<i32, 4> testArray;
+		SArray<i32, 4> testArray;
 		std::istringstream is("1 2 3 4");
 		is >> testArray;
 
@@ -140,7 +140,7 @@ TEST_CASE("StaticArray Stream Operators")
 
 	SECTION("Stream Out")
 	{
-		const StaticArray<i32, 4> testArray = {1, 2, 3, 4};
+		const SArray<i32, 4> testArray = {1, 2, 3, 4};
 		std::stringstream ss;
 		ss << testArray;
 
@@ -150,7 +150,7 @@ TEST_CASE("StaticArray Stream Operators")
 
 TEST_CASE("StaticArray Copy")
 {
-	StaticArray<i32, 4> original = {1, 2, 3, 4};
+	SArray<i32, 4> original = {1, 2, 3, 4};
 	auto copied = original.copy();
 
 	REQUIRE(original.data() != copied.data());

@@ -147,7 +147,7 @@
     <ClInclude Include="Math\Vec4.hpp" />
     <ClInclude Include="Meta.hpp" />
     <ClInclude Include="Preprocessor\Utils.h" />
-    <ClInclude Include="StaticArray.hpp" />
+    <ClInclude Include="SArray.hpp" />
     <ClInclude Include="Types.hpp" />
   </ItemGroup>
   <ItemGroup>

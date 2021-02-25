@@ -6,17 +6,17 @@
 #include "Types.hpp"
 
 template<typename t_type, size_t t_size>
-class StaticArray
+class SArray
 {
 public:
 	using Iterator = t_type *;
 	using ConstIterator = const t_type *;
 
-	StaticArray() = default;
-	StaticArray(const t_type &value) { fill(value); }
+	SArray() = default;
+	SArray(const t_type &value) { fill(value); }
 
 	template<typename t_a, typename ...t_others>
-	StaticArray(t_a first, t_others ...others)
+	SArray(t_a first, t_others ...others)
 		: _data{std::forward<t_a>(first), std::forward<t_others>(others)...}
 	{
 		static_assert(sizeof...(t_others) == (t_size - 1), "Trying to initialize a StaticArray with a different amount of elements than the ones defined.");
@@ -91,14 +91,14 @@ public:
 	const bool contains(const t_type &value) const { return find(value) != end(); }
 	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 
-	StaticArray<t_type, t_size> copy() const { return StaticArray(*this); }
+	SArray<t_type, t_size> copy() const { return SArray(*this); }
 
 	constexpr static size_t size = t_size;
 	constexpr static size_t lastIndex = size - 1;
 	
 private:
 
-	explicit StaticArray(const StaticArray &other)
+	explicit SArray(const SArray &other)
 	{
 		for (int i = 0; i < t_size; i++)
 			_data[i] = other._data[i];
@@ -108,7 +108,7 @@ private:
 };
 
 template<typename t_type, size_t t_size>
-static std::ostream &operator<<(std::ostream &os, const StaticArray<t_type, t_size> &array)
+static std::ostream &operator<<(std::ostream &os, const SArray<t_type, t_size> &array)
 {
 	os << "[";
 	for (int i = 0; i < array.lastIndex; i++)
@@ -120,7 +120,7 @@ static std::ostream &operator<<(std::ostream &os, const StaticArray<t_type, t_si
 }
 
 template<typename t_type, size_t t_size>
-static std::istream &operator>>(std::istream &is, StaticArray<t_type, t_size> &array)
+static std::istream &operator>>(std::istream &is, SArray<t_type, t_size> &array)
 {
 	for (int i = 0; i < array.size; i++)
 		is >> array[i];
