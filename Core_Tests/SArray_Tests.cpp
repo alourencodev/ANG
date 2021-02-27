@@ -151,7 +151,7 @@ TEST_CASE("StaticArray Stream Operators")
 TEST_CASE("StaticArray Copy")
 {
 	SArray<i32, 4> original = {1, 2, 3, 4};
-	auto copied = original.copy();
+	SArray<i32, 4> copied = original;
 
 	REQUIRE(original.data() != copied.data());
 

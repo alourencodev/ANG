@@ -16,138 +16,138 @@ TEST_CASE("Matrix constructors")
 
 	SECTION("Linear array constructor")
 	{
-		mat2 matA({1, 2, 
-				   3, 4});
+		mat2 matA({1.0f, 2.0f, 
+				   3.0f, 4.0f});
 
-		REQUIRE(matA.at(0, 0) == 1);
-		REQUIRE(matA.at(1, 0) == 2);
-		REQUIRE(matA.at(0, 1) == 3);
-		REQUIRE(matA.at(1, 1) == 4);
+		REQUIRE(matA.at(0, 0) == 1.0f);
+		REQUIRE(matA.at(1, 0) == 2.0f);
+		REQUIRE(matA.at(0, 1) == 3.0f);
+		REQUIRE(matA.at(1, 1) == 4.0f);
 	}
 
 	SECTION("Scalar constructor")
 	{
-		mat2 matA(8);
+		mat2 matA(8.0f);
 
-		REQUIRE(matA.at(0, 0) == 8);
-		REQUIRE(matA.at(1, 0) == 8);
-		REQUIRE(matA.at(0, 1) == 8);
-		REQUIRE(matA.at(1, 1) == 8);
+		REQUIRE(matA.at(0, 0) == 8.0f);
+		REQUIRE(matA.at(1, 0) == 8.0f);
+		REQUIRE(matA.at(0, 1) == 8.0f);
+		REQUIRE(matA.at(1, 1) == 8.0f);
 	}
 }
 
 TEST_CASE("Matrix Arithmetic operations")
 {
-	mat2 matA({1, 2, 
-			   3, 4});
+	mat2 matA({1.0f, 2.0f, 
+			   3.0f, 4.0f});
 
-	mat2 matB({5, 6, 
-			   7, 8});
+	mat2 matB({5.0f, 6.0f, 
+			   7.0f, 8.0f});
 
 	SECTION("Matrix Assignment")
 	{
-		matA.at(0, 0) = 5;
-		matA.at(1, 0) = 6;
-		matA.at(0, 1) = 7;
-		matA.at(1, 1) = 8;
+		matA.at(0, 0) = 5.0f;
+		matA.at(1, 0) = 6.0f;
+		matA.at(0, 1) = 7.0f;
+		matA.at(1, 1) = 8.0f;
 
-		REQUIRE(matA.at(0, 0) == 5);
-		REQUIRE(matA.at(1, 0) == 6);
-		REQUIRE(matA.at(0, 1) == 7);
-		REQUIRE(matA.at(1, 1) == 8);
+		REQUIRE(matA.at(0, 0) == 5.0f);
+		REQUIRE(matA.at(1, 0) == 6.0f);
+		REQUIRE(matA.at(0, 1) == 7.0f);
+		REQUIRE(matA.at(1, 1) == 8.0f);
 	}
 
 	SECTION("Matrix sum")
 	{
 		mat2 result = matA + matB;
 
-		REQUIRE(result.at(0, 0) == 6);
-		REQUIRE(result.at(1, 0) == 8);
-		REQUIRE(result.at(0, 1) == 10);
-		REQUIRE(result.at(1, 1) == 12);
+		REQUIRE(result.at(0, 0) == 6.0f);
+		REQUIRE(result.at(1, 0) == 8.0f);
+		REQUIRE(result.at(0, 1) == 10.0f);
+		REQUIRE(result.at(1, 1) == 12.0f);
 	}
 
 	SECTION("Matrix equal sum")
 	{
 		matA += matB;
 
-		REQUIRE(matA.at(0, 0) == 6);
-		REQUIRE(matA.at(1, 0) == 8);
-		REQUIRE(matA.at(0, 1) == 10);
-		REQUIRE(matA.at(1, 1) == 12);
+		REQUIRE(matA.at(0, 0) == 6.0f);
+		REQUIRE(matA.at(1, 0) == 8.0f);
+		REQUIRE(matA.at(0, 1) == 10.0f);
+		REQUIRE(matA.at(1, 1) == 12.0f);
 	}
 
 	SECTION("Matrix sub")
 	{
 		mat2 result = matB - matA;
 
-		REQUIRE(result.at(0, 0) == 4);
-		REQUIRE(result.at(1, 0) == 4);
-		REQUIRE(result.at(0, 1) == 4);
-		REQUIRE(result.at(1, 1) == 4);
+		REQUIRE(result.at(0, 0) == 4.0f);
+		REQUIRE(result.at(1, 0) == 4.0f);
+		REQUIRE(result.at(0, 1) == 4.0f);
+		REQUIRE(result.at(1, 1) == 4.0f);
 	}
 
 	SECTION("Matrix equal sub")
 	{
 		matB -= matA;
 
-		REQUIRE(matB.at(0, 0) == 4);
-		REQUIRE(matB.at(1, 0) == 4);
-		REQUIRE(matB.at(0, 1) == 4);
-		REQUIRE(matB.at(1, 1) == 4);
+		REQUIRE(matB.at(0, 0) == 4.0f);
+		REQUIRE(matB.at(1, 0) == 4.0f);
+		REQUIRE(matB.at(0, 1) == 4.0f);
+		REQUIRE(matB.at(1, 1) == 4.0f);
 	}
 
 	SECTION("Scalar mul")
 	{
 		mat2 result = matA * 2;
 
-		REQUIRE(result.at(0, 0) == 2);
-		REQUIRE(result.at(1, 0) == 4);
-		REQUIRE(result.at(0, 1) == 6);
-		REQUIRE(result.at(1, 1) == 8);
+		REQUIRE(result.at(0, 0) == 2.0f);
+		REQUIRE(result.at(1, 0) == 4.0f);
+		REQUIRE(result.at(0, 1) == 6.0f);
+		REQUIRE(result.at(1, 1) == 8.0f);
 	}
 
 	SECTION("Scalar mul commutation")
 	{
 		mat2 result = 2 * matA;
 
-		REQUIRE(result.at(0, 0) == 2);
-		REQUIRE(result.at(1, 0) == 4);
-		REQUIRE(result.at(0, 1) == 6);
-		REQUIRE(result.at(1, 1) == 8);
+		REQUIRE(result.at(0, 0) == 2.0f);
+		REQUIRE(result.at(1, 0) == 4.0f);
+		REQUIRE(result.at(0, 1) == 6.0f);
+		REQUIRE(result.at(1, 1) == 8.0f);
 	}
 
 	SECTION("Scalar equal mul")
 	{
 		matA *= 2;
 
-		REQUIRE(matA.at(0, 0) == 2);
-		REQUIRE(matA.at(1, 0) == 4);
-		REQUIRE(matA.at(0, 1) == 6);
-		REQUIRE(matA.at(1, 1) == 8);
+		REQUIRE(matA.at(0, 0) == 2.0f);
+		REQUIRE(matA.at(1, 0) == 4.0f);
+		REQUIRE(matA.at(0, 1) == 6.0f);
+		REQUIRE(matA.at(1, 1) == 8.0f);
 	}
 
 	SECTION("Scalar div")
 	{
-		mat2 matDiv({2, 4,
-					 6, 8});
+		mat2 matDiv({2.0f, 4.0f,
+					 6.0f, 8.0f});
 
 		mat2 result = matDiv / 2;
 
-		REQUIRE(result.at(0, 0) == 1);
-		REQUIRE(result.at(1, 0) == 2);
-		REQUIRE(result.at(0, 1) == 3);
-		REQUIRE(result.at(1, 1) == 4);
+		REQUIRE(result.at(0, 0) == 1.0f);
+		REQUIRE(result.at(1, 0) == 2.0f);
+		REQUIRE(result.at(0, 1) == 3.0f);
+		REQUIRE(result.at(1, 1) == 4.0f);
 	}
 }
 
 TEST_CASE("Matrix Multiplication")
 {
-	mat2 matA({1, 2, 
-			   3, 4});
+	mat2 matA({1.0f, 2.0f, 
+			   3.0f, 4.0f});
 
-	mat2 matB({5, 6, 
-			   7, 8});
+	mat2 matB({5.0f, 6.0f, 
+			   7.0f, 8.0f});
 
 	SECTION("Matrix cell multiplication")
 	{
@@ -200,9 +200,9 @@ TEST_CASE("Matrix vector multiplication")
 {
 	SECTION("Mat2 * Vec2")
 	{
-		vec2 vec(1, 2);
-		mat2 mat({1, 2, 
-				  3, 4});
+		vec2 vec(1.0f, 2.0f);
+		mat2 mat({1.0f, 2.0f, 
+				  3.0f, 4.0f});
 
 		auto result = mat * vec;
 
@@ -214,10 +214,10 @@ TEST_CASE("Matrix vector multiplication")
 
 	SECTION("Mat3 * Vec3")
 	{
-		vec3 vec(1, 2, 3);
-		mat3 mat({1, 2, 3, 
-				  4, 5, 6,
-				  7, 8, 9});
+		vec3 vec(1.0f, 2.0f, 3.0f);
+		mat3 mat({1.0f, 2.0f, 3.0f, 
+				  4.0f, 5.0f, 6.0f,
+				  7.0f, 8.0f, 9.0f});
 
 		auto result = mat * vec;
 
@@ -230,11 +230,11 @@ TEST_CASE("Matrix vector multiplication")
 
 	SECTION("Mat3 * Vec3")
 	{
-		vec4 vec(1, 2, 3, 4);
-		mat4 mat({ 1,  2,  3,  4, 
-				   5,  6,  7,  8, 
-				   9, 10, 11, 12,
-				  13, 14, 15, 16});
+		vec4 vec(1.0f, 2.0f, 3.0f, 4.0f);
+		mat4 mat({ 1.0f,  2.0f,  3.0f,  4.0f, 
+				   5.0f,  6.0f,  7.0f,  8.0f, 
+				   9.0f, 10.0f, 11.0f, 12.0f,
+				  13.0f, 14.0f, 15.0f, 16.0f});
 
 		auto result = mat * vec;
 

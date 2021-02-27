@@ -14,6 +14,7 @@ public:
 
 	SArray() = default;
 	SArray(const t_type &value) { fill(value); }
+	SArray(const SArray &other) { memcpy(_data, other._data, sizeof(t_type) * t_size); }
 
 	template<typename t_a, typename ...t_others>
 	SArray(t_a first, t_others ...others)
@@ -91,19 +92,10 @@ public:
 	const bool contains(const t_type &value) const { return find(value) != end(); }
 	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 
-	SArray<t_type, t_size> copy() const { return SArray(*this); }
-
 	constexpr static size_t size = t_size;
 	constexpr static size_t lastIndex = size - 1;
 	
 private:
-
-	explicit SArray(const SArray &other)
-	{
-		for (int i = 0; i < t_size; i++)
-			_data[i] = other._data[i];
-	}
-
 	t_type _data[t_size];
 };
 

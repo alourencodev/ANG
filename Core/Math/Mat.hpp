@@ -1,11 +1,11 @@
 #pragma once
 
-#include <array>
 #include <cmath>
 
-#include "../Attributes.hpp"
-#include "../BuildScheme.hpp"
-#include "../Types.hpp"
+#include "Attributes.hpp"
+#include "BuildScheme.hpp"
+#include "SArray.hpp"
+#include "Types.hpp"
 #include "Vec2.hpp"
 #include "Vec3.hpp"
 #include "Vec4.hpp"
@@ -17,9 +17,9 @@ namespace
 {
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-_force_inline void addMat(const std::array<t_type, t_elementCount> &lMat, 
-						 const std::array<t_type, t_elementCount> &rMat, 
-						 std::array<t_type, t_elementCount> &outMat)
+_force_inline void addMat(const SArray<t_type, t_elementCount> &lMat, 
+						 const SArray<t_type, t_elementCount> &rMat, 
+						 SArray<t_type, t_elementCount> &outMat)
 {
 	outMat[t_index] = lMat[t_index] + rMat[t_index];
 
@@ -28,9 +28,9 @@ _force_inline void addMat(const std::array<t_type, t_elementCount> &lMat,
 }
 
 template<typename t_type, size_t t_elementCount, int t_index = 0>
-_force_inline void subMat(const std::array<t_type, t_elementCount> &lMat,
-			 				       const std::array<t_type, t_elementCount> &rMat,
-			 					   std::array<t_type, t_elementCount> &outMat)
+_force_inline void subMat(const SArray<t_type, t_elementCount> &lMat,
+			 				       const SArray<t_type, t_elementCount> &rMat,
+			 					   SArray<t_type, t_elementCount> &outMat)
 {
 	outMat[t_index] = lMat[t_index] - rMat[t_index];
 
@@ -39,9 +39,9 @@ _force_inline void subMat(const std::array<t_type, t_elementCount> &lMat,
 }
 
 template<typename t_type, typename t_scalarType, typename t_resultType, size_t t_elementCount, int t_index = 0>
-_force_inline void scalarMulMat(const std::array<t_type, t_elementCount> &mat, 
+_force_inline void scalarMulMat(const SArray<t_type, t_elementCount> &mat, 
 										 t_scalarType scalar, 
-										 std::array<t_resultType, t_elementCount> &resultMat)
+										 SArray<t_resultType, t_elementCount> &resultMat)
 {
 	resultMat[t_index] = mat[t_index] * scalar;
 
@@ -50,9 +50,9 @@ _force_inline void scalarMulMat(const std::array<t_type, t_elementCount> &mat,
 }
 
 template<typename t_type, typename t_scalarType, size_t t_elementCount, int t_index = 0>
-_force_inline void scalarMulDiv(const std::array<t_type, t_elementCount> &mat, 
+_force_inline void scalarMulDiv(const SArray<t_type, t_elementCount> &mat, 
 										 t_scalarType scalar, 
-										 std::array<float, t_elementCount> &resultMat)
+										 SArray<float, t_elementCount> &resultMat)
 {
 	resultMat[t_index] = mat[t_index] / scalar;
 
@@ -61,7 +61,7 @@ _force_inline void scalarMulDiv(const std::array<t_type, t_elementCount> &mat,
 }
 
 template<typename t_type, size_t t_size, int t_index = 0>
-_force_inline void setDiagonal(std::array<std::array<t_type, t_size>, t_size> &grid, t_type scalar)
+_force_inline void setDiagonal(SArray<SArray<t_type, t_size>, t_size> &grid, t_type scalar)
 {
 	grid[t_index][t_index] = scalar;
 
@@ -83,8 +83,9 @@ using t_self = matrix<t_type, t_columns, t_rows>;
 
 public:
 	matrix() : matrix(static_cast<t_type>(0)) {}
-	matrix(std::array<t_type, t_columns * t_rows> &&elements) : _elements(elements) {}
+	matrix(SArray<t_type, t_columns * t_rows> &&elements) : _elements(elements) {}
 	matrix(t_type value) { _elements.fill(value); }
+	matrix(const matrix &other) : _grid(other._grid) {}
 
 	const t_type at(u32 column, u32 row) const { return _grid[row][column]; }
 	t_type &at(u32 column, u32 row) { return _grid[row][column]; }
@@ -92,7 +93,7 @@ public:
 	operator t_type * () const { return &_elements; }
 
 	void operator = (const t_self &mtx) { _elements = mtx._elements; }
-	void operator = (const std::array<t_type, t_columns * t_rows> &&values) { _elements = values; }
+	void operator = (const SArray<t_type, t_columns * t_rows> &&values) { _elements = values; }
 
 	t_self operator + (const t_self &mat) const
 	{
@@ -148,10 +149,10 @@ public:
 
 private:
 	// Use grid to access matrix values as a 2D array
-	std::array<std::array<t_type, t_columns>, t_rows> _grid;
+	SArray<SArray<t_type, t_columns>, t_rows> _grid;
 
 	// Use elements to access the matrix values as a linear array
-	std::array<t_type, t_columns * t_rows> _elements;
+	SArray<t_type, t_columns * t_rows> _elements;
 
 	// We need this private method so the scalar and matrix multiplication
 	// operators aren't confused with each other by templating

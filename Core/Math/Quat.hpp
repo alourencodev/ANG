@@ -1,8 +1,7 @@
 #pragma once
 
-#include <array>
-
 #include "Mat.hpp"
+#include "SArray.hpp"
 #include "Vec3.hpp"
 
 union quat
@@ -97,14 +96,14 @@ public:
 		float zz = n.z * n.z;
 		float zw = n.z * n.w;
 
-		return mat4({1 - 2 * (yy + zz),		2 * (xy + zw),	   2 * (xz - yw), 0,
-						 2 * (xy - zw),	1 - 2 * (xx + zz),	   2 * (yz + xw), 0,
-						 2 * (xz + yw),		2 * (yz - xw), 1 - 2 * (xx + yy), 0,
-					                 0,					0,				   0, 1});
+		return mat4({1 - 2 * (yy + zz),		2 * (xy + zw),	   2 * (xz - yw), 0.0f,
+						 2 * (xy - zw),	1 - 2 * (xx + zz),	   2 * (yz + xw), 0.0f,
+						 2 * (xz + yw),		2 * (yz - xw), 1 - 2 * (xx + yy), 0.0f,
+					              0.0f,		         0.0f,				0.0f, 1.0f});
 	}
 
 private:
-	std::array<float, 4> _elements;
+	SArray<float, 4> _elements;
 };
 
 
