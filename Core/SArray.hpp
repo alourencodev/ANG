@@ -17,8 +17,7 @@ public:
 	SArray(const SArray &other) { memcpy(_data, other._data, sizeof(t_type) * t_size); }
 
 	template<typename t_a, typename ...t_others>
-	SArray(t_a first, t_others ...others)
-		: _data{std::forward<t_a>(first), std::forward<t_others>(others)...}
+	SArray(t_a first, t_others ...others) : _data{std::forward<t_a>(first), std::forward<t_others>(others)...}
 	{
 		static_assert(sizeof...(t_others) == (t_size - 1), "Trying to initialize a StaticArray with a different amount of elements than the ones defined.");
 		static_assert(meta::areSame<t_a, t_others...>::value, "Trying to initialize array with elements of different types.");
@@ -36,13 +35,13 @@ public:
 		return _data[index]; 
 	}
 
+	// Type casting
 	_force_inline constexpr const t_type *data() const { return _data; }
 	_force_inline constexpr t_type *data() { return _data; }
 	_force_inline explicit constexpr operator const t_type *() { return _data; }
 	_force_inline explicit constexpr operator t_type *() { return _data; }
 
-	constexpr void fill(const t_type &value) { std::fill_n(_data, t_size, value); }
-
+	// Iterator
 	_nodiscard constexpr Iterator begin() { return _data; }
 	_nodiscard constexpr const ConstIterator begin() const { return _data; }
 	_nodiscard constexpr Iterator end() { return _data + lastIndex; }
@@ -52,6 +51,8 @@ public:
 	_nodiscard constexpr const t_type &front() const { return _data[0]; }
 	_nodiscard constexpr t_type &back() { return _data[lastIndex]; }
 	_nodiscard constexpr const t_type &back() const { return _data[lastIndex]; }
+
+	constexpr void fill(const t_type &value) { std::fill_n(_data, t_size, value); }
 
 	const t_type *find(const t_type &value) const
 	{
