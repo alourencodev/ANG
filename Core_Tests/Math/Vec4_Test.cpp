@@ -7,7 +7,11 @@
 #include <Core/Math/Vec4.hpp>
 #include <Core/Math/Values.hpp>
 
-TEST_CASE("4D Vector Constructors")
+
+
+constexpr static char k_tag[] = "[Vec4]";
+
+TEST_CASE("4D Vector Constructors", k_tag)
 {
 	SECTION("Default Constructor")
 	{
@@ -74,7 +78,7 @@ TEST_CASE("4D Vector Constructors")
 	}
 }
 
-TEST_CASE("4D Vector Alternative Names Access")
+TEST_CASE("4D Vector Alternative Names Access", k_tag)
 {
 	vec4i vec(1, 2, 3, 4);
 
@@ -108,7 +112,7 @@ TEST_CASE("4D Vector Alternative Names Access")
 	}
 }
 
-TEST_CASE("4D Vector Properties")
+TEST_CASE("4D Vector Properties", k_tag)
 {
 	vec4i vec(4, 4, 4, 4);
 
@@ -123,7 +127,7 @@ TEST_CASE("4D Vector Properties")
 	}
 }
 
-TEST_CASE("4D Vector General Arithmetic Operators")
+TEST_CASE("4D Vector General Arithmetic Operators", k_tag)
 {
 	vec4i vecA(1, 2, 3, 4);
 	vec4i vecB(5, 6, 7, 8);
@@ -263,7 +267,7 @@ TEST_CASE("4D Vector General Arithmetic Operators")
 	}
 }
 
-TEST_CASE("4D Vector Vectorial Operators")
+TEST_CASE("4D Vector Vectorial Operators", k_tag)
 {
 	vec4 vecA(1.0f, 2.0f, 3.0f, 4.0f);
 	vec4 vecB(5.0f, 6.0f, 7.0f, 8.0f);
@@ -284,7 +288,7 @@ TEST_CASE("4D Vector Vectorial Operators")
 	}
 }
 
-TEST_CASE("4D Vector Boolean Operators")
+TEST_CASE("4D Vector Boolean Operators", k_tag)
 {
 	vec4i vecA(1, 2, 3, 4);
 	vec4i vecB(1, 2, 3, 4);
@@ -303,7 +307,7 @@ TEST_CASE("4D Vector Boolean Operators")
 	}
 }
 
-TEST_CASE("4D Vector Unary Operators")
+TEST_CASE("4D Vector Unary Operators", k_tag)
 {
 	vec4i vecA(1, 2, 3, 4);
 
@@ -318,7 +322,7 @@ TEST_CASE("4D Vector Unary Operators")
 	}
 }
 
-TEST_CASE("4D Vector Stream Operators")
+TEST_CASE("4D Vector Stream Operators", k_tag)
 {
 	SECTION("Stream In")
 	{
@@ -342,7 +346,7 @@ TEST_CASE("4D Vector Stream Operators")
 	}
 }
 
-TEST_CASE("4D Vector Lerping Vector")
+TEST_CASE("4D Vector Lerping Vector", k_tag)
 {
 	vec4i vecA(1, -1, 2, 3);
 	vec4i vecB(2, -2, 4, 6);

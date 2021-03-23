@@ -7,7 +7,11 @@
 #include <Core/Math/Vec2.hpp>
 #include <Core/Math/Values.hpp>
 
-TEST_CASE("2D Vector Constructors")
+
+
+constexpr static char k_tag[] = "[Vec2]";
+
+TEST_CASE("2D Vector Constructors", k_tag)
 {
 	SECTION("Default Constructor")
 	{
@@ -34,7 +38,7 @@ TEST_CASE("2D Vector Constructors")
 	}
 }
 
-TEST_CASE("2D Vector Alternative Names Access")
+TEST_CASE("2D Vector Alternative Names Access", k_tag)
 {
 	vec2i vec(1, 2);
 
@@ -60,7 +64,7 @@ TEST_CASE("2D Vector Alternative Names Access")
 	}
 }
 
-TEST_CASE("2D Vector Properties")
+TEST_CASE("2D Vector Properties", k_tag)
 {
 	vec2i vec(9, 12);
 
@@ -75,7 +79,7 @@ TEST_CASE("2D Vector Properties")
 	}
 }
 
-TEST_CASE("2D Vector General Arithmetic Operators")
+TEST_CASE("2D Vector General Arithmetic Operators", k_tag)
 {
 	vec2i vecA(1, 2);
 	vec2i vecB(3, 4);
@@ -179,7 +183,7 @@ TEST_CASE("2D Vector General Arithmetic Operators")
 	}
 }
 
-TEST_CASE("2D Vector Vectorial Operators")
+TEST_CASE("2D Vector Vectorial Operators", k_tag)
 {
 	vec2 vecA(1.0f, 2.0f);
 	vec2 vecB(3.0f, 4.0f);
@@ -200,7 +204,7 @@ TEST_CASE("2D Vector Vectorial Operators")
 	}
 }
 
-TEST_CASE("2D Vector Boolean Operators")
+TEST_CASE("2D Vector Boolean Operators", k_tag)
 {
 	vec2i vecA(1, 2);
 	vec2i vecB(1, 2);
@@ -219,7 +223,7 @@ TEST_CASE("2D Vector Boolean Operators")
 	}
 }
 
-TEST_CASE("2D Vector Unary Operators")
+TEST_CASE("2D Vector Unary Operators", k_tag)
 {
 	vec2i vecA(1, 2);
 
@@ -232,7 +236,7 @@ TEST_CASE("2D Vector Unary Operators")
 	}
 }
 
-TEST_CASE("2D Vector Stream Operators")
+TEST_CASE("2D Vector Stream Operators", k_tag)
 {
 	SECTION("Stream In")
 	{
@@ -254,7 +258,7 @@ TEST_CASE("2D Vector Stream Operators")
 	}
 }
 
-TEST_CASE("2D Vector Lerping Vector")
+TEST_CASE("2D Vector Lerping Vector", k_tag)
 {
 	vec2i vecA(1, -1);
 	vec2i vecB(2, -2);

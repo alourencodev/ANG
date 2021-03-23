@@ -2,16 +2,19 @@
 
 #include <Core/Meta.hpp>
 
+
 using namespace meta;
 
-TEST_CASE("Templated constants")
+constexpr static char k_tag[] = "[Meta]";
+
+TEST_CASE("Templated constants", k_tag)
 {
 	REQUIRE(vConst<int, 1>::value == 1);
 	REQUIRE(vTrue::value);
 	REQUIRE_FALSE(vFalse::value);
 }
 
-TEST_CASE("Templated Type comparison")
+TEST_CASE("Templated Type comparison", k_tag)
 {
 	REQUIRE(isSame<int, int>::value);
 	REQUIRE_FALSE(isSame<int, float>::value);

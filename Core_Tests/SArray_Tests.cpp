@@ -5,7 +5,9 @@
 #include <Core/SArray.hpp>
 
 
-TEST_CASE("StaticaArray Constructors")
+constexpr static char k_tag[] = "[SArray]";
+
+TEST_CASE("StaticaArray Constructors", k_tag)
 {
 	// Default Constructor
 	SECTION ("Default Cnstructor")
@@ -33,7 +35,7 @@ TEST_CASE("StaticaArray Constructors")
 	}
 }
 
-TEST_CASE("StaticArray Iteration")
+TEST_CASE("StaticArray Iteration", k_tag)
 {
 	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
@@ -60,7 +62,28 @@ TEST_CASE("StaticArray Iteration")
 	}
 }
 
-TEST_CASE("StaticArray Iterator Access")
+class NoCopiable
+{
+public:
+	NoCopiable() = default;
+	NoCopiable(int n) : num(n) {}
+	NoCopiable(const NoCopiable &) = delete;
+
+	int num;
+};
+
+TEST_CASE("StaticArray set", k_tag)
+{
+	SECTION("Set from constructor")
+	{
+		SArray<NoCopiable, 3> testArray;
+		
+		testArray[0] = NoCopiable(1337);
+		REQUIRE(testArray[0].num == 1337);
+	}
+}
+
+TEST_CASE("StaticArray Iterator Access", k_tag)
 {
 	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
@@ -73,7 +96,7 @@ TEST_CASE("StaticArray Iterator Access")
 	REQUIRE(*constTestArray.end() == 3);
 }
 
-TEST_CASE("StaticArray Access")
+TEST_CASE("StaticArray Access", k_tag)
 {
 	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
@@ -88,7 +111,7 @@ TEST_CASE("StaticArray Access")
 	// Access by square brackets is already implicitly tested in the other test cases
 }
 
-TEST_CASE("StaticArray Query")
+TEST_CASE("StaticArray Query", k_tag)
 {
 	const SArray<i32, 4> testArray = {1, 2, 3, 4};
 	
@@ -119,14 +142,14 @@ TEST_CASE("StaticArray Query")
 	}
 }
 
-TEST_CASE("StaticArray Compile Time Asserts")
+TEST_CASE("StaticArray Compile Time Asserts", k_tag)
 {
 	SArray<i32, 4> testArray = {1, 2, 3, 4};
 	static_assert(testArray.size == 4);
 	static_assert(testArray.lastIndex == 3);
 }
 
-TEST_CASE("StaticArray Stream Operators")
+TEST_CASE("StaticArray Stream Operators", k_tag)
 {
 	SECTION("Stream In")
 	{
@@ -148,7 +171,7 @@ TEST_CASE("StaticArray Stream Operators")
 	}
 }
 
-TEST_CASE("StaticArray Copy")
+TEST_CASE("StaticArray Copy", k_tag)
 {
 	SArray<i32, 4> original = {1, 2, 3, 4};
 	SArray<i32, 4> copied = original;

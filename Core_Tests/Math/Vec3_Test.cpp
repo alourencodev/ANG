@@ -7,7 +7,11 @@
 #include <Core/Math/Vec3.hpp>
 #include <Core/Math/Values.hpp>
 
-TEST_CASE("3D Vector Constructors")
+
+
+constexpr static char k_tag[] = "[Vec3]"; 
+
+TEST_CASE("3D Vector Constructors", k_tag)
 {
 	SECTION("Default Constructor")
 	{
@@ -52,7 +56,7 @@ TEST_CASE("3D Vector Constructors")
 	}
 }
 
-TEST_CASE("3D Vector Alternative Names Access")
+TEST_CASE("3D Vector Alternative Names Access", k_tag)
 {
 	vec3i vec(1, 2, 3);
 
@@ -82,7 +86,7 @@ TEST_CASE("3D Vector Alternative Names Access")
 	}
 }
 
-TEST_CASE("3D Vector Properties")
+TEST_CASE("3D Vector Properties", k_tag)
 {
 	vec3i vec(2, 4, 4);
 
@@ -97,7 +101,7 @@ TEST_CASE("3D Vector Properties")
 	}
 }
 
-TEST_CASE("3D Vector General Arithmetic Operators")
+TEST_CASE("3D Vector General Arithmetic Operators", k_tag)
 {
 	vec3i vecA(1, 2, 3);
 	vec3i vecB(4, 5, 6);
@@ -219,7 +223,7 @@ TEST_CASE("3D Vector General Arithmetic Operators")
 	}
 }
 
-TEST_CASE("3D Vector Vectorial Operators")
+TEST_CASE("3D Vector Vectorial Operators", k_tag)
 {
 	vec3 vecA(1.0f, 2.0f, 3.0f);
 	vec3 vecB(4.0f, 5.0f, 6.0f);
@@ -249,7 +253,7 @@ TEST_CASE("3D Vector Vectorial Operators")
 	}
 }
 
-TEST_CASE("3D Vector Boolean Operators")
+TEST_CASE("3D Vector Boolean Operators", k_tag)
 {
 	vec3i vecA(1, 2, 3);
 	vec3i vecB(1, 2, 3);
@@ -268,7 +272,7 @@ TEST_CASE("3D Vector Boolean Operators")
 	}
 }
 
-TEST_CASE("3D Vector Unary Operators")
+TEST_CASE("3D Vector Unary Operators", k_tag)
 {
 	vec3i vecA(1, 2, 3);
 
@@ -282,7 +286,7 @@ TEST_CASE("3D Vector Unary Operators")
 	}
 }
 
-TEST_CASE("3D Vector Stream Operators")
+TEST_CASE("3D Vector Stream Operators", k_tag)
 {
 	SECTION("Stream In")
 	{
@@ -305,7 +309,7 @@ TEST_CASE("3D Vector Stream Operators")
 	}
 }
 
-TEST_CASE("3D Vector Lerping Vector")
+TEST_CASE("3D Vector Lerping Vector", k_tag)
 {
 	vec3i vecA(1, -1, 2);
 	vec3i vecB(2, -2, 4);
@@ -315,4 +319,3 @@ TEST_CASE("3D Vector Lerping Vector")
 	REQUIRE(lerpedVec.y == -1.5f);
 	REQUIRE(lerpedVec.z == 3.0f);
 }
-

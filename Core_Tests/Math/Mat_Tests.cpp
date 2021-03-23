@@ -2,7 +2,10 @@
 
 #include <Core/Math/Mat.hpp>
 
-TEST_CASE("Matrix constructors")
+
+constexpr static char k_tag[] = "[Mat]";
+
+TEST_CASE("Matrix constructors", k_tag)
 {
 	SECTION("Default Constructor")
 	{
@@ -36,7 +39,7 @@ TEST_CASE("Matrix constructors")
 	}
 }
 
-TEST_CASE("Matrix Arithmetic operations")
+TEST_CASE("Matrix Arithmetic operations", k_tag)
 {
 	mat2 matA({1.0f, 2.0f, 
 			   3.0f, 4.0f});
@@ -141,7 +144,7 @@ TEST_CASE("Matrix Arithmetic operations")
 	}
 }
 
-TEST_CASE("Matrix Multiplication")
+TEST_CASE("Matrix Multiplication", k_tag)
 {
 	mat2 matA({1.0f, 2.0f, 
 			   3.0f, 4.0f});
@@ -196,7 +199,7 @@ TEST_CASE("Matrix Multiplication")
 	}
 }
 
-TEST_CASE("Matrix vector multiplication")
+TEST_CASE("Matrix vector multiplication", k_tag)
 {
 	SECTION("Mat2 * Vec2")
 	{
@@ -247,7 +250,7 @@ TEST_CASE("Matrix vector multiplication")
 	}
 }
 
-TEST_CASE("Generating Matrices")
+TEST_CASE("Generating Matrices", k_tag)
 {
 	SECTION("Identity Matrix")
 	{

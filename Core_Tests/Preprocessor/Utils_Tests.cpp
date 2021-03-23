@@ -4,13 +4,17 @@
 
 #include <string>
 
-TEST_CASE("Preprocessor String Conversion")
+
+
+constexpr static char k_tag[] = "[Preprocessor Utils]";
+
+TEST_CASE("Preprocessor String Conversion", k_tag)
 {
 	std::string str = PP_STR(TestString);
 	REQUIRE(str == "TestString");
 }
 
-TEST_CASE("Preprocessor Concatenation")
+TEST_CASE("Preprocessor Concatenation", k_tag)
 {
 	SECTION("Normal Concatenation")
 	{

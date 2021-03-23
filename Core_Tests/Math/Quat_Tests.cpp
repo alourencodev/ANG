@@ -6,7 +6,10 @@
 #include <Core/Math/Math.hpp>
 #include <Core/Math/Quat.hpp>
 
-TEST_CASE("Quaternion constructors")
+
+constexpr static char k_tag[] = "[Quat]";
+
+TEST_CASE("Quaternion constructors", k_tag)
 {
 	SECTION("Default Constructor")
 	{
@@ -50,7 +53,7 @@ TEST_CASE("Quaternion constructors")
 	}
 }
 
-TEST_CASE("Quaternion Element Access")
+TEST_CASE("Quaternion Element Access", k_tag)
 {
 	quat q(1, 2, 3, 4);
 	vec3 v(2, 3, 4);
@@ -72,7 +75,7 @@ TEST_CASE("Quaternion Element Access")
 	}
 }
 
-TEST_CASE("Quaternion Arithmetic Operations")
+TEST_CASE("Quaternion Arithmetic Operations", k_tag)
 {
 	quat q1(1, 2, 3, 4);
 	quat q2(5, 6, 7, 8);
@@ -132,7 +135,7 @@ TEST_CASE("Quaternion Arithmetic Operations")
 	}
 }
 
-TEST_CASE("Quaternion Boolean Operations")
+TEST_CASE("Quaternion Boolean Operations", k_tag)
 {
 	quat q1(1, 2, 3, 4);
 	quat q2(1, 2, 3, 4);
@@ -142,7 +145,7 @@ TEST_CASE("Quaternion Boolean Operations")
 	REQUIRE(q2 != q3);
 }
 
-TEST_CASE("Quaternion to Matrix Conversion")
+TEST_CASE("Quaternion to Matrix Conversion", k_tag)
 {
 	quat q(1, 2, 2, 4);
 	mat4 result = q;
@@ -168,7 +171,7 @@ TEST_CASE("Quaternion to Matrix Conversion")
 	REQUIRE(result.at(3,3) == Approx(1.0f));
 }
 
-TEST_CASE("Quaternion Properties")
+TEST_CASE("Quaternion Properties", k_tag)
 {
 	quat q(4, 4, 4, 4);
 
@@ -191,7 +194,7 @@ TEST_CASE("Quaternion Properties")
 	}
 }
 
-TEST_CASE("Quaternion Stream Operators")
+TEST_CASE("Quaternion Stream Operators", k_tag)
 {
 	SECTION("Stream In")
 	{
@@ -215,7 +218,7 @@ TEST_CASE("Quaternion Stream Operators")
 	}
 }
 
-TEST_CASE("Quaternion Lerping Vector")
+TEST_CASE("Quaternion Lerping Vector", k_tag)
 {
 	quat q1(1, -1, 2, 3);
 	quat q2(2, -2, 4, 6);

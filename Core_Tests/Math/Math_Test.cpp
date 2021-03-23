@@ -2,7 +2,10 @@
 
 #include <Core/Math/Math.hpp>
 
-TEST_CASE("Linear Interpolations")
+
+constexpr static char k_tag[] = "[Math]";
+
+TEST_CASE("Linear Interpolations", k_tag)
 {
 	SECTION("Normal Interpolation")
 	{
