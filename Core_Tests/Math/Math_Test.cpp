@@ -5,6 +5,7 @@
 
 constexpr static char k_tag[] = "[Math]";
 
+
 TEST_CASE("Linear Interpolations", k_tag)
 {
 	SECTION("Normal Interpolation")
@@ -22,3 +23,14 @@ TEST_CASE("Linear Interpolations", k_tag)
 	}
 }
 
+
+TEST_CASE("Next Power of 2", k_tag)
+{
+	REQUIRE(nextPow2(0) == 2);		// n=0 edge case
+	REQUIRE(nextPow2(1) == 2);
+	REQUIRE(nextPow2(2) == 2);		// Does it work 2 itself
+	REQUIRE(nextPow2(3) == 4);
+	REQUIRE(nextPow2(6) == 8);
+	REQUIRE(nextPow2(16) == 16);	// Does it work in a power of 2 different that 2
+	REQUIRE(nextPow2(25) == 32);
+}
