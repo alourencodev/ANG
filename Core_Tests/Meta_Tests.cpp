@@ -33,15 +33,38 @@ public:
 	NoCopyOperator &operator = (const NoCopyOperator &) = delete;
 };
 
-class HasCopyOperator
-{
-public:
-	HasCopyOperator() = default;
-};
+class HasCopyOperator {};
 
 
 TEST_CASE("Check if type has Copy Operator", k_tag)
 {
-	REQUIRE_FALSE(isCopyAssignable<NoCopyOperator>::value);
 	REQUIRE(isCopyAssignable<HasCopyOperator>::value);
+	REQUIRE_FALSE(isCopyAssignable<NoCopyOperator>::value);
+}
+
+
+class HasEqualOperator
+{
+public:
+	bool operator == (const HasEqualOperator &) const { return true; }
+};
+
+class NoEqualOperator {};
+
+
+TEST_CASE("Check if type has equal comparisson operator", k_tag)
+{
+	REQUIRE(isEqualComparable<HasEqualOperator>::value);
+	REQUIRE_FALSE(isEqualComparable<NoEqualOperator>::value);
+}
+
+
+TEST_CASE("Check if the base type is the same", k_tag)
+{
+	REQUIRE(isSameBaseType<int, int>::value);
+	REQUIRE(isSameBaseType<int, int &>::value);
+	REQUIRE(isSameBaseType<int, int &&>::value);
+	REQUIRE(isSameBaseType<int, const int &>::value);
+
+	REQUIRE_FALSE(isSameBaseType<int, float &>::value);
 }

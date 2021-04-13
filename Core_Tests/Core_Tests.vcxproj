@@ -132,6 +132,7 @@
     <ClInclude Include="catch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DArray_Tests.cpp" />
     <ClCompile Include="mainTest.cpp" />
     <ClCompile Include="Math\Math_Test.cpp" />
     <ClCompile Include="Math\Mat_Tests.cpp" />

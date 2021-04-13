@@ -37,5 +37,32 @@ struct isAssignable<t_a, t_b, decltype(std::declval<t_a>() = std::declval<t_b>()
 template<typename t_a>
 struct isCopyAssignable : isAssignable<t_a, const t_a &> {};
 
+
+template<typename t_type, typename = void>
+struct isEqualComparable : vFalse {};
+
+template<typename t_type>
+struct isEqualComparable<t_type, decltype(std::declval<t_type>() == std::declval<t_type>(), void())> : vTrue {};
+
+
+template<typename t_type>
+struct baseType { using type = t_type; };
+
+template<typename t_type>
+struct baseType<t_type &> { using type = t_type; };
+
+template<typename t_type>
+struct baseType<t_type &&> { using type = t_type; };
+
+template<typename t_type>
+struct baseType<const t_type> { using type = t_type; };
+
+template<typename t_type>
+struct baseType<const t_type &> { using type = t_type; };
+
+
+template<typename t_a, typename t_b>
+struct isSameBaseType : isSame<typename baseType<t_a>::type, typename baseType<t_b>::type> {};
+
 }
 

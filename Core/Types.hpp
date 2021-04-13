@@ -19,4 +19,5 @@ using u64 = uint64_t;
 using byte = u8;
 
 #define ASSERT_IS_ARITHMETIC(type) static_assert(std::is_arithmetic<type>::value, "Given type must be arithmetic!")
+#define ASSERT_IS_INTEGRAL(type) static_assert(std::is_integral<type>::value, "Given type must be integral!")
 

@@ -14,6 +14,9 @@
     <Filter Include="Source Files\Preprocessor">
       <UniqueIdentifier>{2882d7b6-9c1e-403c-a00d-0745e20b381a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Memory">
+      <UniqueIdentifier>{cee42d7f-87f7-4ed6-a069-bbc9469ba9f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -56,6 +59,15 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SArray.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DArray.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Allocator.hpp">
+      <Filter>Source Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="NonCopyable.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
