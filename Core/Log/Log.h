@@ -43,7 +43,7 @@ void disable(const std::string &tag);
 #	define logError(tag, ...) { logger::rawLog(logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
 #else
 #	define logAssert(exp) ;
-#	define logAssertMsg(exp, tag, ...) ;
+#	define logAssertMsg(exp, ...) ;
 #	define logAssertFatal(exp, ...) ;
 #	define logWarning(tag, ...) ;
 #	define logError(tag, ...) ;
