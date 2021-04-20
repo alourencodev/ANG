@@ -101,10 +101,16 @@ template<typename t_type>
 struct baseType<t_type &&> { using type = t_type; };
 
 template<typename t_type>
+struct baseType<t_type *> { using type = t_type; };
+
+template<typename t_type>
 struct baseType<const t_type> { using type = t_type; };
 
 template<typename t_type>
 struct baseType<const t_type &> { using type = t_type; };
+
+template<typename t_type>
+struct baseType<const t_type *> { using type = t_type; };
 
 
 /**
