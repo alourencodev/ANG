@@ -61,10 +61,10 @@ TEST_CASE("Dynamic Array Constructors", k_tag)
 
 	SECTION("Copy Constructor")
 	{
-		DArray<TestNonCopyable> da(1);
-		da.add(TestNonCopyable());
+		DArray<i32> da(1);
+		da.add(1);
 
-		DArray<TestNonCopyable> da2(da);
+		DArray<i32> da2(da);
 
 		REQUIRE(da2.capacity() == 1);
 		REQUIRE(da2.count() == 1);

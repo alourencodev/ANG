@@ -42,6 +42,8 @@ public:
 
 	DArray(const DArray &other)
 	{
+		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
+
 		_data = t_allocator::alloc(other._capacity);
 		_capacity = other._capacity;
 		_count = other._count;
