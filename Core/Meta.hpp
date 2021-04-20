@@ -21,6 +21,13 @@ using vFalse = vConst<bool, false>;
 
 
 /**
+@brief	Value is true if type is a class
+**/
+template<typename t_type>
+struct isClass : vConst<bool, __is_class(t_type)> {};
+
+
+/**
 @brief	Value is true if both types are the same
 **/
 template<typename t_type, typename t_b>
@@ -56,6 +63,19 @@ struct isAssignable<t_a, t_b, decltype(std::declval<t_a>() = std::declval<t_b>()
 template<typename t_type>
 struct isCopyAssignable : isAssignable<t_type, const t_type &> {};
 
+
+/**
+@brief	Value is true if type has a defined copy constructor
+**/
+template<typename t_type>
+struct isCopyConstructible : vConst<bool, __is_constructible(t_type, const t_type &)> {};
+
+
+/**
+@brief	Value is true if type is not a class or if it has both copy constructor and copy operator defined.
+**/
+template<typename t_type>
+struct isCopyable : vConst<bool, !isClass<t_type>::value || (isCopyConstructible<t_type>::value && isCopyAssignable<t_type>::value)> {};
 
 
 /**

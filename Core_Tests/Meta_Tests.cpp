@@ -68,3 +68,29 @@ TEST_CASE("Check if the base type is the same", k_tag)
 
 	REQUIRE_FALSE(isSameBaseType<int, float &>::value);
 }
+
+
+class CopyConstructible
+{
+public:
+	CopyConstructible(const CopyConstructible &) {};
+};
+
+class NonCopyConstructible
+{
+	NonCopyConstructible(const NonCopyConstructible &) = delete;
+};
+
+
+TEST_CASE("Check if class has copy constructor")
+{
+	REQUIRE(isCopyConstructible<CopyConstructible>::value);
+	REQUIRE_FALSE(isCopyConstructible<NonCopyConstructible>::value);
+}
+
+
+TEST_CASE("Check if is class")
+{
+	REQUIRE(isClass<NoCopyOperator>::value);
+	REQUIRE_FALSE(isClass<int>::value);
+}
