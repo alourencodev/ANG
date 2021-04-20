@@ -4,7 +4,6 @@
 #include "Math/Math.hpp"
 #include "Memory/Allocator.hpp"
 #include "SArray.hpp"
-#include <algorithm>
 
 
 /**
@@ -174,7 +173,7 @@ public:
 
 
 	/**
-	@brief	Add element to the end of the array. It allocates memory if necessary.
+	@brief	Add element to the end of the array. Allocates memory if necessary.
 	**/
 	template<size_t t_size>
 	void add(const SArray<t_type, t_size> &sArray)	{ _add(sArray.data(), sArray.size); }

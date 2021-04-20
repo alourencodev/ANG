@@ -16,11 +16,11 @@ public:
 	SArray(const t_type &value) { fill(value); }
 	SArray(const SArray &other) { memcpy(_data, other._data, sizeof(t_type) * t_size); }
 
-	template<typename t_a, typename ...t_others>
-	SArray(t_a first, t_others ...others) : _data{std::forward<t_a>(first), std::forward<t_others>(others)...}
+	template<typename t_type, typename ...t_others>
+	SArray(t_type first, t_others ...others) : _data{std::forward<t_type>(first), std::forward<t_others>(others)...}
 	{
 		static_assert(sizeof...(t_others) == (t_size - 1), "Trying to initialize a StaticArray with a different amount of elements than the ones defined.");
-		static_assert(meta::areSame<t_a, t_others...>::value, "Trying to initialize array with elements of different types.");
+		static_assert(meta::areSame<t_type, t_others...>::value, "Trying to initialize array with elements of different types.");
 	}
 
 	_force_inline constexpr const t_type &operator[](size_t index) const 
