@@ -192,6 +192,16 @@ public:
 
 
 	/**
+	@brief	Add an empty element to the end of the array. Allocates memory if necessary.
+	**/
+	void addEmpty()
+	{
+		_reserveIfNotEnoughSize();
+		_count++;
+	}
+
+
+	/**
 	@brief	Add element to the given index. It allcates memory if necessary
 	**/
 	template<size_t t_size>
@@ -433,3 +443,33 @@ private:
 	size_t _count = 0;
 	size_t _capacity = 0;
 };
+
+
+template<typename t_type, class t_allocator>
+static std::ostream &operator<<(std::ostream &os, const DArray<t_type, t_allocator> &array)
+{
+	os << "[";
+	for (i64 i = 0; i < static_cast<i64>(array.lastIndex()); i++)
+		os << array[i] << ", ";
+
+	os << array.back() << "]";
+
+	return os;
+}
+
+
+template<typename t_type, class t_allocator>
+static std::istream &operator>>(std::istream &is, DArray<t_type, t_allocator> &array)
+{
+	is.seekg(0, is.end);
+	const size_t length = is.tellg();
+	is.seekg(0, is.beg);
+
+	size_t i = 0;
+	while (static_cast<size_t>(is.tellg()) < length) {
+		array.addEmpty();
+		is >> array[i++];
+	}
+
+	return is;
+}

@@ -601,5 +601,31 @@ TEST_CASE("Remove elements", k_tag)
 
 		REQUIRE(arrayOfNonCopyables.capacity() == 3);
 	}
+}
 
+
+TEST_CASE("DArray Stream Operators")
+{
+	SECTION("Stream In")
+	{
+		DArray<i32> testArray;
+
+		std::istringstream is("1 2 3 4");
+		is >> testArray;
+
+		for (int i = 0; i < testArray.count(); i++)
+			REQUIRE(testArray[i] == i+1);
+
+		REQUIRE(testArray.count() == 4);
+		REQUIRE(testArray.capacity() == 4);
+	}
+
+	SECTION("Stream Out")
+	{
+		const DArray<i32> testArray = {1, 2, 3, 4};
+		std::stringstream ss;
+		ss << testArray;
+
+		REQUIRE(ss.str() == "[1, 2, 3, 4]");
+	}
 }
