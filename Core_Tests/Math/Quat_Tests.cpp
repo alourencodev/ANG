@@ -222,7 +222,7 @@ TEST_CASE("Quaternion Lerping Vector", k_tag)
 {
 	quat q1(1, -1, 2, 3);
 	quat q2(2, -2, 4, 6);
-	auto lerpedQuat = lerp(q1, q2, 0.5f);
+	auto lerpedQuat = math::lerp(q1, q2, 0.5f);
 
 	REQUIRE(lerpedQuat.w == 1.5f);
 	REQUIRE(lerpedQuat.x == -1.5f);

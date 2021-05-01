@@ -402,7 +402,7 @@ private:
 	{
 		const u64 minRequiredCapacity = _count + aditionalSlots;
 		if (minRequiredCapacity > _capacity)
-			reserve(nextPow2(minRequiredCapacity) - _capacity);
+			reserve(math::nextPow2(minRequiredCapacity) - _capacity);
 	}
 
 

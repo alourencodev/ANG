@@ -8,7 +8,6 @@
 #include <Core/Math/Values.hpp>
 
 
-
 constexpr static char k_tag[] = "[Vec3]"; 
 
 TEST_CASE("3D Vector Constructors", k_tag)
@@ -313,7 +312,7 @@ TEST_CASE("3D Vector Lerping Vector", k_tag)
 {
 	vec3i vecA(1, -1, 2);
 	vec3i vecB(2, -2, 4);
-	auto lerpedVec = lerp(vecA, vecB, 0.5f);
+	auto lerpedVec = math::lerp(vecA, vecB, 0.5f);
 
 	REQUIRE(lerpedVec.x == 1.5f);
 	REQUIRE(lerpedVec.y == -1.5f);
