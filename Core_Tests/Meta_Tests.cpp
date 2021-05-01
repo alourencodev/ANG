@@ -23,6 +23,9 @@ TEST_CASE("Templated Type comparison", k_tag)
 
 	REQUIRE(areSame<int, int, int, int>::value);
 	REQUIRE_FALSE(areSame<int, char, float, int>::value);
+
+	REQUIRE(isAnyOf<int, float, bool, int>::value);
+	REQUIRE_FALSE(isAnyOf<int, float, bool, double>::value);
 }
 
 
@@ -93,4 +96,17 @@ TEST_CASE("Check if is class")
 {
 	REQUIRE(isClass<NoCopyOperator>::value);
 	REQUIRE_FALSE(isClass<int>::value);
+}
+
+
+TEST_CASE("Check type nature")
+{
+	REQUIRE(isIntegral<int>::value);
+	REQUIRE_FALSE(isIntegral<float>::value);
+
+	REQUIRE(isFloatingPoint<float>::value);
+	REQUIRE_FALSE(isFloatingPoint<int>::value);
+
+	REQUIRE(isArithmetic<int>::value);
+	REQUIRE_FALSE(isArithmetic<CopyConstructible>::value);
 }

@@ -70,6 +70,9 @@
     <ClInclude Include="NonCopyable.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Log\Assert.h">
+      <Filter>Source Files\Log</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

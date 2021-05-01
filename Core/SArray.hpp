@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Attributes.hpp"
-#include "Log/Log.h"
+#include "Log/Assert.h"
 #include "Meta.hpp"
 #include "Types.hpp"
 

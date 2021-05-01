@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Attributes.hpp"
-
+#include "Types.hpp"
 
 namespace meta
 {
@@ -45,6 +45,16 @@ struct areSame : vTrue {};
 
 template<typename t_a, typename t_b, typename... t_others>
 struct areSame<t_a, t_b, t_others...> : vConst<bool, isSame<t_a, t_b>::value && areSame<t_a, t_others...>::value> {};
+
+
+/**
+@brief	Value is true if given type is the same as one of the other types
+**/
+template<typename t_type, typename ...>
+struct isAnyOf : vFalse {};
+
+template<typename t_type, typename t_a, typename... t_others> 
+struct isAnyOf<t_type, t_a, t_others...> : vConst<bool, isSame<t_type, t_a>::value || isAnyOf<t_type, t_others...>::value> {};
 
 
 /**
@@ -118,6 +128,27 @@ struct baseType<const t_type *> { using type = t_type; };
 **/
 template<typename t_a, typename t_b>
 struct isSameBaseType : isSame<typename baseType<t_a>::type, typename baseType<t_b>::type> {};
+
+
+/**
+@brief	Value is true if given type is integral
+**/
+template<typename t_type>
+struct isIntegral : isAnyOf<t_type, i8, i16, i32, i64, u8, u16, u32, u64> {};
+
+
+/**
+@brief	Value is true if given type is floating point
+**/
+template<typename t_type>
+struct isFloatingPoint : isAnyOf<t_type, f32, f64> {};
+
+
+/**
+brief	Value is true if given type is arithmetic
+**/
+template<typename t_type>
+struct isArithmetic : vConst<bool, isIntegral<t_type>::value || isFloatingPoint<t_type>::value> {};
 
 }
 

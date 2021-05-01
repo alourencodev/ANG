@@ -3,13 +3,14 @@
 #include <cmath>
 #include <iostream>
 
-#include "../Types.hpp"
+#include "Log/Assert.h"
+#include "Types.hpp"
 #include "Vec2.hpp"
 
 template<typename t_type>
 union vector3
 {
-	ASSERT_IS_ARITHMETIC(t_type);
+	assertIsArithmetic(t_type);
 
 public:
 	union
@@ -48,7 +49,7 @@ public:
 	template<typename t_rightType>
 	auto operator + (const vector3<t_rightType> &vec) const
 	{
-		ASSERT_IS_ARITHMETIC(t_rightType);
+		assertIsArithmetic(t_rightType);
 		using resultType = decltype(x + vec.x);
 
 		return vector3<resultType>(x + vec.x, y + vec.y, z + vec.z);
@@ -57,7 +58,7 @@ public:
 	template<typename t_rightType>
 	auto operator - (const vector3<t_rightType> &vec) const
 	{
-		ASSERT_IS_ARITHMETIC(t_rightType);
+		assertIsArithmetic(t_rightType);
 		using resultType = decltype(x - vec.x);
 
 		return vector3<resultType>(x - vec.x, y - vec.y, z - vec.z);
@@ -71,7 +72,7 @@ public:
 	template<typename t_scalarType>
 	auto operator * (t_scalarType value) const
 	{
-		ASSERT_IS_ARITHMETIC(t_scalarType);
+		assertIsArithmetic(t_scalarType);
 		using resultType = decltype(x * value);
 
 		return vector3<resultType>(x * value, y * value, z * value);
@@ -80,7 +81,7 @@ public:
 	template<typename t_scalarType>
 	vector3<float> operator / (t_scalarType value) const
 	{
-		ASSERT_IS_ARITHMETIC(t_scalarType);
+		assertIsArithmetic(t_scalarType);
 		const float divisor = static_cast<float>(value);
 
 		return vector3<float>(x / divisor, y / divisor, z / divisor);
@@ -95,7 +96,7 @@ public:
 template<typename t_vectorType, typename t_scalarType>
 static auto operator * (t_scalarType scalar, const vector3<t_vectorType> &vec)
 {
-	ASSERT_IS_ARITHMETIC(t_scalarType);
+	assertIsArithmetic(t_scalarType);
 	return vec * scalar;
 }
 

@@ -138,6 +138,7 @@
     <ClInclude Include="Attributes.hpp" />
     <ClInclude Include="BuildScheme.hpp" />
     <ClInclude Include="DArray.hpp" />
+    <ClInclude Include="Log\Assert.h" />
     <ClInclude Include="Log\Log.h" />
     <ClInclude Include="Math\Mat.hpp" />
     <ClInclude Include="Math\Math.hpp" />
