@@ -11,9 +11,6 @@
     <Filter Include="Source Files\Log">
       <UniqueIdentifier>{706cf980-74ef-44f4-86e5-e82eedc94379}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Preprocessor">
-      <UniqueIdentifier>{2882d7b6-9c1e-403c-a00d-0745e20b381a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Memory">
       <UniqueIdentifier>{cee42d7f-87f7-4ed6-a069-bbc9469ba9f9}</UniqueIdentifier>
     </Filter>
@@ -52,9 +49,6 @@
     <ClInclude Include="Log\Log.h">
       <Filter>Source Files\Log</Filter>
     </ClInclude>
-    <ClInclude Include="Preprocessor\Utils.h">
-      <Filter>Source Files\Preprocessor</Filter>
-    </ClInclude>
     <ClInclude Include="Meta.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -70,7 +64,7 @@
     <ClInclude Include="NonCopyable.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Log\Assert.h">
+    <ClInclude Include="Log\Assert.hpp">
       <Filter>Source Files\Log</Filter>
     </ClInclude>
   </ItemGroup>

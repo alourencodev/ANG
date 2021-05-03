@@ -77,7 +77,7 @@ _force_inline void setDiagonal(SArray<SArray<t_type, t_size>, t_size> &grid, t_t
 template<typename t_type, size_t t_columns, size_t t_rows>
 union matrix
 {
-assertIsArithmetic(t_type);
+g_assertIsArithmetic(t_type);
 
 using t_self = matrix<t_type, t_columns, t_rows>;
 
@@ -159,7 +159,7 @@ private:
 	template<typename t_scalarType>
 	_force_inline auto scalarMult(t_scalarType scalar) const
 	{
-		assertIsArithmetic(t_scalarType);
+		g_assertIsArithmetic(t_scalarType);
 		using resultType = decltype(_elements[0] * scalar);
 
 		matrix<resultType, t_columns, t_rows> result;

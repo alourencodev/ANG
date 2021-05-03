@@ -138,7 +138,7 @@
     <ClInclude Include="Attributes.hpp" />
     <ClInclude Include="BuildScheme.hpp" />
     <ClInclude Include="DArray.hpp" />
-    <ClInclude Include="Log\Assert.h" />
+    <ClInclude Include="Log\Assert.hpp" />
     <ClInclude Include="Log\Log.h" />
     <ClInclude Include="Math\Mat.hpp" />
     <ClInclude Include="Math\Math.hpp" />
@@ -150,7 +150,6 @@
     <ClInclude Include="Memory\Allocator.hpp" />
     <ClInclude Include="Meta.hpp" />
     <ClInclude Include="NonCopyable.hpp" />
-    <ClInclude Include="Preprocessor\Utils.h" />
     <ClInclude Include="SArray.hpp" />
     <ClInclude Include="Types.hpp" />
   </ItemGroup>

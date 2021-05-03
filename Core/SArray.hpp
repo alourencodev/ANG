@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Attributes.hpp"
-#include "Log/Assert.h"
+#include "Log/Assert.hpp"
 #include "Meta.hpp"
 #include "Types.hpp"
 
@@ -25,13 +25,13 @@ public:
 
 	_force_inline constexpr const t_type &operator[](size_t index) const 
 	{ 
-		logAssertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
+		g_assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
 		return _data[index]; 
 	}
 
 	_force_inline constexpr t_type &operator[](size_t index) 
 	{ 
-		logAssertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
+		g_assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
 		return _data[index]; 
 	}
 

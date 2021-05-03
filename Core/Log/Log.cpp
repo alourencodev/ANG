@@ -35,7 +35,7 @@ void enable(const std::string &tag)
 {
     if (s_loggerRegister.find(tag) != s_loggerRegister.end())
     {
-        logWarning("Logger", "Tag %s is already enabled.", tag.c_str());
+        g_warning("Logger", "Tag %s is already enabled.", tag.c_str());
         return;
     }
 
@@ -46,7 +46,7 @@ void disable(const std::string &tag)
 {
     if (s_loggerRegister.find(tag) == s_loggerRegister.end())
     {
-        logWarning("Logger", "Tag %s is already disabled.", tag.c_str());
+        g_warning("Logger", "Tag %s is already disabled.", tag.c_str());
 		return;
     }
 

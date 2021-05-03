@@ -30,16 +30,16 @@ void disable(const std::string &tag);
 }
 
 #ifdef _DEBUG
-#	define logDebug(tag, ...) logger::rawLog(logger::k_debugLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
+#	define g_log(tag, ...) logger::rawLog(logger::k_debugLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
 #else
-#	define logDebug(tag, ...) ;
+#	define g_log(tag, ...) ;
 #endif
 
 #if _DEBUG || _RELEASE_SYMB
-#	define logWarning(tag, ...) logger::rawLog(logger::k_warnLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
-#	define logError(tag, ...) { logger::rawLog(logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
+#	define g_warning(tag, ...) logger::rawLog(logger::k_warnLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
+#	define g_error(tag, ...) { logger::rawLog(logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
 #else
-#	define logWarning(tag, ...) ;
-#	define logError(tag, ...) ;
+#	define g_warning(tag, ...) ;
+#	define g_error(tag, ...) ;
 #endif
 

@@ -18,7 +18,7 @@ public:
 		else {
 			t_type *newPtr = reinterpret_cast<t_type *>(std::realloc(*outPtr, sizeof(t_type) * count)); 
 			if (newPtr == nullptr) {
-				logWarning(k_tag, "Failed to reallocate memory with size %d", count);
+				g_warning(k_tag, "Failed to reallocate memory with size %d", count);
 				return false;
 			}
 

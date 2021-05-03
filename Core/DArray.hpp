@@ -134,13 +134,13 @@ public:
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
-		logAssertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
+		g_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
 		return _data[index];
 	}
 
 	_force_inline t_type &operator[](size_t index)
 	{
-		logAssertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
+		g_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
 		return _data[index];
 	}
 
@@ -212,7 +212,7 @@ public:
 
 	void insert(t_type &&element, size_t index)
 	{
-		logAssertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
 		_reserveIfNotEnoughSize();
 		
 		const size_t movingChunkSize = _count - index;
@@ -337,7 +337,7 @@ public:
 	**/
 	void swapPopIndex(size_t index) 
 	{ 
-		logAssertFatal(index < _count, "Trying to remove element in index %d from a dynamic array with count %d.", index, _count);
+		g_assertFatal(index < _count, "Trying to remove element in index %d from a dynamic array with count %d.", index, _count);
 		_swapPopPtr(_data + index); 
 	}
 
@@ -361,7 +361,7 @@ public:
 	**/
 	_force_inline void pop() 
 	{ 
-		logAssertFatal(_count > 0, "Trying to pop an element of an empty array.");
+		g_assertFatal(_count > 0, "Trying to pop an element of an empty array.");
 		_count--; 
 	}
 
@@ -371,7 +371,7 @@ public:
 	**/
 	void removeIndex(size_t index)
 	{
-		logAssertFatal(index < _count, "Trying to remove index %d from a dynamic array with count %d.", index, _count);
+		g_assertFatal(index < _count, "Trying to remove index %d from a dynamic array with count %d.", index, _count);
 
 		if (index == lastIndex()) {
 			_count--;
@@ -416,7 +416,7 @@ private:
 
 	_force_inline void _insert(const t_type *ptr, size_t count, size_t index)
 	{
-		logAssertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
 
 		_reserveIfNotEnoughSize(count);
 
