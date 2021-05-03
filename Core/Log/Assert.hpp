@@ -6,7 +6,7 @@
 namespace logger
 {
 
-static const LogSetting k_assertLogSetting = {"A", k_yellowColor, false};
+static const LogSetting k_assertLogSetting = {k_yellowColor, 'A', false};
 
 };
 

@@ -10,8 +10,8 @@ namespace logger
 
 struct LogSetting
 {
-	std::string label;
 	std::string color;
+	char label;
 	bool needsRegister;
 };
 
@@ -19,9 +19,9 @@ constexpr char k_defaultColor[] = "";
 constexpr char k_yellowColor[] = "\033[33m";
 constexpr char k_redColor[] = "\033[31m";
 
-static const LogSetting k_debugLogSetting = {"D", k_defaultColor, true};
-static const LogSetting k_warnLogSetting = {"W", k_yellowColor, false};
-static const LogSetting k_errorLogSetting = {"E", k_redColor, false};
+static const LogSetting k_debugLogSetting = {k_defaultColor, 'D', true};
+static const LogSetting k_warnLogSetting = {k_yellowColor, 'W', false};
+static const LogSetting k_errorLogSetting = {k_redColor, 'E', false};
 
 void rawLog(const LogSetting &setting, const char *file, long line, const std::string &tag, const char *format, ...);
 void enable(const std::string &tag);
