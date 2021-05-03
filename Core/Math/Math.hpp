@@ -10,14 +10,14 @@ namespace math
 constexpr float k_epsilon = 0.00001f;
 
 template<typename t_type>
-_force_inline constexpr auto lerp(const t_type &valA, const t_type &valB, float t)
+_force_inline constexpr auto g_lerp(const t_type &valA, const t_type &valB, float t)
 {
 	auto delta = valB - valA;
 	return valA + (delta * t);
 }
 
 
-constexpr u64 nextPow2(u64 n)
+constexpr u64 g_nextPow2(u64 n)
 {
 	if (n < 2)
 		return 2;
@@ -36,32 +36,32 @@ constexpr u64 nextPow2(u64 n)
 
 
 template<typename t_type>
-_force_inline constexpr t_type max(t_type a, t_type b)
+_force_inline constexpr t_type g_max(t_type a, t_type b)
 {
 	return b > a ? b : a;
 }
 
 template<typename t_type>
-_force_inline constexpr t_type min(t_type a, t_type b)
+_force_inline constexpr t_type g_min(t_type a, t_type b)
 {
 	return a > b ? b : a; 
 }
 
 template<typename t_type>
-_force_inline constexpr t_type clamp(t_type a, t_type min, t_type max)
+_force_inline constexpr t_type g_clamp(t_type a, t_type min, t_type max)
 {
-	return min(max, max(a, min));
+	return g_min(max, g_max(a, min));
 }
 
 
-_force_inline constexpr i32 abs(i32 n)
+_force_inline constexpr i32 g_abs(i32 n)
 {
 	constexpr u8 k_byteSize = 8;
 	i32 mask = n >> (sizeof(i32) * k_byteSize - 1);
 	return (mask + n) ^ mask;
 }
 
-_force_inline f32 fabs(f32 n)
+_force_inline f32 g_fabs(f32 n)
 {
 	u32 i = reinterpret_cast<const u32&>(n);
 	i &= 0x7FFFFFFF;
@@ -70,9 +70,9 @@ _force_inline f32 fabs(f32 n)
 }
 
 
-_force_inline bool approx(float a, float b)
+_force_inline bool g_approx(float a, float b)
 {
-	return fabs(a - b) < k_epsilon;
+	return g_fabs(a - b) < k_epsilon;
 }
 
 }	// namespace math

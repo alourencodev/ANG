@@ -350,7 +350,7 @@ TEST_CASE("4D Vector Lerping Vector", k_tag)
 {
 	vec4i vecA(1, -1, 2, 3);
 	vec4i vecB(2, -2, 4, 6);
-	auto lerpedVec = math::lerp(vecA, vecB, 0.5f);
+	auto lerpedVec = math::g_lerp(vecA, vecB, 0.5f);
 
 	REQUIRE(lerpedVec.x == 1.5f);
 	REQUIRE(lerpedVec.y == -1.5f);
