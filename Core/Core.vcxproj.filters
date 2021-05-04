@@ -67,6 +67,9 @@
     <ClInclude Include="Log\Assert.hpp">
       <Filter>Source Files\Log</Filter>
     </ClInclude>
+    <ClInclude Include="Platform.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

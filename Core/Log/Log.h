@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Attributes.hpp"
+#include "Core/Attributes.hpp"
 
 
 namespace logger

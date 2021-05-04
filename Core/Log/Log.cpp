@@ -5,7 +5,7 @@
 #include <iostream>
 #include <set>
 
-#include "../Types.hpp"
+#include "Core/Types.hpp"
 
 namespace logger
 {
