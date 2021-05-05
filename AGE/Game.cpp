@@ -16,16 +16,18 @@ void Game::Run()
 
 	glfwInit();
 
-
 	WindowInfo windowInfo = GetWindowInfo();
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
 	g_log(k_tag, "Initializing Game.");
 	init();
 
 	g_log(k_tag, "Starting Game Loop.");
-	while(!glfwWindowShouldClose(_window))
+	while(!glfwWindowShouldClose(_window)) {
+		glfwPollEvents();
 		update();
+	}
 
 	g_log(k_tag, "Starting Game Cleanup.");
 	cleanup();
