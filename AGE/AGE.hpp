@@ -4,10 +4,12 @@
 
 extern age::Game *g_createGame();
 
+
 int main(int argc, char **argv)
 {
-	age::Game *game = g_createGame();
-	game->Run();
-	delete game;
+	age::g_game = g_createGame();
+	age::g_game->Run();
+	delete age::g_game;
+
 	return 0;
 }
