@@ -3,6 +3,8 @@
 #include "AGEAPI.hpp"
 
 
+struct GLFWwindow;
+
 namespace age
 {
 
@@ -17,6 +19,11 @@ public:
 	virtual void cleanup() = 0;
 
 	virtual void Run() final;
+
+	GLFWwindow *GetWindow() { return _window; }
+
+private:
+	GLFWwindow *_window;
 };
 
 }
