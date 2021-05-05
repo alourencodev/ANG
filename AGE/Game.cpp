@@ -12,8 +12,13 @@ constexpr char k_tag[] = "Game";
 
 void Game::Run()
 {
+	logger::enable("Game");
+
 	glfwInit();
-	_window = glfwCreateWindow(700, 400, "Test Title", nullptr, nullptr);
+
+
+	WindowInfo windowInfo = GetWindowInfo();
+	_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
 	g_log(k_tag, "Initializing Game.");
 	init();

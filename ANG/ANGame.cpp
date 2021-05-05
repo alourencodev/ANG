@@ -13,3 +13,8 @@ void ANGame::update()
 void ANGame::cleanup()
 {
 }
+
+age::Game::WindowInfo ANGame::GetWindowInfo()
+{
+	return {"ANGame", {1920, 1080}};
+}

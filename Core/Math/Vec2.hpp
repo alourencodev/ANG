@@ -3,8 +3,8 @@
 #include <cmath>
 #include <iostream>
 
-#include "Log/Assert.hpp"
-#include "Types.hpp"
+#include "Core/Log/Assert.hpp"
+#include "Core/Types.hpp"
 
 template<typename t_type>
 union vector2

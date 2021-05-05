@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Log.h"
-#include "Meta.hpp"
+#include "Core/Log/Log.h"
+#include "Core/Meta.hpp"
 
 namespace logger
 {

@@ -2,6 +2,7 @@
 
 #include "AGEAPI.hpp"
 
+#include <Core/Math/Vec2.hpp>
 
 struct GLFWwindow;
 
@@ -21,6 +22,15 @@ public:
 	virtual void Run() final;
 
 	GLFWwindow *GetWindow() { return _window; }
+
+protected:
+	struct WindowInfo
+	{
+		std::string title;
+		sizei size;
+	};
+
+	virtual WindowInfo GetWindowInfo() = 0;
 
 private:
 	GLFWwindow *_window;
