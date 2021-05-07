@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "Attributes.hpp"
 #include "Log/Assert.hpp"
 #include "Meta.hpp"

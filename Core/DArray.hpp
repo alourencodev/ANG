@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "Log/Log.h"
 #include "Math/Math.hpp"
 #include "Memory/Allocator.hpp"
