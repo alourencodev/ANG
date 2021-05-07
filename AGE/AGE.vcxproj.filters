@@ -8,10 +8,19 @@
     <Filter Include="Source Files\Vendor">
       <UniqueIdentifier>{78a53746-252c-452d-a937-dc05fa3f1945}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{2c2b2b0d-04a8-4c79-a7ec-169ec0c1a140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Vulkan">
+      <UniqueIdentifier>{400680c1-0030-44cd-9c05-cc3b28f3ca4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Vulkan\VulkanSystem.cpp">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +35,12 @@
     </ClInclude>
     <ClInclude Include="Vendor\GLFW.hpp">
       <Filter>Source Files\Vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VulkanSystem.h">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VulkanUtils.hpp">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

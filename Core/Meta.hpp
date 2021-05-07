@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Attributes.hpp"
+#include "BuildScheme.hpp"
 #include "Types.hpp"
 
 namespace meta
@@ -149,6 +150,13 @@ brief	Value is true if given type is arithmetic
 **/
 template<typename t_type>
 struct isArithmetic : vConst<bool, isIntegral<t_type>::value || isFloatingPoint<t_type>::value> {};
+
+
+#ifdef _DEBUG
+struct isDebugBuild : vTrue {};
+#else
+struct isDebugBuild : vFalse {};
+#endif
 
 }
 

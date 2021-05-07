@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AGEAPI.hpp"
-
 #include <Core/Math/Vec2.hpp>
+
+#include "AGEAPI.hpp"
 
 struct GLFWwindow;
 

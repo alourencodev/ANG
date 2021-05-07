@@ -136,10 +136,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VulkanSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGE.hpp" />
     <ClInclude Include="AGEAPI.hpp" />
+    <ClInclude Include="Renderer\Vulkan\VulkanSystem.h" />
+    <ClInclude Include="Renderer\Vulkan\VulkanUtils.hpp" />
     <ClInclude Include="Vendor\GLFW.hpp" />
     <ClInclude Include="Game.h" />
   </ItemGroup>
