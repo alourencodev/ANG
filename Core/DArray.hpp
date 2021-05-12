@@ -179,11 +179,18 @@ public:
 	/**
 	@brief	Add element to the end of the array. Allocates memory if necessary.
 	**/
+	_force_inline void add(const t_type *ptr, size_t count)
+	{
+		_reserveIfNotEnoughSize(count);
+		memcpy(&_data[_count], ptr, count * sizeof(t_type));
+		_count += count;
+	}
+
 	template<size_t t_size>
-	void add(const SArray<t_type, t_size> &sArray)	{ _add(sArray.data(), sArray.size); }
-	void add(const DArray<t_type> &dArray)			{ _add(dArray.data(), dArray.count()); }
-	void add(std::initializer_list<t_type> list)	{ _add(list.begin(), list.size()); }
-	void add(const t_type &element)					{ _add(&element, 1); }
+	void add(const SArray<t_type, t_size> &sArray)	{ add(sArray.data(), sArray.size); }
+	void add(const DArray<t_type> &dArray)			{ add(dArray.data(), dArray.count()); }
+	void add(std::initializer_list<t_type> list)	{ add(list.begin(), list.size()); }
+	void add(const t_type &element)					{ add(&element, 1); }
 
 	void add(t_type &&element)
 	{
@@ -206,11 +213,26 @@ public:
 	/**
 	@brief	Add element to the given index. It allcates memory if necessary
 	**/
+	_force_inline void insert(const t_type *ptr, size_t count, size_t index)
+	{
+		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+
+		_reserveIfNotEnoughSize(count);
+
+		const size_t movingChunkSize = _count - index;
+		t_type *insertionPtr = _data + index;
+
+		memcpy(insertionPtr + count, insertionPtr, movingChunkSize * sizeof(t_type));
+		memcpy(insertionPtr, ptr, count * sizeof(t_type));
+
+		_count += count;
+	}
+
 	template<size_t t_size>
-	void insert(const SArray<t_type, t_size> &sArray, size_t index) { _insert(sArray.data(), sArray.size, index); }
-	void insert(const DArray<t_type> &dArray, size_t index)			{ _insert(dArray.data(), dArray.count(), index); }
-	void insert(std::initializer_list<t_type> list, size_t index)	{ _insert(list.begin(), list.size(), index); }
-	void insert(const t_type &element, size_t index)				{ _insert(&element, 1, index); }
+	void insert(const SArray<t_type, t_size> &sArray, size_t index) { insert(sArray.data(), sArray.size, index); }
+	void insert(const DArray<t_type> &dArray, size_t index)			{ insert(dArray.data(), dArray.count(), index); }
+	void insert(std::initializer_list<t_type> list, size_t index)	{ insert(list.begin(), list.size(), index); }
+	void insert(const t_type &element, size_t index)				{ insert(&element, 1, index); }
 
 	void insert(t_type &&element, size_t index)
 	{
@@ -405,30 +427,6 @@ private:
 		const u64 minRequiredCapacity = _count + aditionalSlots;
 		if (minRequiredCapacity > _capacity)
 			reserve(math::g_nextPow2(minRequiredCapacity) - _capacity);
-	}
-
-
-	_force_inline void _add(const t_type *ptr, size_t count)
-	{
-		_reserveIfNotEnoughSize(count);
-		memcpy(&_data[_count], ptr, count * sizeof(t_type));
-		_count += count;
-	}
-
-
-	_force_inline void _insert(const t_type *ptr, size_t count, size_t index)
-	{
-		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
-
-		_reserveIfNotEnoughSize(count);
-
-		const size_t movingChunkSize = _count - index;
-		t_type *insertionPtr = _data + index;
-
-		memcpy(insertionPtr + count, insertionPtr, movingChunkSize * sizeof(t_type));
-		memcpy(insertionPtr, ptr, count * sizeof(t_type));
-
-		_count += count;
 	}
 
 
