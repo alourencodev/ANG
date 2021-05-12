@@ -41,7 +41,7 @@ static Game *g_game = nullptr;
 }
 
 #define DEFINE_GAME(GAME)			\
-static age::Game *g_createGame()	\
+age::Game *g_createGame()	\
 {									\
 	return new GAME##();			\
 }
