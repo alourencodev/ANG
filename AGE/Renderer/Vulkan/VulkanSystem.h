@@ -2,6 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
+#include <Core/BuildScheme.hpp>
+
+
 namespace age
 {
 
@@ -18,6 +21,10 @@ private:
 	~VulkanSystem() = default;
 
 	VkInstance _instance;
+
+#ifdef _RELEASE_SYMB
+	VkDebugUtilsMessengerEXT _debugMessenger;
+#endif
 };
 
 }
