@@ -15,7 +15,7 @@ void Game::Run()
 {
 	logger::enable("Game");
 
-	{	// initCoreSystems
+	{	// initEngineSystems
 		glfwInit();
 
 		WindowInfo windowInfo = GetWindowInfo();
@@ -37,7 +37,7 @@ void Game::Run()
 	g_log(k_tag, "Starting Game Cleanup.");
 	cleanup();
 
-	{	// cleanupCoreSystems
+	{	// cleanupEngineSystems
 		VulkanSystem::get().cleanup();
 
 		glfwDestroyWindow(_window);
