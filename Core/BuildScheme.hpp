@@ -2,6 +2,7 @@
 
 #ifdef _DEBUG
 #	define IF_DEBUG(X) X
+#	define _RELEASE_SYMB
 #else
 #	define IF_DEBUG(X)
 #endif
@@ -12,7 +13,7 @@
 #	define IF_TEST(X)
 #endif
 
-#if _RELEASE_SYMB || _DEBUG
+#ifdef _RELEASE_SYMB
 #	define IF_RELEASE_SYMB(X) X
 #else
 #	define IF_RELEASE_SYMB(X)

@@ -158,5 +158,12 @@ struct isDebugBuild : vTrue {};
 struct isDebugBuild : vFalse {};
 #endif
 
+
+#ifdef _RELEASE_SYMB
+struct isReleaseSymbBuild : vTrue {};
+#else
+struct isReleaseSymbBuild : vFalse {};
+#endif
+
 }
 

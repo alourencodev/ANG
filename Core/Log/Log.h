@@ -35,7 +35,7 @@ void disable(const std::string &tag);
 #	define g_log(tag, ...) ;
 #endif
 
-#if _DEBUG || _RELEASE_SYMB
+#ifdef _RELEASE_SYMB
 #	define g_warning(tag, ...) logger::rawLog(logger::k_warnLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
 #	define g_error(tag, ...) { logger::rawLog(logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
 #else
