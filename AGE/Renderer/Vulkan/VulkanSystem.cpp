@@ -83,7 +83,7 @@ void VulkanSystem::init()
 				}
 			}
 
-			g_assertFatal(k_tag, "Requested validation layer(%s) is not available", layer);
+			g_assertFatal(k_tag, "Requested validation layer(%s) is not available.", layer);
 		}
 	}
 
@@ -138,12 +138,12 @@ void VulkanSystem::init()
 		if (f_createDebugUtilsMessengerEXT != nullptr) {
 			AGE_VK_CHECK(f_createDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger));
 		} else {
-			g_error(k_tag, "Unable to create DebugUtilsMessenger due to extension not being present");
+			g_error(k_tag, "Unable to create DebugUtilsMessenger due to extension not being present.");
 		}
 	}
 #endif
 
-	{	// Create Physical Device
+	{	// Picking Physical Device
 		u32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
