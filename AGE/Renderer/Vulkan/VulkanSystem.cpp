@@ -112,7 +112,7 @@ void VulkanSystem::init()
 			createInfo.enabledLayerCount = 0;
 		}
 
-		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));		
+		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
 	}
 
 #ifdef _RELEASE_SYMB
@@ -142,6 +142,18 @@ void VulkanSystem::init()
 		}
 	}
 #endif
+
+	{	// Create Physical Device
+		u32 deviceCount = 0;
+		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
+		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
+
+		DArray<VkPhysicalDevice> physicalDevices(deviceCount);
+		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
+
+		_physicalDevice = pickPhysicalDevice(physicalDevices);
+		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
+	}
 }
 
 void VulkanSystem::cleanup()
@@ -153,6 +165,24 @@ void VulkanSystem::cleanup()
 	}
 
 	vkDestroyInstance(_instance, nullptr);
+}
+
+VkPhysicalDevice VulkanSystem::pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates) const
+{
+	// TODO https://trello.com/c/FZ8pfoMI
+	// Currently we just pick the first dedicated GPU. 
+	// If there is no dedicated GPU we fallback to the first candidate.
+	// This is a very naive way to pick a GPU, so a better way should be implemented in the future.
+
+	for (VkPhysicalDevice candidate : candidates) {
+		VkPhysicalDeviceProperties properties;
+		vkGetPhysicalDeviceProperties(candidate, &properties);
+
+		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+			return candidate;
+	}
+
+	return candidates[0];
 }
 
 }
