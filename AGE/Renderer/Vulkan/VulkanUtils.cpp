@@ -2,7 +2,7 @@
 
 #include <Core/Attributes.hpp>
 
-namespace age
+namespace age::vk
 {
 #define AGE_VK_UTILS_CASE_TO_STR(C)  \
 case C:                 \

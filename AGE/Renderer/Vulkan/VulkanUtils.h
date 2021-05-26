@@ -6,7 +6,7 @@
 #include <Core/Log/Log.h>
 
 
-namespace age
+namespace age::vk
 {
 
 std::string parseVulkanError(VkResult result);

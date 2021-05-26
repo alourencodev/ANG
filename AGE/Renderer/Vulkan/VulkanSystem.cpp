@@ -5,15 +5,25 @@
 #include <Core/DArray.hpp>
 #include <Core/Meta.hpp>
 #include <Core/Types.hpp>
+#include <Core/Math/Math.hpp>
 
 #include "AGE/Vendor/GLFW.hpp"
 #include "AGE/Renderer/Vulkan/VulkanUtils.h"
 
 
-namespace age
+namespace age::vk
 {
 
 constexpr char k_tag[] = "VulkanSystem";
+
+constexpr byte getMandatoryQueueFamilies()
+{
+	byte field = 0;
+	for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
+		field |= 1 << i;
+	
+	return field;
+}
 
 #ifdef _RELEASE_SYMB
 static const DArray<const char *> k_validationLayers = {
@@ -148,11 +158,13 @@ void VulkanSystem::init()
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
 
+		// TODO: Use stack allocator here
 		DArray<VkPhysicalDevice> physicalDevices(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
 		_physicalDevice = pickPhysicalDevice(physicalDevices);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
+		//TODO: print info of the picked physical device
 	}
 }
 
@@ -177,12 +189,43 @@ VkPhysicalDevice VulkanSystem::pickPhysicalDevice(const DArray<VkPhysicalDevice>
 	for (VkPhysicalDevice candidate : candidates) {
 		VkPhysicalDeviceProperties properties;
 		vkGetPhysicalDeviceProperties(candidate, &properties);
+		
+		if (!isDeviceCompatible(candidate))
+			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 			return candidate;
 	}
 
-	return candidates[0];
+	return VK_NULL_HANDLE;
+}
+
+QueueIndices VulkanSystem::getDeviceQueueIndices(VkPhysicalDevice physicalDevice) const
+{
+	u32 queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+	// TODO: Use stack allocator here
+	DArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+	QueueIndices queueIndices;
+	for (u32 i = 0; i < queueFamilies.count(); i++) {
+		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			queueIndices.set(e_QueueFamily::Graphics, i);
+	}
+
+	return queueIndices;
+}
+
+bool VulkanSystem::isDeviceCompatible(VkPhysicalDevice physicalDevice) const
+{
+	QueueIndices queueIndices = getDeviceQueueIndices(physicalDevice);
+	bool hasMandatoryQueueFamilies = queueIndices._indexMap.isSet(BitField(getMandatoryQueueFamilies()));
+	if (!hasMandatoryQueueFamilies)
+		return false;
+
+	return true;
 }
 
 }

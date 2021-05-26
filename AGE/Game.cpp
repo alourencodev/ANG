@@ -22,7 +22,7 @@ void Game::Run()
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
-		VulkanSystem::get().init();
+		vk::VulkanSystem::get().init();
 	}
 
 	g_log(k_tag, "Initializing Game.");
@@ -38,7 +38,7 @@ void Game::Run()
 	cleanup();
 
 	{	// cleanupEngineSystems
-		VulkanSystem::get().cleanup();
+		vk::VulkanSystem::get().cleanup();
 
 		glfwDestroyWindow(_window);
 		glfwTerminate();

@@ -75,4 +75,10 @@ _force_inline bool g_approx(float a, float b)
 	return g_fabs(a - b) < k_epsilon;
 }
 
+
+_force_inline constexpr byte indexToByte(u8 index) 
+{ 
+	return 1 << index; 
+}
+
 }	// namespace math
