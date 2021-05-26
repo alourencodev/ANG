@@ -70,6 +70,9 @@
     <ClInclude Include="Platform.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="BitField.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

@@ -132,6 +132,7 @@
     <ClInclude Include="catch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BitField_Tests.cpp" />
     <ClCompile Include="DArray_Tests.cpp" />
     <ClCompile Include="mainTest.cpp" />
     <ClCompile Include="Math\Math_Test.cpp" />
