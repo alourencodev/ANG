@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Core/Attributes.hpp"
+#include "Core/BuildScheme.hpp"
 
 
 namespace logger

@@ -66,8 +66,8 @@ Global
 		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.Release|x64.ActiveCfg = Release|x64
 		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.Release|x64.Build.0 = Release|x64
 		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.Release|x86.ActiveCfg = Release|x64
-		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.ReleaseSymb|x64.ActiveCfg = Release|x64
-		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.ReleaseSymb|x64.Build.0 = Release|x64
+		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.ReleaseSymb|x64.ActiveCfg = ReleaseSymb|x64
+		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.ReleaseSymb|x64.Build.0 = ReleaseSymb|x64
 		{E08A2ACB-5D6A-48C6-99B1-0363BBD1A0A1}.ReleaseSymb|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

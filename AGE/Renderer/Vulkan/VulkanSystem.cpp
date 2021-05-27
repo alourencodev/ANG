@@ -3,6 +3,8 @@
 #include <cstring>
 
 #include <Core/DArray.hpp>
+#include <Core/Log/Assert.hpp>
+#include <Core/Log/Log.h>
 #include <Core/Meta.hpp>
 #include <Core/Types.hpp>
 #include <Core/Math/Math.hpp>
@@ -56,7 +58,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 
 void VulkanSystem::init()
 {
-	constexpr bool isValidationEnabled = meta::isReleaseSymbBuild::value;
+	// TODO: Remove
+	logger::enable(k_tag);
 
 	DArray<const char *> extensions;
 	// GetRequiredExtensions
@@ -64,19 +67,18 @@ void VulkanSystem::init()
 		u32 glfwExtensionCount = 0;
 		const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-		if constexpr (isValidationEnabled) {
-			extensions.reserve(glfwExtensionCount + k_debugExtensions.count());
-			extensions.add(k_debugExtensions);
-		} else {
-			extensions.reserve(glfwExtensionCount);
-		}
+#ifdef _RELEASE_SYMB
+		extensions.reserve(glfwExtensionCount + k_debugExtensions.count());
+		extensions.add(k_debugExtensions);
+#else
+		extensions.reserve(glfwExtensionCount);
+#endif
 
 		extensions.add(glfwExtensions, glfwExtensionCount);
 	}
 
-	// Check if validation layers are available
-	if constexpr(isValidationEnabled)
-	{	
+#ifdef _RELEASE_SYMB
+	{ 	// Check if validation layers are available
 		u32 layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -93,9 +95,10 @@ void VulkanSystem::init()
 				}
 			}
 
-			g_assertFatal(k_tag, "Requested validation layer(%s) is not available.", layer);
+			g_assertFatal(didFindLayer, "Requested validation layer(%s) is not available.", layer);
 		}
 	}
+#endif
 
 	{	// Create Instance
 		VkApplicationInfo appInfo;
@@ -112,15 +115,14 @@ void VulkanSystem::init()
 		createInfo.pNext = nullptr;
 		createInfo.pApplicationInfo = &appInfo;
 
-		if constexpr (isValidationEnabled) {
-			createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.count());
-			createInfo.ppEnabledLayerNames = k_validationLayers.data();
-			createInfo.enabledExtensionCount = static_cast<u32>(extensions.count());
-			createInfo.ppEnabledExtensionNames = extensions.data();
-
-		} else {
-			createInfo.enabledLayerCount = 0;
-		}
+#ifdef _RELEASE_SYMB
+		createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.count());
+		createInfo.ppEnabledLayerNames = k_validationLayers.data();
+		createInfo.enabledExtensionCount = static_cast<u32>(extensions.count());
+		createInfo.ppEnabledExtensionNames = extensions.data();
+#else
+		createInfo.enabledLayerCount = 0;
+#endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
 	}
@@ -170,11 +172,13 @@ void VulkanSystem::init()
 
 void VulkanSystem::cleanup()
 {
+#ifdef _RELEASE_SYMB
 	{	// Destroy Debug Utils Messenger
 		auto f_destroyDebugUtilsMessengerEXT = AGE_VK_GET_COMMAND(_instance, vkDestroyDebugUtilsMessengerEXT);
 		if (f_destroyDebugUtilsMessengerEXT != nullptr)
 			f_destroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
 	}
+#endif
 
 	vkDestroyInstance(_instance, nullptr);
 }
@@ -193,8 +197,11 @@ VkPhysicalDevice VulkanSystem::pickPhysicalDevice(const DArray<VkPhysicalDevice>
 		if (!isDeviceCompatible(candidate))
 			continue;
 
-		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
+
 			return candidate;
+		}
 	}
 
 	return VK_NULL_HANDLE;
