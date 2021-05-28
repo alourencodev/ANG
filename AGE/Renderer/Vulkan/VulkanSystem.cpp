@@ -87,9 +87,8 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
 	return queueIndices;
 }
 
-bool isDeviceCompatible(VkPhysicalDevice physicalDevice)
+bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices)
 {
-	QueueIndices queueIndices = getDeviceQueueIndices(physicalDevice);
 	bool hasMandatoryQueueFamilies = queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
 	if (!hasMandatoryQueueFamilies)
 		return false;
@@ -97,7 +96,7 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice)
 	return true;
 }
 
-VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates)
+VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, QueueIndices &out_queueIndices)
 {
 	// TODO https://trello.com/c/FZ8pfoMI
 	// Currently we just pick the first dedicated GPU. 
@@ -108,11 +107,13 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates)
 		VkPhysicalDeviceProperties properties;
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
-		if (!isDeviceCompatible(candidate))
+		QueueIndices queueIndices = getDeviceQueueIndices(candidate);
+		if (!isDeviceCompatible(candidate, queueIndices))
 			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
+			out_queueIndices = queueIndices;
 
 			return candidate;
 		}
@@ -127,6 +128,7 @@ void VulkanSystem::init()
 	logger::enable(k_tag);
 
 	DArray<const char *> extensions;
+	QueueIndices queueIndices;
 
 	{	// GetRequiredExtensions
 		u32 glfwExtensionCount = 0;
@@ -231,7 +233,7 @@ void VulkanSystem::init()
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
-		_physicalDevice = pickPhysicalDevice(physicalDevices);
+		_physicalDevice = pickPhysicalDevice(physicalDevices, queueIndices);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
 }
