@@ -83,6 +83,7 @@ void VulkanSystem::init()
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
 		DArray<VkLayerProperties> availableLayerProperties(layerCount);
+		availableLayerProperties.addEmpty(layerCount);
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayerProperties.data());
 
 		for (const char *layer : k_validationLayers) {
@@ -162,6 +163,7 @@ void VulkanSystem::init()
 
 		// TODO: Use stack allocator here
 		DArray<VkPhysicalDevice> physicalDevices(deviceCount);
+		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
 		_physicalDevice = pickPhysicalDevice(physicalDevices);
@@ -214,6 +216,7 @@ QueueIndices VulkanSystem::getDeviceQueueIndices(VkPhysicalDevice physicalDevice
 
 	// TODO: Use stack allocator here
 	DArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	queueFamilies.addEmpty(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
 	QueueIndices queueIndices;

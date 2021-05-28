@@ -203,10 +203,11 @@ public:
 	/**
 	@brief	Add an empty element to the end of the array. Allocates memory if necessary.
 	**/
-	void addEmpty()
+	void addEmpty(size_t count = 1)
 	{
-		_reserveIfNotEnoughSize();
-		_count++;
+		g_assert(count > 0, "Cannot add 0 empty elements.");
+		_reserveIfNotEnoughSize(count);
+		_count += count;
 	}
 
 
