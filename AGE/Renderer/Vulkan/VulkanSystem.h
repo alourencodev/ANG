@@ -24,7 +24,6 @@ enum class e_QueueFamily : u8
 class VulkanSystem
 {
 public:
-
 	static VulkanSystem &get() { static VulkanSystem instance; return instance; } ;
 	
 	void init();
@@ -33,9 +32,6 @@ public:
 private:
 	VulkanSystem() = default;
 	~VulkanSystem() = default;
-
-	VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates) const;
-	bool isDeviceCompatible(VkPhysicalDevice physicalDevice) const;
 
 	VkInstance _instance = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;

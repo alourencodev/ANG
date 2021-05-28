@@ -64,6 +64,63 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 }
 #endif
 
+QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
+{
+	u32 queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+	// TODO: Use stack allocator here
+	DArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	queueFamilies.addEmpty(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+	QueueIndices queueIndices;
+	for (u32 i = 0; i < queueFamilies.count(); i++) {
+		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			const u8 queueFamilyIndex = static_cast<u8>(e_QueueFamily::Graphics);
+			queueIndices.indexMap.set(queueFamilyIndex);
+			queueIndices.indices[queueFamilyIndex] = i;
+
+		}
+	}
+
+	return queueIndices;
+}
+
+bool isDeviceCompatible(VkPhysicalDevice physicalDevice)
+{
+	QueueIndices queueIndices = getDeviceQueueIndices(physicalDevice);
+	bool hasMandatoryQueueFamilies = queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
+	if (!hasMandatoryQueueFamilies)
+		return false;
+
+	return true;
+}
+
+VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates)
+{
+	// TODO https://trello.com/c/FZ8pfoMI
+	// Currently we just pick the first dedicated GPU. 
+	// If there is no dedicated GPU we fallback to the first candidate.
+	// This is a very naive way to pick a GPU, so a better way should be implemented in the future.
+
+	for (VkPhysicalDevice candidate : candidates) {
+		VkPhysicalDeviceProperties properties;
+		vkGetPhysicalDeviceProperties(candidate, &properties);
+		
+		if (!isDeviceCompatible(candidate))
+			continue;
+
+		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
+
+			return candidate;
+		}
+	}
+
+	return VK_NULL_HANDLE;
+}
+
 void VulkanSystem::init()
 {
 	// TODO: Remove
@@ -176,7 +233,6 @@ void VulkanSystem::init()
 
 		_physicalDevice = pickPhysicalDevice(physicalDevices);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
-		//TODO: print info of the picked physical device
 	}
 }
 
@@ -191,63 +247,6 @@ void VulkanSystem::cleanup()
 #endif
 
 	vkDestroyInstance(_instance, nullptr);
-}
-
-VkPhysicalDevice VulkanSystem::pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates) const
-{
-	// TODO https://trello.com/c/FZ8pfoMI
-	// Currently we just pick the first dedicated GPU. 
-	// If there is no dedicated GPU we fallback to the first candidate.
-	// This is a very naive way to pick a GPU, so a better way should be implemented in the future.
-
-	for (VkPhysicalDevice candidate : candidates) {
-		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(candidate, &properties);
-		
-		if (!isDeviceCompatible(candidate))
-			continue;
-
-		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
-
-			return candidate;
-		}
-	}
-
-	return VK_NULL_HANDLE;
-}
-
-QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
-{
-	u32 queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-	// TODO: Use stack allocator here
-	DArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	queueFamilies.addEmpty(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
-
-	QueueIndices queueIndices;
-	for (u32 i = 0; i < queueFamilies.count(); i++) {
-		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			const u8 queueFamilyIndex = static_cast<u8>(e_QueueFamily::Graphics);
-			queueIndices.indexMap.set(queueFamilyIndex);
-			queueIndices.indices[queueFamilyIndex] = i;
-
-		}
-	}
-
-	return queueIndices;
-}
-
-bool VulkanSystem::isDeviceCompatible(VkPhysicalDevice physicalDevice) const
-{
-	QueueIndices queueIndices = getDeviceQueueIndices(physicalDevice);
-	bool hasMandatoryQueueFamilies = queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
-	if (!hasMandatoryQueueFamilies)
-		return false;
-
-	return true;
 }
 
 }
