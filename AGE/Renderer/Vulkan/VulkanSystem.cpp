@@ -190,6 +190,7 @@ void VulkanSystem::init()
 		createInfo.ppEnabledExtensionNames = extensions.data();
 #else
 		createInfo.enabledLayerCount = 0;
+		createInfo.enabledExtensionCount = 0;
 #endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
