@@ -223,7 +223,7 @@ void VulkanSystem::init()
 	}
 #endif
 
-	{	// PickingPhysicalDevice
+	{	// PickPhysicalDevice
 		u32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
