@@ -18,6 +18,14 @@ namespace age::vk
 
 constexpr char k_tag[] = "VulkanSystem";
 
+struct QueueIndices
+{
+	using QueueIndexArray = SArray<u32, static_cast<u8>(e_QueueFamily::Count)>;
+
+	QueueIndexArray indices = {};
+	BitField indexMap;
+};
+
 constexpr byte getMandatoryQueueFamilies()
 {
 	byte field = 0;
@@ -62,8 +70,8 @@ void VulkanSystem::init()
 	logger::enable(k_tag);
 
 	DArray<const char *> extensions;
-	// GetRequiredExtensions
-	{
+
+	{	// GetRequiredExtensions
 		u32 glfwExtensionCount = 0;
 		const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -78,7 +86,7 @@ void VulkanSystem::init()
 	}
 
 #ifdef _RELEASE_SYMB
-	{ 	// Check if validation layers are available
+	{ 	// CheckValidationLayersAvailability
 		u32 layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -101,7 +109,7 @@ void VulkanSystem::init()
 	}
 #endif
 
-	{	// Create Instance
+	{	// CreateInstance
 		VkApplicationInfo appInfo;
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pNext = nullptr;
@@ -129,7 +137,7 @@ void VulkanSystem::init()
 	}
 
 #ifdef _RELEASE_SYMB
-	{	// Create Debug Messenger
+	{	// CreateDebugMessenger
 		using VkMessageSeverityFlag = VkDebugUtilsMessageSeverityFlagBitsEXT;
 		using VkMessageTypeFlag = VkDebugUtilsMessageTypeFlagBitsEXT;
 
@@ -156,7 +164,7 @@ void VulkanSystem::init()
 	}
 #endif
 
-	{	// Picking Physical Device
+	{	// PickingPhysicalDevice
 		u32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
@@ -175,7 +183,7 @@ void VulkanSystem::init()
 void VulkanSystem::cleanup()
 {
 #ifdef _RELEASE_SYMB
-	{	// Destroy Debug Utils Messenger
+	{	// DestroyDebugUtilsMessenger
 		auto f_destroyDebugUtilsMessengerEXT = AGE_VK_GET_COMMAND(_instance, vkDestroyDebugUtilsMessengerEXT);
 		if (f_destroyDebugUtilsMessengerEXT != nullptr)
 			f_destroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
@@ -209,7 +217,7 @@ VkPhysicalDevice VulkanSystem::pickPhysicalDevice(const DArray<VkPhysicalDevice>
 	return VK_NULL_HANDLE;
 }
 
-QueueIndices VulkanSystem::getDeviceQueueIndices(VkPhysicalDevice physicalDevice) const
+QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
 {
 	u32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
@@ -221,8 +229,12 @@ QueueIndices VulkanSystem::getDeviceQueueIndices(VkPhysicalDevice physicalDevice
 
 	QueueIndices queueIndices;
 	for (u32 i = 0; i < queueFamilies.count(); i++) {
-		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			queueIndices.set(e_QueueFamily::Graphics, i);
+		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			const u8 queueFamilyIndex = static_cast<u8>(e_QueueFamily::Graphics);
+			queueIndices.indexMap.set(queueFamilyIndex);
+			queueIndices.indices[queueFamilyIndex] = i;
+
+		}
 	}
 
 	return queueIndices;
@@ -231,7 +243,7 @@ QueueIndices VulkanSystem::getDeviceQueueIndices(VkPhysicalDevice physicalDevice
 bool VulkanSystem::isDeviceCompatible(VkPhysicalDevice physicalDevice) const
 {
 	QueueIndices queueIndices = getDeviceQueueIndices(physicalDevice);
-	bool hasMandatoryQueueFamilies = queueIndices._indexMap.isSet(BitField(getMandatoryQueueFamilies()));
+	bool hasMandatoryQueueFamilies = queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
 	if (!hasMandatoryQueueFamilies)
 		return false;
 
