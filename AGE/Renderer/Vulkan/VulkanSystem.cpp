@@ -87,7 +87,7 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
 	return queueIndices;
 }
 
-bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices)
+bool isDeviceCompatible(const QueueIndices &queueIndices)
 {
 	bool hasMandatoryQueueFamilies = queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
 	if (!hasMandatoryQueueFamilies)
@@ -108,7 +108,7 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
 		QueueIndices queueIndices = getDeviceQueueIndices(candidate);
-		if (!isDeviceCompatible(candidate, queueIndices))
+		if (!isDeviceCompatible(queueIndices))
 			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
