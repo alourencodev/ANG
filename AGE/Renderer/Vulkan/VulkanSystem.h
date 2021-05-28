@@ -30,9 +30,6 @@ public:
 	void cleanup();
 
 private:
-	VulkanSystem() = default;
-	~VulkanSystem() = default;
-
 	VkInstance _instance = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;

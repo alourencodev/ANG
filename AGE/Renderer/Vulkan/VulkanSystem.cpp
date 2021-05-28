@@ -236,10 +236,40 @@ void VulkanSystem::init()
 		_physicalDevice = pickPhysicalDevice(physicalDevices, queueIndices);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
+
+	{	// CreateLogicalDevice
+		float queuePriority = 1.0f;
+		VkDeviceQueueCreateInfo queueCreateInfo;
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.pNext = nullptr;
+		queueCreateInfo.flags = 0;
+		queueCreateInfo.queueFamilyIndex = queueIndices.indices[static_cast<u8>(e_QueueFamily::Graphics)];
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+
+		VkDeviceCreateInfo createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext = nullptr;
+		createInfo.flags = 0;
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
+		createInfo.queueCreateInfoCount = 1;
+		createInfo.pEnabledFeatures = nullptr;	// TODO: Assign
+
+		// For older versions on Vulkan, it might be necessary to also set the validation layers here.
+		// Since this is not necessary at the time of this implementation, let's skip that.
+		// TODO: Investigate how this is really currently working as it seems to be generating weird errors.
+		createInfo.enabledLayerCount = 0;
+		createInfo.enabledExtensionCount = 0;
+		
+		AGE_VK_CHECK(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device));
+		g_log(k_tag, "Vulkan device created.");
+	}
 }
 
 void VulkanSystem::cleanup()
 {
+	vkDestroyDevice(_device, nullptr);
+
 #ifdef _RELEASE_SYMB
 	{	// DestroyDebugUtilsMessenger
 		auto f_destroyDebugUtilsMessengerEXT = AGE_VK_GET_COMMAND(_instance, vkDestroyDebugUtilsMessengerEXT);
