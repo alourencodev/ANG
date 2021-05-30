@@ -26,21 +26,17 @@ struct QueueIndices
 	BitField indexMap;
 };
 
-constexpr byte getMandatoryQueueFamilies()
-{
-	byte field = 0;
-	for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
-		field |= 1 << i;
-	
-	return field;
-}
+static const SArray<const char *, 1> k_requiredExtensions = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 #ifdef _RELEASE_SYMB
-static const DArray<const char *> k_validationLayers = {
+// TODO: Check what other validation layers can be useful to us
+static const SArray<const char *, 1> k_validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
 
-static const DArray<const char *> k_debugExtensions = {
+static const SArray<const char *, 1> k_debugExtensions = {
 	VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 };
 
@@ -63,6 +59,15 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 	return VK_FALSE;
 }
 #endif
+
+constexpr byte getRequiredQueueFamilies()
+{
+	byte field = 0;
+	for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
+		field |= 1 << i;
+	
+	return field;
+}
 
 QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
 {
@@ -102,9 +107,37 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR
 	return queueIndices;
 }
 
-bool isDeviceCompatible(const QueueIndices &queueIndices)
+bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices)
 {
-	return queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
+	{	// CheckRequiredQueueFamilies
+		if (!queueIndices.indexMap.isSet(BitField(getRequiredQueueFamilies())))
+			return false;
+	}
+	
+	{	// CheckRequiredExtensions
+		u32 extensionCount = 0;
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+
+		// TODO: Use Stack Allocator
+		DArray<VkExtensionProperties> availableExtensions(extensionCount);
+		availableExtensions.addEmpty(extensionCount);
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+
+		DArray<const char *> missingRequiredExtensions(k_requiredExtensions);
+		for (const auto &extension : availableExtensions) {
+			for (int i = 0; i < missingRequiredExtensions.count(); i++) {
+				if (strcmp(missingRequiredExtensions[i], extension.extensionName) == 0) {
+					missingRequiredExtensions.swapPopIndex(i);
+					break;
+				}
+			}
+		}
+
+		if (!missingRequiredExtensions.isEmpty())
+			return false;
+	}
+
+	return true;
 }
 
 VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, QueueIndices &out_queueIndices, VkSurfaceKHR surface)
@@ -119,7 +152,7 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
 		QueueIndices queueIndices = getDeviceQueueIndices(candidate, surface);
-		if (!isDeviceCompatible(queueIndices))
+		if (!isDeviceCompatible(candidate, queueIndices))
 			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
@@ -146,7 +179,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 #ifdef _RELEASE_SYMB
-		extensions.reserve(glfwExtensionCount + k_debugExtensions.count());
+		extensions.reserve(glfwExtensionCount + k_debugExtensions.size);
 		extensions.add(k_debugExtensions);
 #else
 		extensions.reserve(glfwExtensionCount);
@@ -195,7 +228,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.pApplicationInfo = &appInfo;
 
 #ifdef _RELEASE_SYMB
-		createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.count());
+		createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.size);
 		createInfo.ppEnabledLayerNames = k_validationLayers.data();
 		createInfo.enabledExtensionCount = static_cast<u32>(extensions.count());
 		createInfo.ppEnabledExtensionNames = extensions.data();
@@ -256,7 +289,6 @@ void VulkanSystem::init(GLFWwindow *window)
 	}
 
 	{	// CreateLogicalDevice
-
 		// TOOD: Use Stack Allocator
 		DArray<VkDeviceQueueCreateInfo> queueCreateInfoArray(static_cast<u32>(e_QueueFamily::Count));
 
@@ -280,12 +312,13 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.pQueueCreateInfos = queueCreateInfoArray.data();
 		createInfo.queueCreateInfoCount = queueCreateInfoArray.count();
 		createInfo.pEnabledFeatures = nullptr;	// TODO: Assign
+		createInfo.enabledExtensionCount = k_requiredExtensions.size;
+		createInfo.ppEnabledExtensionNames = k_requiredExtensions.data();
 
 		// For older versions on Vulkan, it might be necessary to also set the validation layers here.
 		// Since this is not necessary at the time of this implementation, let's skip that.
 		// TODO: Investigate how this is really currently working as it seems to be generating weird errors.
 		createInfo.enabledLayerCount = 0;
-		createInfo.enabledExtensionCount = 0;
 		
 		AGE_VK_CHECK(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device));
 		g_log(k_tag, "Vulkan device created.");
