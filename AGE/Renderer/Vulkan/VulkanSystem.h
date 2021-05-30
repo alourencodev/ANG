@@ -30,9 +30,12 @@ public:
 	void cleanup();
 
 private:
+	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
+
 	VkInstance _instance = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
+	QueueArray _queueArray;
 
 #ifdef _RELEASE_SYMB
 	VkDebugUtilsMessengerEXT _debugMessenger;

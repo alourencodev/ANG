@@ -265,6 +265,11 @@ void VulkanSystem::init()
 		AGE_VK_CHECK(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device));
 		g_log(k_tag, "Vulkan device created.");
 	}
+
+	{	// StoreQueueHandles
+		for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
+			vkGetDeviceQueue(_device, queueIndices.indices[i], 0, &_queueArray[i]);
+	}
 }
 
 void VulkanSystem::cleanup()
