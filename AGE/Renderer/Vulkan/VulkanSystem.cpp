@@ -122,7 +122,7 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 	return VK_NULL_HANDLE;
 }
 
-void VulkanSystem::init()
+void VulkanSystem::init(GLFWwindow *window)
 {
 	// TODO: Remove
 	logger::enable(k_tag);
@@ -194,6 +194,12 @@ void VulkanSystem::init()
 #endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
+		g_log(k_tag, "Create Vulkan Instance.");
+	}
+
+	{	// CreateWindowSurface
+		AGE_VK_CHECK(glfwCreateWindowSurface(_instance, window, nullptr, &_surface));
+		g_log(k_tag, "Create Window Surface.");
 	}
 
 #ifdef _RELEASE_SYMB
@@ -284,6 +290,7 @@ void VulkanSystem::cleanup()
 	}
 #endif
 
+	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyInstance(_instance, nullptr);
 }
 

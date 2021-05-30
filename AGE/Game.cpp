@@ -22,7 +22,7 @@ void Game::Run()
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
-		vk::VulkanSystem::get().init();
+		vk::VulkanSystem::get().init(_window);
 	}
 
 	g_log(k_tag, "Initializing Game.");

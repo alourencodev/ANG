@@ -9,6 +9,8 @@
 #include <Core/SArray.hpp>
 
 
+struct GLFWwindow;
+
 namespace age::vk
 {
 
@@ -26,13 +28,14 @@ class VulkanSystem
 public:
 	static VulkanSystem &get() { static VulkanSystem instance; return instance; } ;
 	
-	void init();
+	void init(GLFWwindow *window);
 	void cleanup();
 
 private:
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
 
 	VkInstance _instance = VK_NULL_HANDLE;
+	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
 	QueueArray _queueArray;
