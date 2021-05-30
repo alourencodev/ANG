@@ -19,6 +19,7 @@ class VulkanSystem;
 enum class e_QueueFamily : u8
 {
 	Graphics,
+	Presentation,
 
 	Count
 };

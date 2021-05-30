@@ -64,7 +64,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 }
 #endif
 
-QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
+QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
 {
 	u32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
@@ -76,11 +76,26 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
 
 	QueueIndices queueIndices;
 	for (u32 i = 0; i < queueFamilies.count(); i++) {
-		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			const u8 queueFamilyIndex = static_cast<u8>(e_QueueFamily::Graphics);
-			queueIndices.indexMap.set(queueFamilyIndex);
-			queueIndices.indices[queueFamilyIndex] = i;
 
+		// Graphics Queue
+		{
+			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				const u8 graphicsIndex = static_cast<u8>(e_QueueFamily::Graphics);
+				queueIndices.indexMap.set(graphicsIndex);
+				queueIndices.indices[graphicsIndex] = i;
+			}
+		}
+
+		// Presentation Queue
+		{
+			VkBool32 supportsPresentation = false;
+			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportsPresentation);
+
+			if (supportsPresentation) {
+				const u8 presentationIndex = static_cast<u8>(e_QueueFamily::Presentation);
+				queueIndices.indexMap.set(presentationIndex);
+				queueIndices.indices[presentationIndex] = i;
+			}
 		}
 	}
 
@@ -89,14 +104,10 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice)
 
 bool isDeviceCompatible(const QueueIndices &queueIndices)
 {
-	bool hasMandatoryQueueFamilies = queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
-	if (!hasMandatoryQueueFamilies)
-		return false;
-
-	return true;
+	return queueIndices.indexMap.isSet(BitField(getMandatoryQueueFamilies()));
 }
 
-VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, QueueIndices &out_queueIndices)
+VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, QueueIndices &out_queueIndices, VkSurfaceKHR surface)
 {
 	// TODO https://trello.com/c/FZ8pfoMI
 	// Currently we just pick the first dedicated GPU. 
@@ -107,7 +118,7 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 		VkPhysicalDeviceProperties properties;
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
-		QueueIndices queueIndices = getDeviceQueueIndices(candidate);
+		QueueIndices queueIndices = getDeviceQueueIndices(candidate, surface);
 		if (!isDeviceCompatible(queueIndices))
 			continue;
 
@@ -240,26 +251,34 @@ void VulkanSystem::init(GLFWwindow *window)
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
-		_physicalDevice = pickPhysicalDevice(physicalDevices, queueIndices);
+		_physicalDevice = pickPhysicalDevice(physicalDevices, queueIndices, _surface);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
 
 	{	// CreateLogicalDevice
+
+		// TOOD: Use Stack Allocator
+		DArray<VkDeviceQueueCreateInfo> queueCreateInfoArray(static_cast<u32>(e_QueueFamily::Count));
+
 		float queuePriority = 1.0f;
-		VkDeviceQueueCreateInfo queueCreateInfo;
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.pNext = nullptr;
-		queueCreateInfo.flags = 0;
-		queueCreateInfo.queueFamilyIndex = queueIndices.indices[static_cast<u8>(e_QueueFamily::Graphics)];
-		queueCreateInfo.queueCount = 1;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
+		for (int i = 0; i < static_cast<u32>(e_QueueFamily::Count); i++) {
+			VkDeviceQueueCreateInfo queueCreateInfo;
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.pNext = nullptr;
+			queueCreateInfo.flags = 0;
+			queueCreateInfo.queueFamilyIndex = queueIndices.indices[i];
+			queueCreateInfo.queueCount = 1;
+			queueCreateInfo.pQueuePriorities = &queuePriority;
+
+			queueCreateInfoArray.add(queueCreateInfo);
+		}
 
 		VkDeviceCreateInfo createInfo;
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.pNext = nullptr;
 		createInfo.flags = 0;
-		createInfo.pQueueCreateInfos = &queueCreateInfo;
-		createInfo.queueCreateInfoCount = 1;
+		createInfo.pQueueCreateInfos = queueCreateInfoArray.data();
+		createInfo.queueCreateInfoCount = queueCreateInfoArray.count();
 		createInfo.pEnabledFeatures = nullptr;	// TODO: Assign
 
 		// For older versions on Vulkan, it might be necessary to also set the validation layers here.
