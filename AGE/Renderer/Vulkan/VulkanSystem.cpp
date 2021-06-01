@@ -26,6 +26,13 @@ struct QueueIndices
 	BitField indexMap;
 };
 
+struct SwapChainDetails
+{
+	VkSurfaceCapabilitiesKHR capabilities;
+	DArray<VkSurfaceFormatKHR> formats;
+	DArray<VkPresentModeKHR> presentMode;
+};
+
 static const SArray<const char *, 1> k_requiredExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
@@ -107,7 +114,31 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR
 	return queueIndices;
 }
 
-bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices)
+SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+{
+	SwapChainDetails details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
+
+	u32 formatCount = 0;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+	if (formatCount > 0) {
+		details.formats.reserve(formatCount);
+		details.formats.addEmpty(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
+	}
+
+	u32 presentModesCount = 0;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, nullptr);
+	if (presentModesCount > 0) {
+		details.presentMode.reserve(presentModesCount);
+		details.presentMode.addEmpty(presentModesCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, details.presentMode.data());
+	}
+
+	return details;
+}
+
+bool isDeviceCompatible(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const QueueIndices &queueIndices)
 {
 	{	// CheckRequiredQueueFamilies
 		if (!queueIndices.indexMap.isSet(BitField(getRequiredQueueFamilies())))
@@ -137,10 +168,16 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &que
 			return false;
 	}
 
+	{	// CheckSwapChain
+		SwapChainDetails details = getSwapChainDetails(physicalDevice, surface);
+		if (details.formats.isEmpty() || details.presentMode.isEmpty())
+			return false;
+	}
+
 	return true;
 }
 
-VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, QueueIndices &out_queueIndices, VkSurfaceKHR surface)
+VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, VkSurfaceKHR surface, QueueIndices &o_queueIndices)
 {
 	// TODO https://trello.com/c/FZ8pfoMI
 	// Currently we just pick the first dedicated GPU. 
@@ -152,12 +189,12 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
 		QueueIndices queueIndices = getDeviceQueueIndices(candidate, surface);
-		if (!isDeviceCompatible(candidate, queueIndices))
+		if (!isDeviceCompatible(candidate, surface, queueIndices))
 			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
-			out_queueIndices = queueIndices;
+			o_queueIndices = queueIndices;
 
 			return candidate;
 		}
@@ -284,7 +321,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
-		_physicalDevice = pickPhysicalDevice(physicalDevices, queueIndices, _surface);
+		_physicalDevice = pickPhysicalDevice(physicalDevices, _surface, queueIndices);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
 

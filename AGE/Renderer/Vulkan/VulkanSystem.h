@@ -16,6 +16,7 @@ namespace age::vk
 
 class VulkanSystem;
 
+// If a new family is added to the enum, it is also necessary to check if the physical device supports it.
 enum class e_QueueFamily : u8
 {
 	Graphics,
