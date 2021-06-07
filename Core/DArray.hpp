@@ -68,6 +68,29 @@ public:
 	~DArray() { t_allocator::dealloc(_data); }
 
 
+	void operator = (const DArray<t_type, t_allocator> &other)
+	{
+		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
+
+		_data = t_allocator::alloc(other._capacity);
+		_capacity = other._capacity;
+		_count = other._count;
+		memcpy(_data, other._data, _capacity * sizeof(t_type));
+	}
+
+	void operator = (DArray<t_type, t_allocator> &&other)
+	{
+		t_allocator::dealloc(_data);
+
+		_data = other._data;
+		_capacity = other._capacity;
+		_count = other._count;
+
+		other._data = nullptr;
+		other._capacity = 0;
+		other._count = 0;
+	}
+
 	/**
 	@brief	Number of elements in the array.
 	**/
