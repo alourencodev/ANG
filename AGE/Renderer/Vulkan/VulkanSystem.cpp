@@ -371,17 +371,21 @@ void VulkanSystem::init(GLFWwindow *window)
 	{	// CreateSwapchain
 		const VkSurfaceCapabilitiesKHR &capabilities = swapchainDetails.capabilities;
 
-		VkSurfaceFormatKHR format = swapchainDetails.formats[0];
+		VkColorSpaceKHR colorSpace;
 		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-		VkExtent2D extent;
 
 		{	// ChooseFormat
+			VkSurfaceFormatKHR format = swapchainDetails.formats[0];
+
 			for (const auto &availableFormat : swapchainDetails.formats) {
 				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 					format = availableFormat;
 					break;
 				}
 			}
+			
+			colorSpace = format.colorSpace;
+			_swapchainData.format = format.format;
 		}
 
 		{	// ChoosePresentMode
@@ -392,12 +396,15 @@ void VulkanSystem::init(GLFWwindow *window)
 		}
 
 		{	// ChooseExtension
+			VkExtent2D extent;
 			i32 width, height;
 			glfwGetFramebufferSize(window, &width, &height);
 			extent = { static_cast<u32>(width), static_cast<u32>(height)};
 
 			extent.width = math::g_clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 			extent.height = math::g_clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+			_swapchainData.extent = extent;
 		}
 
 		constexpr u32 k_extraSwapchainImages = 1;
@@ -418,9 +425,9 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.flags = 0;
 		createInfo.surface = _surface;
 		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = format.format;
-		createInfo.imageColorSpace = format.colorSpace;
-		createInfo.imageExtent = extent;
+		createInfo.imageFormat = _swapchainData.format;
+		createInfo.imageColorSpace = colorSpace;
+		createInfo.imageExtent = _swapchainData.extent;
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		createInfo.preTransform = capabilities.currentTransform;
@@ -441,6 +448,15 @@ void VulkanSystem::init(GLFWwindow *window)
 
 		AGE_VK_CHECK(vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapchain));
 		g_log(k_tag, "Vulkan swapchain created.");
+	}
+
+	{	// StoreImageHandles
+		u32 imageCount = 0;
+		vkGetSwapchainImagesKHR(_device, _swapchain, &imageCount, nullptr);
+
+		_swapchainData.images.reserve(imageCount);
+		_swapchainData.images.addEmpty(imageCount);
+		vkGetSwapchainImagesKHR(_device, _swapchain, &imageCount, _swapchainData.images.data());
 	}
 }
 

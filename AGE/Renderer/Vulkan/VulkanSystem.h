@@ -34,6 +34,14 @@ public:
 	void cleanup();
 
 private:
+
+	struct SwapchainData
+	{
+		DArray<VkImage> images;
+		VkFormat format;
+		VkExtent2D extent;
+	};
+
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
 
 	VkInstance _instance = VK_NULL_HANDLE;
@@ -42,6 +50,7 @@ private:
 	VkDevice _device = VK_NULL_HANDLE;
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 	QueueArray _queueArray;
+	SwapchainData _swapchainData;
 
 #ifdef _RELEASE_SYMB
 	VkDebugUtilsMessengerEXT _debugMessenger;
