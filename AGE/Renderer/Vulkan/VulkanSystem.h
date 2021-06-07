@@ -40,6 +40,7 @@ private:
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
+	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 	QueueArray _queueArray;
 
 #ifdef _RELEASE_SYMB

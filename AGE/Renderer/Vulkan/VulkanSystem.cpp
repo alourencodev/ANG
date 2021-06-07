@@ -138,7 +138,7 @@ SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceK
 	return details;
 }
 
-bool isDeviceCompatible(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const QueueIndices &queueIndices)
+bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices, const SwapChainDetails &swapChainDetails)
 {
 	{	// CheckRequiredQueueFamilies
 		if (!queueIndices.indexMap.isSet(BitField(getRequiredQueueFamilies())))
@@ -169,15 +169,14 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, c
 	}
 
 	{	// CheckSwapChain
-		SwapChainDetails details = getSwapChainDetails(physicalDevice, surface);
-		if (details.formats.isEmpty() || details.presentMode.isEmpty())
+		if (swapChainDetails.formats.isEmpty() || swapChainDetails.presentMode.isEmpty())
 			return false;
 	}
 
 	return true;
 }
 
-VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, VkSurfaceKHR surface, QueueIndices &o_queueIndices)
+VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, VkSurfaceKHR surface, QueueIndices &o_queueIndices, SwapChainDetails &o_swapChainDetails)
 {
 	// TODO https://trello.com/c/FZ8pfoMI
 	// Currently we just pick the first dedicated GPU. 
@@ -189,12 +188,14 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
 		QueueIndices queueIndices = getDeviceQueueIndices(candidate, surface);
-		if (!isDeviceCompatible(candidate, surface, queueIndices))
+		SwapChainDetails swapChainDetails = getSwapChainDetails(candidate, surface);
+		if (!isDeviceCompatible(candidate, queueIndices, swapChainDetails))
 			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
 			o_queueIndices = queueIndices;
+			o_swapChainDetails = std::move(swapChainDetails);
 
 			return candidate;
 		}
@@ -210,6 +211,7 @@ void VulkanSystem::init(GLFWwindow *window)
 
 	DArray<const char *> extensions;
 	QueueIndices queueIndices;
+	SwapChainDetails swapchainDetails;
 
 	{	// GetRequiredExtensions
 		u32 glfwExtensionCount = 0;
@@ -321,7 +323,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
-		_physicalDevice = pickPhysicalDevice(physicalDevices, _surface, queueIndices);
+		_physicalDevice = pickPhysicalDevice(physicalDevices, _surface, queueIndices, swapchainDetails);
 		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
 
@@ -365,10 +367,86 @@ void VulkanSystem::init(GLFWwindow *window)
 		for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
 			vkGetDeviceQueue(_device, queueIndices.indices[i], 0, &_queueArray[i]);
 	}
+
+	{	// CreateSwapchain
+		const VkSurfaceCapabilitiesKHR &capabilities = swapchainDetails.capabilities;
+
+		VkSurfaceFormatKHR format = swapchainDetails.formats[0];
+		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
+		VkExtent2D extent;
+
+		{	// ChooseFormat
+			for (const auto &availableFormat : swapchainDetails.formats) {
+				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+					format = availableFormat;
+					break;
+				}
+			}
+		}
+
+		{	// ChoosePresentMode
+			for (const auto &availablePresentMode : swapchainDetails.presentMode) {
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+					presentMode = availablePresentMode;
+			}
+		}
+
+		{	// ChooseExtension
+			i32 width, height;
+			glfwGetFramebufferSize(window, &width, &height);
+			extent = { static_cast<u32>(width), static_cast<u32>(height)};
+
+			extent.width = math::g_clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+			extent.height = math::g_clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+		}
+
+		constexpr u32 k_extraSwapchainImages = 1;
+
+		u32 imageCount = capabilities.minImageCount + k_extraSwapchainImages;
+		u32 presentationQueueIndex = queueIndices.indices[static_cast<u32>(e_QueueFamily::Presentation)];
+		u32 graphicsQueueIndex = queueIndices.indices[static_cast<u32>(e_QueueFamily::Graphics)];
+		SArray<u32, 2> swapchainQueueIndices = {presentationQueueIndex, graphicsQueueIndex};
+
+		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount) {
+			g_warning(k_tag, "Trying to have more swapchain images than what is allowed. SwapChain images count will be clamped to the allowed maximum.");
+			imageCount = capabilities.maxImageCount;
+		}
+
+		VkSwapchainCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.pNext = nullptr;
+		createInfo.flags = 0;
+		createInfo.surface = _surface;
+		createInfo.minImageCount = imageCount;
+		createInfo.imageFormat = format.format;
+		createInfo.imageColorSpace = format.colorSpace;
+		createInfo.imageExtent = extent;
+		createInfo.imageArrayLayers = 1;
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.preTransform = capabilities.currentTransform;
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode = presentMode;
+		createInfo.clipped = VK_TRUE;
+		createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+		if (presentationQueueIndex != graphicsQueueIndex) {
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.queueFamilyIndexCount = static_cast<u32>(swapchainQueueIndices.size);
+			createInfo.pQueueFamilyIndices = swapchainQueueIndices.data();
+		} else {
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			createInfo.queueFamilyIndexCount = 0;
+			createInfo.pQueueFamilyIndices = nullptr;
+		}
+
+		AGE_VK_CHECK(vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapchain));
+		g_log(k_tag, "Vulkan swapchain created.");
+	}
 }
 
 void VulkanSystem::cleanup()
 {
+	vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 	vkDestroyDevice(_device, nullptr);
 
 #ifdef _RELEASE_SYMB
