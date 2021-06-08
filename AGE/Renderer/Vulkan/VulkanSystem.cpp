@@ -81,7 +81,6 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR
 	u32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
-	// TODO: Use stack allocator here
 	DArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 	queueFamilies.addEmpty(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
@@ -149,7 +148,6 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &que
 		u32 extensionCount = 0;
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
 
-		// TODO: Use Stack Allocator
 		DArray<VkExtensionProperties> availableExtensions(extensionCount);
 		availableExtensions.addEmpty(extensionCount);
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
@@ -318,7 +316,6 @@ void VulkanSystem::init(GLFWwindow *window)
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
 
-		// TODO: Use stack allocator here
 		DArray<VkPhysicalDevice> physicalDevices(deviceCount);
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
@@ -328,7 +325,6 @@ void VulkanSystem::init(GLFWwindow *window)
 	}
 
 	{	// CreateLogicalDevice
-		// TOOD: Use Stack Allocator
 		DArray<VkDeviceQueueCreateInfo> queueCreateInfoArray(static_cast<u32>(e_QueueFamily::Count));
 
 		float queuePriority = 1.0f;
