@@ -277,12 +277,12 @@ void VulkanSystem::init(GLFWwindow *window)
 #endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
-		g_log(k_tag, "Create Vulkan Instance.");
+		g_log(k_tag, "Created Instance.");
 	}
 
 	{	// CreateWindowSurface
 		AGE_VK_CHECK(glfwCreateWindowSurface(_instance, window, nullptr, &_surface));
-		g_log(k_tag, "Create Window Surface.");
+		g_log(k_tag, "Created Window Surface.");
 	}
 
 #ifdef _RELEASE_SYMB
@@ -349,7 +349,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.pNext = nullptr;
 		createInfo.flags = 0;
 		createInfo.pQueueCreateInfos = queueCreateInfoArray.data();
-		createInfo.queueCreateInfoCount = queueCreateInfoArray.count();
+		createInfo.queueCreateInfoCount = static_cast<u32>(queueCreateInfoArray.count());
 		createInfo.pEnabledFeatures = nullptr;	// TODO: Assign
 		createInfo.enabledExtensionCount = k_requiredExtensions.size;
 		createInfo.ppEnabledExtensionNames = k_requiredExtensions.data();
@@ -360,7 +360,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.enabledLayerCount = 0;
 		
 		AGE_VK_CHECK(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device));
-		g_log(k_tag, "Vulkan device created.");
+		g_log(k_tag, "Created logical device.");
 	}
 
 	{	// StoreQueueHandles
@@ -447,7 +447,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		}
 
 		AGE_VK_CHECK(vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapchain));
-		g_log(k_tag, "Vulkan swapchain created.");
+		g_log(k_tag, "Swapchain created.");
 	}
 
 	{	// StoreImageHandles
@@ -458,10 +458,45 @@ void VulkanSystem::init(GLFWwindow *window)
 		_swapchainData.images.addEmpty(imageCount);
 		vkGetSwapchainImagesKHR(_device, _swapchain, &imageCount, _swapchainData.images.data());
 	}
+
+	{	// CreateImageViews
+		const auto &images = _swapchainData.images;
+		_imageViews.reserve(images.count());
+		_imageViews.addEmpty(images.count());
+
+		for (int i = 0; i < images.count(); i++) {
+			VkImageViewCreateInfo createInfo;
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.pNext = nullptr;
+			createInfo.flags = 0;
+			createInfo.image = images[i];
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = _swapchainData.format;
+
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			AGE_VK_CHECK(vkCreateImageView(_device, &createInfo, nullptr, &_imageViews[i]))
+		}
+
+		g_log(k_tag, "Created %d image views", _imageViews.count());
+	}
 }
 
 void VulkanSystem::cleanup()
 {
+	for (VkImageView imageView : _imageViews) {
+		vkDestroyImageView(_device, imageView, nullptr);
+	}
+
 	vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 	vkDestroyDevice(_device, nullptr);
 

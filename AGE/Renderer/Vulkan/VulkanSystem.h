@@ -44,13 +44,15 @@ private:
 
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
 
+	SwapchainData _swapchainData;
+	DArray<VkImageView> _imageViews;
+	QueueArray _queueArray;
+
 	VkInstance _instance = VK_NULL_HANDLE;
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
-	QueueArray _queueArray;
-	SwapchainData _swapchainData;
 
 #ifdef _RELEASE_SYMB
 	VkDebugUtilsMessengerEXT _debugMessenger;
