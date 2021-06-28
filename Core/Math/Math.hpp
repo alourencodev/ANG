@@ -17,6 +17,9 @@ _force_inline constexpr auto g_lerp(const t_type &valA, const t_type &valB, floa
 }
 
 
+/**
+@brief Returns the next power of 2 that is greater than n. If n is a power of 2, it will return itself.
+**/
 constexpr u64 g_nextPow2(u64 n)
 {
 	if (n < 2)

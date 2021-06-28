@@ -73,6 +73,9 @@
     <ClInclude Include="BitField.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="HashMap.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">
