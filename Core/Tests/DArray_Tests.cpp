@@ -1,5 +1,7 @@
 #include <catch.hpp>
 
+#include <sstream>
+
 #include <Core/DArray.hpp>
 #include <Core/NonCopyable.hpp>
 

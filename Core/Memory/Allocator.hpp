@@ -7,7 +7,9 @@ class DefaultHeapAllocator
 {
 public:
 	static t_type *alloc(size_t count) { return reinterpret_cast<t_type *>(std::malloc(sizeof(t_type) * count)); }
+
 	static void dealloc(t_type *ptr) { std::free(ptr); }
+
 	static bool realloc(t_type **outPtr, size_t count) 
 	{ 
 		if (count == 0) {

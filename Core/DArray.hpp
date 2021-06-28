@@ -72,7 +72,9 @@ public:
 	{
 		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
 
-		_data = t_allocator::alloc(other._capacity);
+		if (!t_allocator::realloc(&_data, other._capacity))
+			g_error(k_tag, "Unable to reallocate memory during copy assignment.");
+
 		_capacity = other._capacity;
 		_count = other._count;
 		memcpy(_data, other._data, _capacity * sizeof(t_type));
