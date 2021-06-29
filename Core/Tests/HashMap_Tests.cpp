@@ -69,4 +69,11 @@ TEST_CASE("HashMap Resize", k_tag)
 	REQUIRE(map["resize"] == 6);
 }
 
+TEST_CASE("HashMap Clear", k_tag)
+{
+	HashMap<std::string, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+	map.clear();
+
+	REQUIRE(map.capacity() == 8);
+	REQUIRE(map.count() == 0);
 }

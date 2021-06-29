@@ -153,6 +153,12 @@ public:
 		count--;
 		return true;
 	}
+	
+	void clear()
+	{
+		memset(_data, 0, sizeof(Node) * _capacity);
+		_count = 0;
+	}
 
 	bool contains(const t_keyType &key) const { return _findExistingIndex(key) >= 0; }
 
