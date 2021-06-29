@@ -1,164 +1,35 @@
 #pragma once
 
-#include <iostream>
-
-#include "Log/Log.h"
-#include "Math/Math.hpp"
-#include "Memory/Allocator.hpp"
-#include "StackArray.hpp"
-#include "SArray.hpp"
+#include "Attributes.hpp"
+#include "Log/Assert.hpp"
 
 
-/**
-@brief	Dynamic array.
-**/
-template<typename t_type, class t_allocator = DefaultHeapAllocator<t_type>>
-class DArray
+template<typename t_type, size_t t_maxSize>
+class StackArray
 {
-	constexpr static char k_tag[] = "DArray";
+	constexpr static char k_tag[] = "StackArray";
 
 public:
-	using Iterator = t_type *;
+	using Iterator = t_type *;	
 	using ConstIterator = const t_type *;
 
-
-	DArray() = default;
-
-	DArray(size_t capacity) 
-	{ 
-		_data = t_allocator::alloc(capacity); 
-		_capacity = capacity;
+	StackArray() = default;
+	template<size_t t_otherMaxSize>
+	StackArray(const StackArray<t_type, t_otherMaxSize> &other)
+	{
+		static_assert(t_otherMaxSize < t_maxSize, "Source array's max size must be greater or equal to the destination array's mac size.");
+		memcpy(_data, other._data, t_maxSize * sizeof(t_type));
+		_count = other._count;
 	}
 
-	template<size_t t_size>
-	DArray(const SArray<t_type, t_size> &sArray) : DArray(t_size)
-	{
-		memcpy(_data, sArray.data(), t_size * sizeof(t_type));
-		_count = _capacity;
-	}
+	StackArray(StackArray &&other) = delete;
 
-	DArray(std::initializer_list<t_type> &&list) : DArray(list.size())
+	StackArray(std::initializer_list<t_type> &&list)
 	{
+		g_assertFatal(list.size() <= t_maxSize, "Trying to initiaize StackArray with an Initializer List bigger than the array size %d", t_maxSize);
 		memcpy(_data, list.begin(), list.size() * sizeof(t_type));
-		_count = _capacity;
+		_count = list.size();
 	}
-
-	DArray(const DArray &other)
-	{
-		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
-
-		_data = t_allocator::alloc(other._capacity);
-		_capacity = other._capacity;
-		_count = other._count;
-		memcpy(_data, other._data, _capacity * sizeof(t_type));
-	}
-
-	DArray(DArray &&other)
-	{
-		t_allocator::dealloc(_data);
-
-		_data = other._data;
-		_capacity = other._capacity;
-		_count = other._count;
-
-		other._data = nullptr;
-		other._capacity = 0;
-		other._count = 0;
-	}
-
-	~DArray() { t_allocator::dealloc(_data); }
-
-
-	void operator = (const DArray<t_type, t_allocator> &other)
-	{
-		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
-
-		if (!t_allocator::realloc(&_data, other._capacity))
-			g_error(k_tag, "Unable to reallocate memory during copy assignment.");
-
-		_capacity = other._capacity;
-		_count = other._count;
-		memcpy(_data, other._data, _capacity * sizeof(t_type));
-	}
-
-	void operator = (DArray<t_type, t_allocator> &&other)
-	{
-		t_allocator::dealloc(_data);
-
-		_data = other._data;
-		_capacity = other._capacity;
-		_count = other._count;
-
-		other._data = nullptr;
-		other._capacity = 0;
-		other._count = 0;
-	}
-
-	/**
-	@brief	Number of elements in the array.
-	**/
-	size_t count() const { return _count; }
-
-	/**
-	@brief	Number of elements the array has allocated memory to support.
-	**/
-	size_t capacity() const { return _capacity; }
-
-	/**
-	@brief	Last valid index.
-			If array is empty, this has undefined behavior
-	**/
-	size_t lastIndex() const { return _count - 1;}
-
-
-	bool isEmpty() const { return _count == 0; }
-
-	/**
-	@brief	Reserve a given number of slots, additionally to the current capacity.
-	**/
-	void reserve(size_t slotCount) { resize(_capacity + slotCount); }
-
-	/**
-	@brief	Frees the memory that is currently empty.
-	**/
-	void shrinkToFit() { resize(_count); }
-
-	/**
-	@brief	Empties the entire array. Keeps memory allocated.
-	**/
-	void clear() { _count = 0; }
-
-	/**
-	@brief	Empties array and frees allocated memory.
-	**/
-	void free() { resize(0); }
-
-	/**
-	@brief	Sets the array's capacity to the given value. Allocates or Frees memory if necessary
-	**/
-	void resize(size_t capacity)
-	{
-		if(!t_allocator::realloc(&_data, capacity)) {
-			t_type *newPtr = t_allocator::alloc(capacity);
-			memcpy(newPtr, _data, _capacity * sizeof(t_type));
-			t_allocator::dealloc(_data);
-			_data = newPtr;
-		}
-
-		_capacity = capacity;
-		_count = std::min(_count, _capacity);
-	}
-
-
-	/**
-	@brief	Returns pointer for the first element
-	**/
-	_force_inline const t_type *data() const { return _data; }
-	_force_inline t_type *data() { return _data; }
-
-	_force_inline explicit operator const t_type *() { return _data; }
-	_force_inline explicit operator t_type *() { return _data; }
-
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
@@ -172,7 +43,6 @@ public:
 		return _data[index];
 	}
 
-	
 	// Iterator
 	/**
 	@brief	Returns iterator pointing at the first element
@@ -201,43 +71,45 @@ public:
 	t_type &back()				{ return _data[lastIndex()]; }
 	const t_type &back() const	{ return _data[lastIndex()]; }
 
+	_force_inline void clear() { _count = 0; }
 
-	/**
-	@brief	Add element to the end of the array. Allocates memory if necessary.
-	**/
+	_force_inline size_t count() const { return _count; }
+	_force_inline constexpr size_t capacity() const { return t_maxSize; }
+	_force_inline size_t lastIndex() const { return _count - 1;}
+	_force_inline bool isEmpty() const { return _count == 0; }
+
+
+	_force_inline const t_type *data() const { return _data; }
+	_force_inline t_type *data() { return _data; }
+
+	_force_inline explicit operator const t_type *() { return _data; }
+	_force_inline explicit operator t_type *() { return _data; }
+
 	_force_inline void add(const t_type *ptr, size_t count)
 	{
-		_reserveIfNotEnoughSize(count);
+		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		memcpy(&_data[_count], ptr, count * sizeof(t_type));
 		_count += count;
 	}
 
-	template<size_t t_size>
-	void add(const SArray<t_type, t_size> &sArray)				{ add(sArray.data(), sArray.size); }
-	template<size_t t_maxSize>
-	void add(const StackArray<t_type, t_maxSize> &stackArray)	{ add(stackArray.data(), stackArray.count()); }
-	void add(const DArray<t_type> &dArray)						{ add(dArray.data(), dArray.count()); }
-	void add(std::initializer_list<t_type> list)				{ add(list.begin(), list.size()); }
-	void add(const t_type &element)								{ add(&element, 1); }
+	template<size_t t_otherMaxSize>
+	void add(const StackArray<t_type, t_otherMaxSize> &stackArray)	{ add(stackArray._data, stackArray._count); }
+	void add(std::initializer_list<t_type> list)					{ add(list.begin(), list.size()); }
+	void add(const t_type &element)									{ add(&element, 1); }
 
 	void add(t_type &&element)
 	{
-		_reserveIfNotEnoughSize();
+		g_assertFatal(_count < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		_data[_count] = std::move(element);
 		_count++;
 	}
 
-
-	/**
-	@brief	Add an empty element to the end of the array. Allocates memory if necessary.
-	**/
 	void addEmpty(size_t count = 1)
 	{
 		g_assertFatal(count > 0, "Cannot add 0 empty elements.");
-		_reserveIfNotEnoughSize(count);
+		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		_count += count;
 	}
-
 
 	/**
 	@brief	Add element to the given index. It allcates memory if necessary
@@ -245,8 +117,7 @@ public:
 	_force_inline void insert(const t_type *ptr, size_t count, size_t index)
 	{
 		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
-
-		_reserveIfNotEnoughSize(count);
+		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 
 		const size_t movingChunkSize = _count - index;
 		t_type *insertionPtr = _data + index;
@@ -257,19 +128,16 @@ public:
 		_count += count;
 	}
 
-	template<size_t t_size>
-	void insert(const SArray<t_type, t_size> &sArray, size_t index)				{ insert(sArray.data(), sArray.size, index); }
-	template<size_t t_maxSize>
-	void insert(const StackArray<t_type, t_maxSize> &stackArray, size_t index)	{ insert(stackArray.data(), stackArray.count()); }
-	void insert(const DArray<t_type> &dArray, size_t index)						{ insert(dArray.data(), dArray.count(), index); }
-	void insert(std::initializer_list<t_type> list, size_t index)				{ insert(list.begin(), list.size(), index); }
-	void insert(const t_type &element, size_t index)							{ insert(&element, 1, index); }
+	template<size_t t_otherMaxSize>
+	void insert(const StackArray<t_type, t_otherMaxSize> &stackArray, size_t index) { insert(stackArray._data, stackArray._count, index); }
+	void insert(std::initializer_list<t_type> list, size_t index)					{ insert(list.begin(), list.size(), index); }
+	void insert(const t_type &element, size_t index)								{ insert(&element, 1, index); }
 
 	void insert(t_type &&element, size_t index)
 	{
 		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
-		_reserveIfNotEnoughSize();
-		
+		g_assertFatal((_count + 1) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+
 		const size_t movingChunkSize = _count - index;
 		t_type *insertionPtr = _data + index;
 
@@ -452,15 +320,8 @@ public:
 		return true;
 	}
 
+
 private:
-	_force_inline void _reserveIfNotEnoughSize(size_t aditionalSlots = 1)
-	{
-		const u64 minRequiredCapacity = _count + aditionalSlots;
-		if (minRequiredCapacity > _capacity)
-			reserve(math::g_nextPow2(minRequiredCapacity) - _capacity);
-	}
-
-
 	_force_inline void _swapPopPtr(t_type *ptr)
 	{
 		if (ptr != &back())
@@ -469,15 +330,13 @@ private:
 		_count--;
 	}
 
-
-	t_type *_data = nullptr;
+	t_type _data[t_maxSize];
 	size_t _count = 0;
-	size_t _capacity = 0;
 };
 
 
-template<typename t_type, class t_allocator>
-static std::ostream &operator<<(std::ostream &os, const DArray<t_type, t_allocator> &array)
+template<typename t_type, size_t t_maxSize>
+static std::ostream &operator<<(std::ostream &os, const StackArray<t_type, t_maxSize> &array)
 {
 	os << "[";
 	for (i64 i = 0; i < static_cast<i64>(array.lastIndex()); i++)
@@ -489,8 +348,8 @@ static std::ostream &operator<<(std::ostream &os, const DArray<t_type, t_allocat
 }
 
 
-template<typename t_type, class t_allocator>
-static std::istream &operator>>(std::istream &is, DArray<t_type, t_allocator> &array)
+template<typename t_type, size_t t_maxSize>
+static std::istream &operator>>(std::istream &is, StackArray<t_type, t_maxSize> &array)
 {
 	is.seekg(0, is.end);
 	const size_t length = is.tellg();
