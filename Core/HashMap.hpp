@@ -38,7 +38,7 @@ class HashMap
 {
 	constexpr static char k_tag[] = "HashMap";
 	constexpr static size_t k_defaultCapacity = 8;
-	constexpr static float k_rehashThreshold = 1 / 0.7f;
+	constexpr static float k_rehashThreshold = 0.7f;
 
 public:
 	HashMap() = default;
@@ -109,7 +109,7 @@ public:
 
 	bool add(const t_keyType &key, const t_valueType &value)
 	{
-		const float loadFactor = _count / static_cast<float>(_capacity);
+		const float loadFactor = (_count + 1) / static_cast<float>(_capacity);
 		if (_capacity == 0 || loadFactor >= k_rehashThreshold)
 			_grow();
 
@@ -166,10 +166,11 @@ private:
 
 		_capacity = math::g_max(k_defaultCapacity, _capacity *2);
 		_data = t_allocator::alloc(_capacity);
+		_count = 0;
 		memset(_data, 0, sizeof(Node) * _capacity);
 
 		for (int i = 0; i < oldCapacity; i++) {
-			if (_data[i].state == e_HashNodeState::Full)
+			if (oldData[i].state == e_HashNodeState::Full)
 				add(oldData[i].key, oldData[i].value);
 		}
 

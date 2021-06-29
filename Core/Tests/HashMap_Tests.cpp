@@ -51,5 +51,22 @@ TEST_CASE("Hash Map Constructor", k_tag)
 
 TEST_CASE("HashMap Resize", k_tag)
 {
-	// TODO
+	HashMap<std::string, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+	map.add("first", 4);
+	map.add("second", 5);
+
+	REQUIRE(map.capacity() == 8);
+	REQUIRE(map.count() == 5);
+
+	map.add("resize", 6);
+
+	REQUIRE(map.capacity() == 16);
+	REQUIRE(map.count() == 6);
+
+	REQUIRE(map["aba"] == 1);
+	REQUIRE(map["baba"] == 1);
+	REQUIRE(map["other"] == 3);
+	REQUIRE(map["resize"] == 6);
+}
+
 }
