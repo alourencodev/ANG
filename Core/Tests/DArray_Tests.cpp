@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include <Core/DArray.hpp>
+#include <Core/SArray.hpp>
 #include <Core/NonCopyable.hpp>
 
 

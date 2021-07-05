@@ -66,6 +66,9 @@ public:
 	const t_type *findBackwards(const t_type &value) const { return Range(_data, t_size).findBackwards(value); }
 	t_type *findBackwards(const t_type &value) { return Range(_data, t_size).findBackwards(value); }
 
+	i64 indexOf(const t_type &element) const { return Range(_data, t_size).indexOf(element); }
+	i64 indexOfBackwards(const t_type &element) const { return Range(_data, t_size).indexOfBackwards(element); }
+
 	const bool contains(const t_type &value) const { return find(value) != end(); }
 	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 

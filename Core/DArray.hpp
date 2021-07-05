@@ -2,11 +2,10 @@
 
 #include <iostream>
 
-#include "Log/Log.h"
-#include "Math/Math.hpp"
-#include "Memory/Allocator.hpp"
-#include "StackArray.hpp"
-#include "SArray.hpp"
+#include "Core/Log/Log.h"
+#include "Core/Math/Math.hpp"
+#include "Core/Memory/Allocator.hpp"
+#include "Core/Range.hpp"
 
 
 /**
@@ -30,10 +29,9 @@ public:
 		_capacity = capacity;
 	}
 
-	template<size_t t_size>
-	DArray(const SArray<t_type, t_size> &sArray) : DArray(t_size)
+	DArray(const Range<t_type> &range) : DArray(range.count())
 	{
-		memcpy(_data, sArray.data(), t_size * sizeof(t_type));
+		memcpy(_data, range.data(), range.count() * sizeof(t_type));
 		_count = _capacity;
 	}
 
@@ -212,10 +210,7 @@ public:
 		_count += count;
 	}
 
-	template<size_t t_size>
-	void add(const SArray<t_type, t_size> &sArray)				{ add(sArray.data(), sArray.size()); }
-	template<size_t t_maxSize>
-	void add(const StackArray<t_type, t_maxSize> &stackArray)	{ add(stackArray.data(), stackArray.count()); }
+	void add(const Range<t_type> &range)						{ add(range.data(), range.count()); }
 	void add(const DArray<t_type> &dArray)						{ add(dArray.data(), dArray.count()); }
 	void add(std::initializer_list<t_type> list)				{ add(list.begin(), list.size()); }
 	void add(const t_type &element)								{ add(&element, 1); }
@@ -257,13 +252,10 @@ public:
 		_count += count;
 	}
 
-	template<size_t t_size>
-	void insert(const SArray<t_type, t_size> &sArray, size_t index)				{ insert(sArray.data(), sArray.size, index); }
-	template<size_t t_maxSize>
-	void insert(const StackArray<t_type, t_maxSize> &stackArray, size_t index)	{ insert(stackArray.data(), stackArray.count()); }
-	void insert(const DArray<t_type> &dArray, size_t index)						{ insert(dArray.data(), dArray.count(), index); }
-	void insert(std::initializer_list<t_type> list, size_t index)				{ insert(list.begin(), list.size(), index); }
-	void insert(const t_type &element, size_t index)							{ insert(&element, 1, index); }
+	void insert(const Range<t_type> &range, size_t index)			{ insert(range.data(), range.count(), index); }
+	void insert(const DArray<t_type> &dArray, size_t index)			{ insert(dArray.data(), dArray.count(), index); }
+	void insert(std::initializer_list<t_type> list, size_t index)	{ insert(list.begin(), list.size(), index); }
+	void insert(const t_type &element, size_t index)				{ insert(&element, 1, index); }
 
 	void insert(t_type &&element, size_t index)
 	{
@@ -284,29 +276,8 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	t_type *find(const t_type &element)
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (size_t i = 0; i < _count; i++) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
-
-	const t_type *find(const t_type &element) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (size_t i = 0; i < _count; i++) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
+	const t_type *find(const t_type &element) const { return Range(_data, _count).find(element); }
+	t_type *find(const t_type &element) { return Range(_data, _count).find(element); }
 
 
 	/**
@@ -314,29 +285,8 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	t_type *findBackwards(const t_type &element)
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = lastIndex(); i >= 0; i--) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
-
-	const t_type *findBackwards(const t_type &element) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = lastIndex(); i >= 0; i--) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
+	const t_type *findBackwards(const t_type &element) const { return Range(_data, _count).findBackwards(element); }
+	t_type *findBackwards(const t_type &element) { return Range(_data, _count).findBackwards(element); }
 
 
 	/**
@@ -344,17 +294,7 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	i64 indexOf(const t_type &element) const 
-	{ 
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = 0; i < static_cast<i64>(_count); i++) {
-			if (_data[i] == element) 
-				return i;
-		}
-
-		return -1;
-	}
+	i64 indexOf(const t_type &element) const { return Range(_data, _count).indexOf(element); }
 
 
 	/**
@@ -362,17 +302,7 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	i64 indexOfBackwards(const t_type &element) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = lastIndex(); i >= 0; i--) {
-			if (_data[i] == element) 
-				return i;
-		}
-
-		return -1;
-	}
+	i64 indexOfBackwards(const t_type &element) const { return Range(_data, _count).indexOfBackwards(element); }
 
 
 	/**
@@ -479,11 +409,8 @@ private:
 template<typename t_type, class t_allocator>
 static std::ostream &operator<<(std::ostream &os, const DArray<t_type, t_allocator> &array)
 {
-	os << "[";
-	for (i64 i = 0; i < static_cast<i64>(array.lastIndex()); i++)
-		os << array[i] << ", ";
-
-	os << array.back() << "]";
+	Range range(array.data(), array.count());
+	os << range;
 
 	return os;
 }

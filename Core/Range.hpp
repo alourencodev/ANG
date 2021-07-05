@@ -16,8 +16,8 @@ public:
 	using ConstIterator = const t_type *;
 
 	Range(t_type *data, size_t count) : _data(data), _count(count) {}
+	Range(Range && other) : Range(other._data, other._count) {}
 	Range(const Range &) = delete;
-	Range(Range &&) = delete;
 
 	_force_inline const t_type &operator[](u32 index) const
 	{
@@ -52,7 +52,7 @@ public:
 
 	_force_inline const t_type *find(const t_type &value) const
 	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
+		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find, if Range type is not equal comparable.");
 		for (u32 i = 0; i < _count; i++) {
 			if (_data[i] == value)
 				return &_data[i];
@@ -63,7 +63,7 @@ public:
 
 	_force_inline t_type *find(const t_type &value)
 	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
+		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find, if Range type is not equal comparable.");
 		for (u32 i = 0; i < _count; i++) {
 			if (_data[i] == value)
 				return &_data[i];
@@ -74,7 +74,7 @@ public:
 
 	_force_inline const t_type *findBackwards(const t_type &value) const
 	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
+		static_assert(meta::isEqualComparable<t_type>::value, "Can't call findBackwards, if Range type is not equal comparable.");
 		for (i32 i = static_cast<i32>(lastIndex()); i >= 0; i--) {
 			if (_data[i] == value) 
 				return &_data[i];
@@ -85,13 +85,37 @@ public:
 
 	_force_inline t_type *findBackwards(const t_type &value)
 	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
+		static_assert(meta::isEqualComparable<t_type>::value, "Can't call findBackwards, if Range type is not equal comparable.");
 		for (i32 i = static_cast<i32>(lastIndex()); i >= 0; i--) {
 			if (_data[i] == value) 
 				return &_data[i];
 		}
 
 		return end();
+	}
+
+	_force_inline i64 indexOf(const t_type &element) const 
+	{ 
+		static_assert(meta::isEqualComparable<t_type>::value, "Can't call indexOf, if Rnge type is not equal comparable");
+
+		for (i64 i = 0; i < static_cast<i64>(_count); i++) {
+			if (_data[i] == element) 
+				return i;
+		}
+
+		return -1;
+	}
+
+	_force_inline i64 indexOfBackwards(const t_type &element) const
+	{
+		static_assert(meta::isEqualComparable<t_type>::value, "Can't call indexOfBackwards, if Rnge type is not equal comparable");
+
+		for (i64 i = lastIndex(); i >= 0; i--) {
+			if (_data[i] == element) 
+				return i;
+		}
+
+		return -1;
 	}
 
 	_force_inline bool contains(const t_type &value) const { return find(value) != end(); }
