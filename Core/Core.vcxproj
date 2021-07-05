@@ -156,6 +156,7 @@
     <ClInclude Include="Meta.hpp" />
     <ClInclude Include="NonCopyable.hpp" />
     <ClInclude Include="Platform.hpp" />
+    <ClInclude Include="Range.hpp" />
     <ClInclude Include="SArray.hpp" />
     <ClInclude Include="StackArray.hpp" />
     <ClInclude Include="Types.hpp" />

@@ -79,6 +79,9 @@
     <ClInclude Include="StackArray.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Range.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

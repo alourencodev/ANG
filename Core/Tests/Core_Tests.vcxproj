@@ -144,6 +144,7 @@
     <ClCompile Include="Math\Vec4_Test.cpp" />
     <ClCompile Include="Meta_Tests.cpp" />
     <ClCompile Include="Preprocessor\Utils_Tests.cpp" />
+    <ClCompile Include="Range_Tests.cpp" />
     <ClCompile Include="SArray_Tests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
