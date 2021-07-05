@@ -50,8 +50,8 @@ public:
 	// Iterator
 	Iterator begin() { return _data; }
 	const ConstIterator begin() const { return _data; }
-	Iterator end() { return _data + lastIndex(); }
-	const ConstIterator end() const { return _data + lastIndex(); }
+	Iterator end() { return _data + t_size; }
+	const ConstIterator end() const { return _data + t_size; }
 
 	t_type &front() { return _data[0]; }
 	const t_type &front() const { return _data[0]; }

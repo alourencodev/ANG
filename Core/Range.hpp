@@ -40,8 +40,8 @@ public:
 
 	Iterator begin() { return _data; }
 	ConstIterator begin() const { return _data; }
-	Iterator end() { return _data + lastIndex(); }
-	ConstIterator end() const { return _data + lastIndex(); }
+	Iterator end() { return _data + _count; }
+	ConstIterator end() const { return _data + _count; }
 
 	t_type &front() { return _data[0]; }
 	const t_type &front() const { return _data[0]; }

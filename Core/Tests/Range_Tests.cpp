@@ -25,7 +25,7 @@ TEST_CASE("Range Iteration", k_tag)
 	const Range range(a, 4);
 
 	for(int i : range) 
-		REQUIRE(range[i] == (i+1));
+		REQUIRE(range[i - 1] == (i));
 }
 
 TEST_CASE("Range Query", k_tag)

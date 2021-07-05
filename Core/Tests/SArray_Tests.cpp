@@ -88,12 +88,12 @@ TEST_CASE("StaticArray Iterator Access", k_tag)
 	SArray<i32, 4> testArray = {0, 1, 2, 3};
 
 	REQUIRE(*testArray.begin() == 0);
-	REQUIRE(*testArray.end() == 3);
+	REQUIRE(*(testArray.end() - 1) == 3);
 
 	const SArray<i32, 4> constTestArray = {0, 1, 2, 3};
 
 	REQUIRE(*constTestArray.begin() == 0);
-	REQUIRE(*constTestArray.end() == 3);
+	REQUIRE(*(constTestArray.end()- 1) == 3);
 }
 
 TEST_CASE("StaticArray Access", k_tag)
