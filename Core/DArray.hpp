@@ -157,6 +157,9 @@ public:
 	_force_inline explicit operator const t_type *() { return _data; }
 	_force_inline explicit operator t_type *() { return _data; }
 
+	_force_inline operator Range<t_type> () { return Range<t_type>(_data, _count); }
+	_force_inline operator const Range<t_type> () const { return Range<t_type>(_data, _count); }
+
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
