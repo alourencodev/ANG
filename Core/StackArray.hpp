@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Attributes.hpp"
-#include "Log/Assert.hpp"
+#include "Core/Attributes.hpp"
+#include "Core/Log/Assert.hpp"
+#include "Core/Range.hpp"
 
 
 template<typename t_type, size_t t_maxSize>
@@ -14,15 +15,21 @@ public:
 	using ConstIterator = const t_type *;
 
 	StackArray() = default;
+
 	template<size_t t_otherMaxSize>
 	StackArray(const StackArray<t_type, t_otherMaxSize> &other)
 	{
-		static_assert(t_otherMaxSize < t_maxSize, "Source array's max size must be greater or equal to the destination array's mac size.");
+		static_assert(t_otherMaxSize < t_maxSize, "Source array's max size must be greater or equal to the destination array's max size.");
+
 		memcpy(_data, other._data, t_maxSize * sizeof(t_type));
 		_count = other._count;
 	}
 
-	StackArray(StackArray &&other) = delete;
+	StackArray(const Range<t_type> &other)
+	{
+		g_assertFatal(other.count() < t_maxSize, "Source array's max size must be greater or equal to the destination array's max size.");
+		add(other);
+	}
 
 	StackArray(std::initializer_list<t_type> &&list)
 	{
@@ -30,6 +37,8 @@ public:
 		memcpy(_data, list.begin(), list.size() * sizeof(t_type));
 		_count = list.size();
 	}
+
+	StackArray(StackArray &&other) = delete;
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
@@ -85,6 +94,10 @@ public:
 	_force_inline explicit operator const t_type *() { return _data; }
 	_force_inline explicit operator t_type *() { return _data; }
 
+	_force_inline operator Range<t_type> () { return Range<t_type>(_data, _count); }
+	_force_inline operator const Range<t_type> () const { return Range<t_type>(_data, _count); }
+
+
 	_force_inline void add(const t_type *ptr, size_t count)
 	{
 		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
@@ -92,10 +105,9 @@ public:
 		_count += count;
 	}
 
-	template<size_t t_otherMaxSize>
-	void add(const StackArray<t_type, t_otherMaxSize> &stackArray)	{ add(stackArray._data, stackArray._count); }
 	void add(std::initializer_list<t_type> list)					{ add(list.begin(), list.size()); }
 	void add(const t_type &element)									{ add(&element, 1); }
+	void add(const Range<t_type> &range)							{ add(range.data(), range.count()); }
 
 	void add(t_type &&element)
 	{
@@ -128,10 +140,9 @@ public:
 		_count += count;
 	}
 
-	template<size_t t_otherMaxSize>
-	void insert(const StackArray<t_type, t_otherMaxSize> &stackArray, size_t index) { insert(stackArray._data, stackArray._count, index); }
 	void insert(std::initializer_list<t_type> list, size_t index)					{ insert(list.begin(), list.size(), index); }
 	void insert(const t_type &element, size_t index)								{ insert(&element, 1, index); }
+	void insert(const Range<t_type> &range, size_t index)							{ insert(range.data(), range.count(), index); }
 
 	void insert(t_type &&element, size_t index)
 	{
@@ -152,29 +163,8 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	t_type *find(const t_type &element)
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (size_t i = 0; i < _count; i++) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
-
-	const t_type *find(const t_type &element) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (size_t i = 0; i < _count; i++) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
+	const t_type *find(const t_type &element) const { return Range(_data, _count).find(element); }
+	t_type *find(const t_type &element) { return Range(_data, _count).find(element); }
 
 
 	/**
@@ -182,29 +172,8 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	t_type *findBackwards(const t_type &element)
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = lastIndex(); i >= 0; i--) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
-
-	const t_type *findBackwards(const t_type &element) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = lastIndex(); i >= 0; i--) {
-			if (_data[i] == element) 
-				return _data + i;
-		}
-
-		return end();
-	}
+	const t_type *findBackwards(const t_type &element) const { return Range(_data, _count).findBackwards(element); }
+	t_type *findBackwards(const t_type &element) { return Range(_data, _count).findBackwards(element); }
 
 
 	/**
@@ -212,35 +181,14 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	i64 indexOf(const t_type &element) const 
-	{ 
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = 0; i < static_cast<i64>(_count); i++) {
-			if (_data[i] == element) 
-				return i;
-		}
-
-		return -1;
-	}
-
+	i64 indexOf(const t_type &element) const { return Range(_data, _count).indexOf(element); }
 
 	/**
 	@brief	Returns the index in the array for first element that is equal to the given element, by searching from the end to the beginning.
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	i64 indexOfBackwards(const t_type &element) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "It is not possible to search for a type that doesn't have the equal operator defined.");
-
-		for (i64 i = lastIndex(); i >= 0; i--) {
-			if (_data[i] == element) 
-				return i;
-		}
-
-		return -1;
-	}
+	i64 indexOfBackwards(const t_type &element) const { return Range(_data, _count).indexOfBackwards(element); }
 
 
 	/**
@@ -338,11 +286,8 @@ private:
 template<typename t_type, size_t t_maxSize>
 static std::ostream &operator<<(std::ostream &os, const StackArray<t_type, t_maxSize> &array)
 {
-	os << "[";
-	for (i64 i = 0; i < static_cast<i64>(array.lastIndex()); i++)
-		os << array[i] << ", ";
-
-	os << array.back() << "]";
+	Range<t_type> range(array.data(), array.count());
+	os << range;
 
 	return os;
 }
@@ -351,15 +296,7 @@ static std::ostream &operator<<(std::ostream &os, const StackArray<t_type, t_max
 template<typename t_type, size_t t_maxSize>
 static std::istream &operator>>(std::istream &is, StackArray<t_type, t_maxSize> &array)
 {
-	is.seekg(0, is.end);
-	const size_t length = is.tellg();
-	is.seekg(0, is.beg);
-
-	size_t i = 0;
-	while (static_cast<size_t>(is.tellg()) < length) {
-		array.addEmpty();
-		is >> array[i++];
-	}
+	is >> Range<t_type>(array.data(), array.count());
 
 	return is;
 }
