@@ -41,7 +41,7 @@ TEST_CASE("StaticArray Iteration", k_tag)
 
 	SECTION("Iterate by index")
 	{
-		for (i32 i = 0; i < testArray.size; i++)
+		for (i32 i = 0; i < testArray.size(); i++)
 			REQUIRE(testArray[i] == i);
 	}
 
@@ -145,8 +145,8 @@ TEST_CASE("StaticArray Query", k_tag)
 TEST_CASE("StaticArray Compile Time Asserts", k_tag)
 {
 	SArray<i32, 4> testArray = {1, 2, 3, 4};
-	static_assert(testArray.size == 4);
-	static_assert(testArray.lastIndex == 3);
+	static_assert(testArray.size() == 4);
+	static_assert(testArray.lastIndex() == 3);
 }
 
 TEST_CASE("StaticArray Stream Operators", k_tag)
@@ -157,7 +157,7 @@ TEST_CASE("StaticArray Stream Operators", k_tag)
 		std::istringstream is("1 2 3 4");
 		is >> testArray;
 
-		for (int i = 0; i < testArray.size; i++)
+		for (int i = 0; i < testArray.size(); i++)
 			REQUIRE(testArray[i] == i+1);
 	}
 
@@ -178,6 +178,6 @@ TEST_CASE("StaticArray Copy", k_tag)
 
 	REQUIRE(original.data() != copied.data());
 
-	for (int i = 0; i < original.size; i++)
+	for (int i = 0; i < original.size(); i++)
 		REQUIRE(copied[i] == original[i]);
 }

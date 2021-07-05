@@ -213,7 +213,7 @@ public:
 	}
 
 	template<size_t t_size>
-	void add(const SArray<t_type, t_size> &sArray)				{ add(sArray.data(), sArray.size); }
+	void add(const SArray<t_type, t_size> &sArray)				{ add(sArray.data(), sArray.size()); }
 	template<size_t t_maxSize>
 	void add(const StackArray<t_type, t_maxSize> &stackArray)	{ add(stackArray.data(), stackArray.count()); }
 	void add(const DArray<t_type> &dArray)						{ add(dArray.data(), dArray.count()); }
