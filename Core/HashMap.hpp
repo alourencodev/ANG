@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Attributes.hpp"
 #include "Core/Math/Math.hpp"
 #include "Core/Meta.hpp"
 #include "Core/Types.hpp"
@@ -103,9 +104,9 @@ public:
 		other._count = 0;
 	}
 
-	size_t capacity() const { return _capacity; }
-	size_t count() const { return _count; }
-	bool isEmpty() const { return _count == 0; }
+	_force_inline size_t capacity() const { return _capacity; }
+	_force_inline size_t count() const { return _count; }
+	_force_inline bool isEmpty() const { return _count == 0; }
 
 	bool add(const t_keyType &key, const t_valueType &value)
 	{
@@ -154,7 +155,7 @@ public:
 		return true;
 	}
 	
-	void clear()
+	_force_inline void clear()
 	{
 		memset(_data, 0, sizeof(Node) * _capacity);
 		_count = 0;
@@ -165,7 +166,7 @@ public:
 private:
 	using Node = HashNode<t_keyType, t_valueType>;
 
-	void _grow()
+	_force_inline void _grow()
 	{
 		size_t oldCapacity = _capacity;
 		Node *oldData = _data;
@@ -183,13 +184,13 @@ private:
 		t_allocator::dealloc(oldData);
 	}
 
-	u32 _hashValue(const t_keyType &key) const
+	_force_inline u32 _hashValue(const t_keyType &key) const
 	{
 		size_t hash = std::hash<t_keyType>{}(key);
 		return static_cast<u32>(hash & (_capacity - 1));
 	}
 
-	i32 _findExistingIndex(const t_keyType &key) const
+	_force_inline i32 _findExistingIndex(const t_keyType &key) const
 	{
 		i32 index = _hashValue(key);
 		while(_data[index].state != e_HashNodeState::Empty) {
