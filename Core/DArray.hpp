@@ -31,6 +31,8 @@ public:
 
 	DArray(const Range<t_type> &range) : DArray(range.count())
 	{
+		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
+
 		memcpy(_data, range.data(), range.count() * sizeof(t_type));
 		_count = _capacity;
 	}
@@ -41,14 +43,12 @@ public:
 		_count = _capacity;
 	}
 
-	DArray(const DArray &other)
+	DArray(const DArray &other) : DArray(other._capacity)
 	{
 		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
 
-		_data = t_allocator::alloc(other._capacity);
-		_capacity = other._capacity;
-		_count = other._count;
 		memcpy(_data, other._data, _capacity * sizeof(t_type));
+		_count = other._count;
 	}
 
 	DArray(DArray &&other)
@@ -214,7 +214,6 @@ public:
 	}
 
 	void add(const Range<t_type> &range)						{ add(range.data(), range.count()); }
-	void add(const DArray<t_type> &dArray)						{ add(dArray.data(), dArray.count()); }
 	void add(std::initializer_list<t_type> list)				{ add(list.begin(), list.size()); }
 	void add(const t_type &element)								{ add(&element, 1); }
 
@@ -256,7 +255,6 @@ public:
 	}
 
 	void insert(const Range<t_type> &range, size_t index)			{ insert(range.data(), range.count(), index); }
-	void insert(const DArray<t_type> &dArray, size_t index)			{ insert(dArray.data(), dArray.count(), index); }
 	void insert(std::initializer_list<t_type> list, size_t index)	{ insert(list.begin(), list.size(), index); }
 	void insert(const t_type &element, size_t index)				{ insert(&element, 1, index); }
 
