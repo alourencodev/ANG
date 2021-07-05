@@ -50,7 +50,7 @@ public:
 
 	void fill(const t_type &value) { std::fill_n(_data, _count, value); }
 
-	const t_type *find(const t_type &value) const
+	_force_inline const t_type *find(const t_type &value) const
 	{
 		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
 		for (u32 i = 0; i < _count; i++) {
@@ -61,7 +61,7 @@ public:
 		return end();
 	}
 
-	t_type *find(const t_type &value)
+	_force_inline t_type *find(const t_type &value)
 	{
 		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
 		for (u32 i = 0; i < _count; i++) {
@@ -72,7 +72,7 @@ public:
 		return end();
 	}
 
-	const t_type *findBackwards(const t_type &value) const
+	_force_inline const t_type *findBackwards(const t_type &value) const
 	{
 		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
 		for (i32 i = static_cast<i32>(lastIndex()); i >= 0; i--) {
@@ -83,7 +83,7 @@ public:
 		return end();
 	}
 
-	t_type *findBackwards(const t_type &value)
+	_force_inline t_type *findBackwards(const t_type &value)
 	{
 		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Range type is not equal comparable.");
 		for (i32 i = static_cast<i32>(lastIndex()); i >= 0; i--) {
@@ -94,8 +94,8 @@ public:
 		return end();
 	}
 
-	bool contains(const t_type &value) const { return find(value) != end(); }
-	bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
+	_force_inline bool contains(const t_type &value) const { return find(value) != end(); }
+	_force_inline bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 
 private:
 	t_type * const _data = nullptr;
@@ -103,7 +103,7 @@ private:
 };
 
 template<typename t_type>
-static std::ostream &operator<<(std::ostream &os, const Range<t_type> &range)
+static std::ostream &operator<<(std::ostream &os, const Range<const t_type> &range)
 {
 	os << "[";
 	for (u32 i = 0; i < range.lastIndex(); i++)
@@ -116,6 +116,15 @@ static std::ostream &operator<<(std::ostream &os, const Range<t_type> &range)
 
 template<typename t_type>
 static std::istream &operator>>(std::istream &is, Range<t_type> &range)
+{
+	for (u32 i = 0; i < range.count(); i++)
+		is >> range[i];
+
+	return is;
+}
+
+template<typename t_type>
+static std::istream &operator>>(std::istream &is, Range<t_type> &&range)
 {
 	for (u32 i = 0; i < range.count(); i++)
 		is >> range[i];

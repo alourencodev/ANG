@@ -60,47 +60,11 @@ public:
 
 	void fill(const t_type &value) { std::fill_n(_data, t_size, value); }
 
-	const t_type *find(const t_type &value) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Array type is not equal comparable.");
-		for (int i = 0; i < t_size; i++) {
-			if (_data[i] == value) return &_data[i];
-		}
+	const t_type *find(const t_type &value) const { return Range(_data, t_size).find(value); }
+	t_type *find(const t_type &value) { return Range(_data, t_size).find(value); }
 
-		return end();
-	}
-
-	t_type *find(const t_type &value)
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Array type is not equal comparable.");
-		for (int i = 0; i < t_size; i++) {
-			if (_data[i] == value) return &_data[i];
-		}
-
-		return end();
-	}
-
-	const t_type *findBackwards(const t_type &value) const
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Array type is not equal comparable.");
-		for (i32 i = static_cast<i32>(lastIndex()); i >= 0; i--) {
-			if (_data[i] == value) 
-				return &_data[i];
-		}
-
-		return end();
-	}
-
-	t_type *findBackwards(const t_type &value)
-	{
-		static_assert(meta::isEqualComparable<t_type>::value, "Can't call find if Array type is not equal comparable.");
-		for (i32 i = static_cast<i32>(lastIndex()); i >= 0; i--) {
-			if (_data[i] == value) 
-				return &_data[i];
-		}
-
-		return end();
-	}
+	const t_type *findBackwards(const t_type &value) const { return Range(_data, t_size).findBackwards(value); }
+	t_type *findBackwards(const t_type &value) { return Range(_data, t_size).findBackwards(value); }
 
 	const bool contains(const t_type &value) const { return find(value) != end(); }
 	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
@@ -115,20 +79,14 @@ private:
 template<typename t_type, size_t t_size>
 static std::ostream &operator<<(std::ostream &os, const SArray<t_type, t_size> &array)
 {
-	os << "[";
-	for (int i = 0; i < array.lastIndex(); i++)
-		os << array[i] << ", ";
-
-	os << array.back() << "]";
-
+	Range<const t_type> range(array.data(), t_size);
+	os << range;
 	return os;
 }
 
 template<typename t_type, size_t t_size>
 static std::istream &operator>>(std::istream &is, SArray<t_type, t_size> &array)
 {
-	for (int i = 0; i < array.size(); i++)
-		is >> array[i];
-
+	is >> Range<t_type>(array.data(), t_size);
 	return is;
 }
