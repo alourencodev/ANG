@@ -6,21 +6,10 @@
 #include <Core/SArray.hpp>
 #include <Core/NonCopyable.hpp>
 
+#include "Tests/TestUtils/TestNonCopyable.hpp"
+
 
 constexpr static char k_tag[] = "[DArray]";
-
-
-class TestNonCopyable : public NonCopyable
-{
-public:
-	TestNonCopyable() : n(0) {}
-	TestNonCopyable(int inN) : n(inN) {}
-
-	bool operator==(const TestNonCopyable &other) { return other.n == n;}
-
-	int n;
-};
-
 
 TEST_CASE("Dynamic Array Constructors", k_tag)
 {
