@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp" />
+    <ClInclude Include="TestUtils\TestNonCopyable.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitField_Tests.cpp" />

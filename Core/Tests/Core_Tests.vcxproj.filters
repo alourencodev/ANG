@@ -11,6 +11,9 @@
     <Filter Include="Source Files\Preprocessor">
       <UniqueIdentifier>{49201d00-47f4-4f4e-8dc5-4ed81cc13075}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\TestUtils">
+      <UniqueIdentifier>{a3f763d0-9dea-4bf8-b62d-d78f54e66b05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mainTest.cpp">
@@ -62,6 +65,9 @@
   <ItemGroup>
     <ClInclude Include="catch.hpp">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestUtils\TestNonCopyable.hpp">
+      <Filter>Source Files\TestUtils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
