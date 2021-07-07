@@ -208,15 +208,23 @@ public:
 	**/
 	_force_inline void add(const t_type *ptr, size_t count)
 	{
-		_reserveIfNotEnoughSize(count);
-		memcpy(&_data[_count], ptr, count * sizeof(t_type));
-		_count += count;
+		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
+		_add(ptr, count);
 	}
 
-	void add(const Range<t_type> &range)						{ add(range.data(), range.count()); }
-	void add(std::initializer_list<t_type> list)				{ add(list.begin(), list.size()); }
-	void add(const t_type &element)								{ add(&element, 1); }
+	void add(const Range<t_type> &range)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
+		_add(range.data(), range.count()); 
+	}
 
+	void add(const t_type &element)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
+		_add(&element, 1); 
+	}
+
+	void add(std::initializer_list<t_type> list) { _add(list.begin(), list.size()); }
 	void add(t_type &&element)
 	{
 		_reserveIfNotEnoughSize();
@@ -241,23 +249,23 @@ public:
 	**/
 	_force_inline void insert(const t_type *ptr, size_t count, size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
-
-		_reserveIfNotEnoughSize(count);
-
-		const size_t movingChunkSize = _count - index;
-		t_type *insertionPtr = _data + index;
-
-		memcpy(insertionPtr + count, insertionPtr, movingChunkSize * sizeof(t_type));
-		memcpy(insertionPtr, ptr, count * sizeof(t_type));
-
-		_count += count;
+		static_assert(meta::isCopyable<t_type>::value, "Trying to insert non copyable type into DArray.");
+		_insert(ptr, count, index);
 	}
 
-	void insert(const Range<t_type> &range, size_t index)			{ insert(range.data(), range.count(), index); }
-	void insert(std::initializer_list<t_type> list, size_t index)	{ insert(list.begin(), list.size(), index); }
-	void insert(const t_type &element, size_t index)				{ insert(&element, 1, index); }
+	void insert(const Range<t_type> &range, size_t index)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to insert non copyable type into DArray.");
+		_insert(range.data(), range.count(), index); 
+	}
 
+	void insert(const t_type &element, size_t index)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to insert non copyable type into DArray.");
+		_insert(&element, 1, index); 
+	}
+
+	void insert(std::initializer_list<t_type> list, size_t index) { _insert(list.begin(), list.size(), index); }
 	void insert(t_type &&element, size_t index)
 	{
 		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
@@ -400,6 +408,27 @@ private:
 		_count--;
 	}
 
+	_force_inline void _add(const t_type *ptr, size_t count)
+	{
+		_reserveIfNotEnoughSize(count);
+		memcpy(&_data[_count], ptr, count * sizeof(t_type));
+		_count += count;
+	}
+
+	_force_inline void _insert(const t_type *ptr, size_t count, size_t index)
+	{
+		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+
+		_reserveIfNotEnoughSize(count);
+
+		const size_t movingChunkSize = _count - index;
+		t_type *insertionPtr = _data + index;
+
+		memcpy(insertionPtr + count, insertionPtr, movingChunkSize * sizeof(t_type));
+		memcpy(insertionPtr, ptr, count * sizeof(t_type));
+
+		_count += count;
+	}
 
 	t_type *_data = nullptr;
 	size_t _count = 0;
