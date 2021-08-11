@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <Tests/Vendor/Catch2/catch.hpp>
 
 #include <cmath>
 #include <sstream>

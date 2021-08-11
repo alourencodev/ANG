@@ -79,7 +79,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>AGE_TESTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>AGE_UNIT_TEST;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Core;$(SolutionDir);$(ProjectDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -139,7 +139,7 @@
     <ClCompile Include="BitField_Tests.cpp" />
     <ClCompile Include="DArray_Tests.cpp" />
     <ClCompile Include="HashMap_Tests.cpp" />
-    <ClCompile Include="mainTest.cpp" />
+    <ClCompile Include="Main_Tests.cpp" />
     <ClCompile Include="Math\Math_Test.cpp" />
     <ClCompile Include="Math\Mat_Tests.cpp" />
     <ClCompile Include="Math\Quat_Tests.cpp" />
