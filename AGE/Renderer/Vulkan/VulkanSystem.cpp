@@ -204,7 +204,7 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 
 void VulkanSystem::init(GLFWwindow *window)
 {
-	// TODO: Remove
+	// TODO: Remove when the command line argumensts support assert enable/disable
 	logger::enable(k_tag);
 
 	DArray<const char *> extensions;
@@ -214,14 +214,11 @@ void VulkanSystem::init(GLFWwindow *window)
 	{	// GetRequiredExtensions
 		u32 glfwExtensionCount = 0;
 		const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+		extensions.reserve(glfwExtensionCount IF_DEBUG(+ k_debugExtensions.size()));
 
 #ifdef AGE_DEBUG
-		extensions.reserve(glfwExtensionCount + k_debugExtensions.size());
 		extensions.add(k_debugExtensions);
-#else
-		extensions.reserve(glfwExtensionCount);
 #endif
-
 		extensions.add(glfwExtensions, glfwExtensionCount);
 	}
 
@@ -263,15 +260,14 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pNext = nullptr;
 		createInfo.pApplicationInfo = &appInfo;
+		createInfo.enabledExtensionCount = static_cast<u32>(extensions.count());
+		createInfo.ppEnabledExtensionNames = extensions.data();
 
 #ifdef AGE_DEBUG
 		createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.size());
 		createInfo.ppEnabledLayerNames = k_validationLayers.data();
-		createInfo.enabledExtensionCount = static_cast<u32>(extensions.count());
-		createInfo.ppEnabledExtensionNames = extensions.data();
 #else
 		createInfo.enabledLayerCount = 0;
-		createInfo.enabledExtensionCount = 0;
 #endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
