@@ -1,5 +1,5 @@
 #pragma once
 
 #if defined(_WIN32) || defined(_WIN64)
-#define _WINDOWS
+#	define AGE_WINDOWS
 #endif

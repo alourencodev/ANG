@@ -5,12 +5,12 @@
 #include "Core/Log/Log.h"
 #include "Core/Math/Math.hpp"
 #include "Core/Memory/Allocator.hpp"
+#include "Core/SArray.hpp"
 #include "Core/Range.hpp"
 
+namespace age
+{
 
-/**
-@brief	Dynamic array.
-**/
 template<typename t_type, class t_allocator = DefaultHeapAllocator<t_type>>
 class DArray
 {
@@ -35,6 +35,14 @@ public:
 
 		memcpy(_data, range.data(), range.count() * sizeof(t_type));
 		_count = _capacity;
+	}
+
+	template<size_t t_size>
+	DArray(const SArray<t_type, t_size> &array)
+	{
+	  resize(t_size);
+	  memcpy(_data, array.data(), t_size * sizeof(t_type));
+	  _count = t_size;
 	}
 
 	DArray(std::initializer_list<t_type> &&list) : DArray(list.size())
@@ -72,7 +80,7 @@ public:
 		static_assert(meta::isCopyable<t_type>::value, "Trying to copy DArray of non copyable type.");
 
 		if (!t_allocator::realloc(&_data, other._capacity))
-			g_error(k_tag, "Unable to reallocate memory during copy assignment.");
+			age_error(k_tag, "Unable to reallocate memory during copy assignment.");
 
 		_capacity = other._capacity;
 		_count = other._count;
@@ -158,18 +166,18 @@ public:
 	_force_inline explicit operator t_type *() { return _data; }
 
 	_force_inline operator Range<t_type> () { return Range<t_type>(_data, _count); }
-	_force_inline operator const Range<t_type> () const { return Range<t_type>(_data, _count); }
+	_force_inline operator Range<const t_type> () const { return Range<const t_type>(_data, _count); }
 
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
-		g_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
 		return _data[index];
 	}
 
 	_force_inline t_type &operator[](size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
 		return _data[index];
 	}
 
@@ -218,6 +226,26 @@ public:
 		_add(range.data(), range.count()); 
 	}
 
+	void add(const Range<const t_type> &range)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
+		_add(range.data(), range.count()); 
+	}
+
+	template<size_t t_size>
+	void add(const SArray<t_type, t_size> &array)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
+		_add(array.data(), t_size); 
+	}
+
+	template<size_t t_size>
+	void add(const SArray<const t_type, t_size> &array)
+	{ 
+		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
+		_add(array.data(), t_size); 
+	}
+
 	void add(const t_type &element)
 	{ 
 		static_assert(meta::isCopyable<t_type>::value, "Trying to add non copyable type into DArray.");
@@ -238,7 +266,7 @@ public:
 	**/
 	void addEmpty(size_t count = 1)
 	{
-		g_assertFatal(count > 0, "Cannot add 0 empty elements.");
+		age_assertFatal(count > 0, "Cannot add 0 empty elements.");
 		_reserveIfNotEnoughSize(count);
 		_count += count;
 	}
@@ -268,7 +296,7 @@ public:
 	void insert(std::initializer_list<t_type> list, size_t index) { _insert(list.begin(), list.size(), index); }
 	void insert(t_type &&element, size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+		age_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
 		_reserveIfNotEnoughSize();
 		
 		const size_t movingChunkSize = _count - index;
@@ -285,8 +313,8 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	const t_type *find(const t_type &element) const { return Range(_data, _count).find(element); }
-	t_type *find(const t_type &element) { return Range(_data, _count).find(element); }
+	const t_type *find(const t_type &element) const { return Range<t_type>(_data, _count).find(element); }
+	t_type *find(const t_type &element) { return Range<t_type>(_data, _count).find(element); }
 
 
 	/**
@@ -294,8 +322,8 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	const t_type *findBackwards(const t_type &element) const { return Range(_data, _count).findBackwards(element); }
-	t_type *findBackwards(const t_type &element) { return Range(_data, _count).findBackwards(element); }
+	const t_type *findBackwards(const t_type &element) const { return Range<t_type>(_data, _count).findBackwards(element); }
+	t_type *findBackwards(const t_type &element) { return Range<t_type>(_data, _count).findBackwards(element); }
 
 
 	/**
@@ -303,7 +331,7 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	i64 indexOf(const t_type &element) const { return Range(_data, _count).indexOf(element); }
+	i64 indexOf(const t_type &element) const { return Range<t_type>(_data, _count).indexOf(element); }
 
 
 	/**
@@ -311,7 +339,7 @@ public:
 			If there is no such element in the array -1 is returned.
 			The type of the DArrat must have operator == defined.
 	**/
-	i64 indexOfBackwards(const t_type &element) const { return Range(_data, _count).indexOfBackwards(element); }
+	i64 indexOfBackwards(const t_type &element) const { return Range<t_type>(_data, _count).indexOfBackwards(element); }
 
 
 	/**
@@ -331,7 +359,7 @@ public:
 	**/
 	void swapPopIndex(size_t index) 
 	{ 
-		g_assertFatal(index < _count, "Trying to remove element in index %d from a dynamic array with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to remove element in index %d from a dynamic array with count %d.", index, _count);
 		_swapPopPtr(_data + index); 
 	}
 
@@ -355,7 +383,7 @@ public:
 	**/
 	_force_inline void pop() 
 	{ 
-		g_assertFatal(_count > 0, "Trying to pop an element of an empty array.");
+		age_assertFatal(_count > 0, "Trying to pop an element of an empty array.");
 		_count--; 
 	}
 
@@ -365,7 +393,7 @@ public:
 	**/
 	void removeIndex(size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to remove index %d from a dynamic array with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to remove index %d from a dynamic array with count %d.", index, _count);
 
 		if (index == lastIndex()) {
 			_count--;
@@ -396,7 +424,7 @@ private:
 	{
 		const u64 minRequiredCapacity = _count + aditionalSlots;
 		if (minRequiredCapacity > _capacity)
-			reserve(math::g_nextPow2(minRequiredCapacity) - _capacity);
+			reserve(math::nextPow2(minRequiredCapacity) - _capacity);
 	}
 
 
@@ -417,7 +445,7 @@ private:
 
 	_force_inline void _insert(const t_type *ptr, size_t count, size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+		age_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
 
 		_reserveIfNotEnoughSize(count);
 
@@ -461,3 +489,5 @@ static std::istream &operator>>(std::istream &is, DArray<t_type, t_allocator> &a
 
 	return is;
 }
+
+}    // namespace age

@@ -17,17 +17,17 @@ public:
 
 	Range(t_type *data, size_t count) : _data(data), _count(count) {}
 	Range(Range && other) : Range(other._data, other._count) {}
-	Range(const Range &) = delete;
+	Range(const Range &) : Range(other._data, other._count) {}
 
 	_force_inline const t_type &operator[](u32 index) const
 	{
-		g_assertFatal(index < _count, "Range out of bounds! Trying to access index %d of Range with size %d", index, _count);
+		age_assertFatal(index < _count, "Range out of bounds! Trying to access index %d of Range with size %d", index, _count);
 		return _data[index];
 	}
 
 	_force_inline t_type &operator[](u32 index)
 	{
-		g_assertFatal(index < _count, "Range out of bounds! Trying to access index %d of Range with size %d", index, _count);
+		age_assertFatal(index < _count, "Range out of bounds! Trying to access index %d of Range with size %d", index, _count);
 		return _data[index];
 	}
 

@@ -4,6 +4,8 @@
 #include "BuildScheme.hpp"
 #include "Types.hpp"
 
+#include <utility>
+
 namespace meta
 {
 
@@ -152,14 +154,14 @@ template<typename t_type>
 struct isArithmetic : vConst<bool, isIntegral<t_type>::value || isFloatingPoint<t_type>::value> {};
 
 
-#ifdef _DEBUG
+#ifdef AGE_DEBUG
 struct isDebugBuild : vTrue {};
 #else
 struct isDebugBuild : vFalse {};
 #endif
 
 
-#ifdef _RELEASE_SYMB
+#ifdef AGE_RELEASE_DBG_INFO
 struct isReleaseSymbBuild : vTrue {};
 #else
 struct isReleaseSymbBuild : vFalse {};

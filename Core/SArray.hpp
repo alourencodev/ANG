@@ -8,6 +8,8 @@
 #include "Core/Range.hpp"
 #include "Core/Types.hpp"
 
+#include <array>
+
 template<typename t_type, size_t t_size>
 class SArray
 {
@@ -18,6 +20,7 @@ public:
 	SArray() = default;
 	SArray(const t_type &value) { fill(value); }
 	SArray(const SArray &other) { memcpy(_data, other._data, sizeof(t_type) * t_size); }
+	SArray(const Range<t_type> &range) { memcpy(_data, range.daya(), sizeof(t_type) * t_size); }
 
 	template<typename t_type, typename ...t_others>
 	SArray(t_type first, t_others ...others) : _data{std::forward<t_type>(first), std::forward<t_others>(others)...}
@@ -28,13 +31,13 @@ public:
 
 	_force_inline const t_type &operator[](size_t index) const 
 	{ 
-		g_assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
+		age_assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
 		return _data[index]; 
 	}
 
 	_force_inline t_type &operator[](size_t index) 
 	{ 
-		g_assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
+		age_assertFatal(index < t_size, "StaticArray out of bounds! You are trying to access index %d of an array of size %d", index, t_size);
 		return _data[index]; 
 	}
 
@@ -45,7 +48,7 @@ public:
 	_force_inline explicit constexpr operator t_type *() { return _data; }
 
 	_force_inline operator Range<t_type> () { return Range<t_type>(_data, t_size); }
-	_force_inline operator const Range<t_type> () const { return Range<t_type>(_data, t_size); }
+	_force_inline operator Range<const t_type> () const { return Range<const t_type>(_data, t_size); }
 
 	// Iterator
 	Iterator begin() { return _data; }
@@ -60,14 +63,14 @@ public:
 
 	void fill(const t_type &value) { std::fill_n(_data, t_size, value); }
 
-	const t_type *find(const t_type &value) const { return Range(_data, t_size).find(value); }
-	t_type *find(const t_type &value) { return Range(_data, t_size).find(value); }
+	const t_type *find(const t_type &value) const { return Range<const t_type>(_data, t_size).find(value); }
+	t_type *find(const t_type &value) { return Range<t_type>(_data, t_size).find(value); }
 
-	const t_type *findBackwards(const t_type &value) const { return Range(_data, t_size).findBackwards(value); }
-	t_type *findBackwards(const t_type &value) { return Range(_data, t_size).findBackwards(value); }
+	const t_type *findBackwards(const t_type &value) const { return Range<const t_type>(_data, t_size).findBackwards(value); }
+	t_type *findBackwards(const t_type &value) { return Range<t_type>(_data, t_size).findBackwards(value); }
 
-	i64 indexOf(const t_type &element) const { return Range(_data, t_size).indexOf(element); }
-	i64 indexOfBackwards(const t_type &element) const { return Range(_data, t_size).indexOfBackwards(element); }
+	i64 indexOf(const t_type &element) const { return Range<t_type>(_data, t_size).indexOf(element); }
+	i64 indexOfBackwards(const t_type &element) const { return Range<t_type>(_data, t_size).indexOfBackwards(element); }
 
 	const bool contains(const t_type &value) const { return find(value) != end(); }
 	const bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }

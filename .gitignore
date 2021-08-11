@@ -4,7 +4,16 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.sln
+*.vsxproj
+*.vsxproj.filters
+*.props
 
 # Directories
 .vs/
 Bin/
+Build/
+
+# Emacs temp files
+*~
+*#

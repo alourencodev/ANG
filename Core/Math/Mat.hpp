@@ -2,15 +2,16 @@
 
 #include <cmath>
 
-#include "Attributes.hpp"
-#include "BuildScheme.hpp"
-#include "SArray.hpp"
-#include "Types.hpp"
-#include "Vec2.hpp"
-#include "Vec3.hpp"
-#include "Vec4.hpp"
+#include "Core/Attributes.hpp"
+#include "Core/BuildScheme.hpp"
+#include "Core/SArray.hpp"
+#include "Core/Types.hpp"
+#include "Core/Math/Vec2.hpp"
+#include "Core/Math/Vec3.hpp"
+#include "Core/Math/Vec4.hpp"
 
-
+namespace age::math
+{
 
 // Matrix constexpr helper functions
 namespace
@@ -77,9 +78,9 @@ _force_inline void setDiagonal(SArray<SArray<t_type, t_size>, t_size> &grid, t_t
 template<typename t_type, size_t t_columns, size_t t_rows>
 union matrix
 {
-g_assertIsArithmetic(t_type);
+	age_assertIsArithmetic(t_type);
 
-using t_self = matrix<t_type, t_columns, t_rows>;
+	using t_self = matrix<t_type, t_columns, t_rows>;
 
 public:
 	matrix() : matrix(static_cast<t_type>(0)) {}
@@ -159,7 +160,7 @@ private:
 	template<typename t_scalarType>
 	_force_inline auto scalarMult(t_scalarType scalar) const
 	{
-		g_assertIsArithmetic(t_scalarType);
+		age_assertIsArithmetic(t_scalarType);
 		using resultType = decltype(_elements[0] * scalar);
 
 		matrix<resultType, t_columns, t_rows> result;
@@ -357,3 +358,6 @@ _force_inline mat4 ortho(float left, float right, float top, float bottom, float
 }
 
 }	// namespace mat
+
+}   // namespace age::math
+

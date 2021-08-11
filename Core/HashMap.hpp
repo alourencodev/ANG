@@ -10,6 +10,9 @@
 
 #include <functional>
 
+namespace age
+{
+
 namespace
 {
 
@@ -26,8 +29,8 @@ struct HashNode
 	static_assert(meta::isCopyable<t_keyType>::value, "A key of a HashMap must be of a copyable type.");
 	static_assert(meta::isCopyable<t_valueType>::value, " value of a HashMap must be of a copyable type.");
 
-	t_keyType key = default;
-	t_valueType value = default;
+	t_keyType key;
+	t_valueType value;
 	e_HashNodeState state = e_HashNodeState::Empty;
 };
 
@@ -45,7 +48,7 @@ public:
 	HashMap() = default;
 	HashMap(size_t capacity)
 	{
-		_capacity = math::g_max(math::g_nextPow2(capacity), k_defaultCapacity);
+		_capacity = math::max(math::nextPow2(capacity), k_defaultCapacity);
 		_data = t_allocator::alloc(_capacity);
 		memset(_data, 0, sizeof(Node) * _capacity);
 	}
@@ -75,7 +78,7 @@ public:
 	{
 		for (const auto &pair : list) {
 			if (!add(pair.first, pair.second))
-				g_error(k_tag, "Failed to add element from initializer list.\n""Be sure that there are no values with repeated keys.");
+				age_error(k_tag, "Failed to add element from initializer list.\n""Be sure that there are no values with repeated keys.");
 		}
 	}
 
@@ -84,7 +87,7 @@ public:
 	void operator = (const HashMap &other)
 	{
 		if (!t_allocator::realloc(&_data, other._capacity))
-			g_error(k_tag, "Unable to reallocate memory during copy assignment");
+			age_error(k_tag, "Unable to reallocate memory during copy assignment");
 
 		_capacity = other._capacity;
 		_count = other._count;
@@ -133,14 +136,14 @@ public:
 	t_valueType & operator [] (const t_keyType &key) 
 	{
 		const i32 index = _findExistingIndex(key);
-		g_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key);
+		age_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key.c_str());
 		return _data[_findExistingIndex(key)].value; 
 	}
 
 	const t_valueType & operator [] (const t_keyType &key)  const
 	{
 		const i32 index = _findExistingIndex(key);
-		g_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key);
+		age_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key.c_str());
 		return _data[_findExistingIndex(key)].value; 
 	}
 
@@ -171,7 +174,7 @@ private:
 		size_t oldCapacity = _capacity;
 		Node *oldData = _data;
 
-		_capacity = math::g_max(k_defaultCapacity, _capacity *2);
+		_capacity = math::max(k_defaultCapacity, _capacity *2);
 		_data = t_allocator::alloc(_capacity);
 		_count = 0;
 		memset(_data, 0, sizeof(Node) * _capacity);
@@ -208,3 +211,5 @@ private:
 	size_t _capacity = 0;
 	size_t _count = 0;
 };
+
+}    // namespace age

@@ -7,7 +7,7 @@
 
 #include "Core/Types.hpp"
 
-namespace logger
+namespace age::logger
 {
 
 static std::set<std::string> s_loggerRegister;
@@ -35,7 +35,7 @@ void enable(const std::string &tag)
 {
     if (s_loggerRegister.find(tag) != s_loggerRegister.end())
     {
-        g_warning("Logger", "Tag %s is already enabled.", tag.c_str());
+        age_warning("Logger", "Tag %s is already enabled.", tag.c_str());
         return;
     }
 
@@ -46,7 +46,7 @@ void disable(const std::string &tag)
 {
     if (s_loggerRegister.find(tag) == s_loggerRegister.end())
     {
-        g_warning("Logger", "Tag %s is already disabled.", tag.c_str());
+        age_warning("Logger", "Tag %s is already disabled.", tag.c_str());
 		return;
     }
 

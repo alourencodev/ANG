@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include <Core/BuildScheme.hpp>
 #include <Core/DArray.hpp>
 #include <Core/Log/Assert.hpp>
 #include <Core/Log/Log.h>
@@ -11,7 +12,6 @@
 
 #include "AGE/Vendor/GLFW.hpp"
 #include "AGE/Renderer/Vulkan/VulkanUtils.h"
-
 
 namespace age::vk
 {
@@ -37,7 +37,7 @@ static const SArray<const char *, 1> k_requiredExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-#ifdef _RELEASE_SYMB
+#ifdef AGE_DEBUG
 // TODO: Check what other validation layers can be useful to us
 static const SArray<const char *, 1> k_validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -56,11 +56,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 	using VkMessageSeverityFlag = VkDebugUtilsMessageSeverityFlagBitsEXT;
 
 	if (messageSeverity >= VkMessageSeverityFlag::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-		g_error(k_vulkanTag, callbackData->pMessage);
+		age_error(k_vulkanTag, callbackData->pMessage);
 	} else if (messageSeverity >= VkMessageSeverityFlag::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-		g_warning(k_vulkanTag, callbackData->pMessage);
+		age_warning(k_vulkanTag, callbackData->pMessage);
 	} else {
-		g_log(k_vulkanTag, callbackData->pMessage);
+		age_log(k_vulkanTag, callbackData->pMessage);
 	}
 
 	return VK_FALSE;
@@ -191,7 +191,7 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 			continue;
 
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-			g_log(k_tag, "Picked %s as a physical device", properties.deviceName);
+			age_log(k_tag, "Picked %s as a physical device", properties.deviceName);
 			o_queueIndices = queueIndices;
 			o_swapChainDetails = std::move(swapChainDetails);
 
@@ -215,8 +215,8 @@ void VulkanSystem::init(GLFWwindow *window)
 		u32 glfwExtensionCount = 0;
 		const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-#ifdef _RELEASE_SYMB
-		extensions.reserve(glfwExtensionCount + k_debugExtensions.size);
+#ifdef AGE_DEBUG
+		extensions.reserve(glfwExtensionCount + k_debugExtensions.size());
 		extensions.add(k_debugExtensions);
 #else
 		extensions.reserve(glfwExtensionCount);
@@ -225,7 +225,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		extensions.add(glfwExtensions, glfwExtensionCount);
 	}
 
-#ifdef _RELEASE_SYMB
+#ifdef AGE_DEBUG
 	{ 	// CheckValidationLayersAvailability
 		u32 layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -244,7 +244,7 @@ void VulkanSystem::init(GLFWwindow *window)
 				}
 			}
 
-			g_assertFatal(didFindLayer, "Requested validation layer(%s) is not available.", layer);
+			age_assertFatal(didFindLayer, "Requested validation layer(%s) is not available.", layer);
 		}
 	}
 #endif
@@ -264,8 +264,8 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.pNext = nullptr;
 		createInfo.pApplicationInfo = &appInfo;
 
-#ifdef _RELEASE_SYMB
-		createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.size);
+#ifdef AGE_DEBUG
+		createInfo.enabledLayerCount = static_cast<u32>(k_validationLayers.size());
 		createInfo.ppEnabledLayerNames = k_validationLayers.data();
 		createInfo.enabledExtensionCount = static_cast<u32>(extensions.count());
 		createInfo.ppEnabledExtensionNames = extensions.data();
@@ -275,15 +275,15 @@ void VulkanSystem::init(GLFWwindow *window)
 #endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));
-		g_log(k_tag, "Created Instance.");
+		age_log(k_tag, "Created Instance.");
 	}
 
 	{	// CreateWindowSurface
 		AGE_VK_CHECK(glfwCreateWindowSurface(_instance, window, nullptr, &_surface));
-		g_log(k_tag, "Created Window Surface.");
+		age_log(k_tag, "Created Window Surface.");
 	}
 
-#ifdef _RELEASE_SYMB
+#ifdef AGE_DEBUG
 	{	// CreateDebugMessenger
 		using VkMessageSeverityFlag = VkDebugUtilsMessageSeverityFlagBitsEXT;
 		using VkMessageTypeFlag = VkDebugUtilsMessageTypeFlagBitsEXT;
@@ -306,7 +306,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		if (f_createDebugUtilsMessengerEXT != nullptr) {
 			AGE_VK_CHECK(f_createDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger));
 		} else {
-			g_error(k_tag, "Unable to create DebugUtilsMessenger due to extension not being present.");
+			age_error(k_tag, "Unable to create DebugUtilsMessenger due to extension not being present.");
 		}
 	}
 #endif
@@ -314,14 +314,14 @@ void VulkanSystem::init(GLFWwindow *window)
 	{	// PickPhysicalDevice
 		u32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
-		g_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
+		age_assertFatal(deviceCount > 0, "Unable to find physical devices with Vulkan support.");
 
 		DArray<VkPhysicalDevice> physicalDevices(deviceCount);
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
 		_physicalDevice = pickPhysicalDevice(physicalDevices, _surface, queueIndices, swapchainDetails);
-		g_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
+		age_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
 
 	{	// CreateLogicalDevice
@@ -347,7 +347,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.pQueueCreateInfos = queueCreateInfoArray.data();
 		createInfo.queueCreateInfoCount = static_cast<u32>(queueCreateInfoArray.count());
 		createInfo.pEnabledFeatures = nullptr;	// TODO: Assign
-		createInfo.enabledExtensionCount = k_requiredExtensions.size;
+		createInfo.enabledExtensionCount = static_cast<u32>(k_requiredExtensions.size());
 		createInfo.ppEnabledExtensionNames = k_requiredExtensions.data();
 
 		// For older versions on Vulkan, it might be necessary to also set the validation layers here.
@@ -356,7 +356,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.enabledLayerCount = 0;
 		
 		AGE_VK_CHECK(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device));
-		g_log(k_tag, "Created logical device.");
+		age_log(k_tag, "Created logical device.");
 	}
 
 	{	// StoreQueueHandles
@@ -397,8 +397,8 @@ void VulkanSystem::init(GLFWwindow *window)
 			glfwGetFramebufferSize(window, &width, &height);
 			extent = { static_cast<u32>(width), static_cast<u32>(height)};
 
-			extent.width = math::g_clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-			extent.height = math::g_clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+			extent.width = math::clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+			extent.height = math::clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
 			_swapchainData.extent = extent;
 		}
@@ -411,7 +411,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		SArray<u32, 2> swapchainQueueIndices = {presentationQueueIndex, graphicsQueueIndex};
 
 		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount) {
-			g_warning(k_tag, "Trying to have more swapchain images than what is allowed. SwapChain images count will be clamped to the allowed maximum.");
+			age_warning(k_tag, "Trying to have more swapchain images than what is allowed. SwapChain images count will be clamped to the allowed maximum.");
 			imageCount = capabilities.maxImageCount;
 		}
 
@@ -434,7 +434,7 @@ void VulkanSystem::init(GLFWwindow *window)
 
 		if (presentationQueueIndex != graphicsQueueIndex) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = static_cast<u32>(swapchainQueueIndices.size);
+			createInfo.queueFamilyIndexCount = static_cast<u32>(swapchainQueueIndices.size());
 			createInfo.pQueueFamilyIndices = swapchainQueueIndices.data();
 		} else {
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -443,7 +443,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		}
 
 		AGE_VK_CHECK(vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapchain));
-		g_log(k_tag, "Swapchain created.");
+		age_log(k_tag, "Swapchain created.");
 	}
 
 	{	// StoreImageHandles
@@ -483,7 +483,7 @@ void VulkanSystem::init(GLFWwindow *window)
 			AGE_VK_CHECK(vkCreateImageView(_device, &createInfo, nullptr, &_imageViews[i]))
 		}
 
-		g_log(k_tag, "Created %d image views", _imageViews.count());
+		age_log(k_tag, "Created %d image views", _imageViews.count());
 	}
 }
 
@@ -496,7 +496,7 @@ void VulkanSystem::cleanup()
 	vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 	vkDestroyDevice(_device, nullptr);
 
-#ifdef _RELEASE_SYMB
+#ifdef AGE_DEBUG
 	{	// DestroyDebugUtilsMessenger
 		auto f_destroyDebugUtilsMessengerEXT = AGE_VK_GET_COMMAND(_instance, vkDestroyDebugUtilsMessengerEXT);
 		if (f_destroyDebugUtilsMessengerEXT != nullptr)

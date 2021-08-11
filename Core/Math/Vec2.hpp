@@ -6,10 +6,14 @@
 #include "Core/Log/Assert.hpp"
 #include "Core/Types.hpp"
 
+
+namespace age::math
+{
+
 template<typename t_type>
 union vector2
 {
-	g_assertIsArithmetic(t_type);
+	age_assertIsArithmetic(t_type);
 
 public:
 	union
@@ -41,7 +45,7 @@ public:
 	template<typename t_rightType>
 	auto operator + (const vector2<t_rightType> &vec) const
 	{
-		g_assertIsArithmetic(t_rightType);
+		age_assertIsArithmetic(t_rightType);
 		using resultType = decltype(x + vec.x);
 
 		return vector2<resultType>(x + vec.x, y + vec.y);
@@ -50,7 +54,7 @@ public:
 	template<typename t_rightType>
 	auto operator - (const vector2<t_rightType> &vec) const
 	{
-		g_assertIsArithmetic(t_rightType);
+		age_assertIsArithmetic(t_rightType);
 		using resultType = decltype(x - vec.x);
 
 		return vector2<resultType>(x - vec.x, y - vec.y);
@@ -64,7 +68,7 @@ public:
 	template<typename t_scalarType>
 	auto operator * (t_scalarType value) const
 	{
-		g_assertIsArithmetic(t_scalarType);
+		age_assertIsArithmetic(t_scalarType);
 
 		using resultType = decltype(x * value);
 
@@ -74,7 +78,7 @@ public:
 	template<typename t_scalarType>
 	vector2<float> operator / (t_scalarType value) const
 	{
-		g_assertIsArithmetic(t_scalarType);
+		age_assertIsArithmetic(t_scalarType);
 		const float divisor = static_cast<float>(value);
 
 		return vector2<float>(x / divisor, y / divisor);
@@ -89,7 +93,6 @@ public:
 template<typename t_vectorType, typename t_scalarType>
 static auto operator * (t_scalarType scalar, const vector2<t_vectorType> &vec)
 {
-	g_assertIsArithmetic(t_scalarType);
 	return vec * scalar;
 }
 
@@ -146,3 +149,5 @@ using vec2i = vector2<i32>;
 using size	= vector2<float>;
 using sizei = vector2<u32>;
 
+
+}    // namespace age::math

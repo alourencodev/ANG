@@ -1,22 +1,23 @@
 #pragma once
 
+#include "Core/BuildScheme.hpp"
 #include "Core/Log/Log.h"
 #include "Core/Meta.hpp"
 
-namespace logger
+namespace age::logger
 {
 
 static const LogSetting k_assertLogSetting = {k_yellowColor, 'A', false};
 
 };
 
-#ifdef _RELEASE_SYMB
-#	define g_assert(exp, ...) if (!(exp)) { logger::rawLog(logger::k_assertLogSetting, __FILE__, __LINE__, "Assert", __VA_ARGS__); _breakpoint(); }
-#	define g_assertFatal(exp, ...) if (!(exp)) { g_error("Assert Fatal", __VA_ARGS__); }
+#ifdef AGE_ASSERT_ENABLED
+#	define age_assert(exp, ...) if (!(exp)) { age::logger::rawLog(age::logger::k_assertLogSetting, __FILE__, __LINE__, "Assert", __VA_ARGS__); _breakpoint(); }
+#	define age_assertFatal(exp, ...) if (!(exp)) { age_error("Assert Fatal", __VA_ARGS__); }
 #else
-#	define g_assert(exp, ...) ;
-#	define g_assertFatal(exp, ...) ;
+#	define age_assert(exp, ...) ;
+#	define age_assertFatal(exp, ...) ;
 #endif
 
-#define g_assertIsArithmetic(type) static_assert(meta::isArithmetic<type>::value, "Given type(" #type ") must be arithmetic!")
-#define g_assertIsIntegral(type) static_assert(meta::isIntegral<type>::value, "Given type(" #type ") must be integral!")
+#define age_assertIsArithmetic(type) static_assert(meta::isArithmetic<type>::value, "Given type(" #type ") must be arithmetic!")
+#define age_assertIsIntegral(type) static_assert(meta::isIntegral<type>::value, "Given type(" #type ") must be integral!")

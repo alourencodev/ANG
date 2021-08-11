@@ -3,6 +3,8 @@
 #include <Core/Math/Mat.hpp>
 
 
+using namespace age::math;
+
 constexpr static char k_tag[] = "[Mat]";
 
 TEST_CASE("Matrix constructors", k_tag)

@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Core/SArray.hpp"
 #include "Mat.hpp"
-#include "SArray.hpp"
 #include "Vec3.hpp"
+
+namespace age::math
+{
 
 union quat
 {
@@ -24,6 +27,8 @@ public:
 		w(inW), x(inX), y(inY), z(inZ) {}
 	quat(float inAngle, const vec3 &inAxis) :
 		angle(inAngle), axis(inAxis) {}
+
+	quat(const quat &other) : quat(other.angle, other.axis) {}
 
 	void operator = (const quat &other)
 	{
@@ -80,9 +85,9 @@ public:
 
 	friend quat normalize(const quat &q);
 
-	operator mat4()
+	mat4 toMat4() const
 	{
-		quat n = normalize(*this);
+		const quat n = normalize(*this);
 
 		float xx = n.x * n.x;
 		float xy = n.x * n.y;
@@ -108,22 +113,22 @@ private:
 
 
 template<typename t_scalarType>
-static quat operator * (t_scalarType scalar, const quat &q)
+quat operator * (t_scalarType scalar, const quat &q)
 {
 	return q * scalar;
 }
 
-static float sqrLength(const quat &q)
+float sqrLength(const quat &q)
 {
 	return (q.w * q.w) + (q.x * q.x) + (q.y * q.y) + (q.z * q.z);
 }
 
-static float length(const quat &q)
+float length(const quat &q)
 {
 	return sqrtf(sqrLength(q));
 }
 
-static quat normalize(const quat &q)
+quat normalize(const quat &q)
 {
 	float len = length(q);
 
@@ -133,14 +138,16 @@ static quat normalize(const quat &q)
 	return q / len;
 }
 
-static std::ostream & operator << (std::ostream &os, const quat &q)
+std::ostream & operator << (std::ostream &os, const quat &q)
 {
 	os << "(" << q.w << ", (" << q.x << ", " << q.y << ", " << q.z << "))";
 	return os;
 }
 
-static std::istream & operator >> (std::istream &is, quat &q)
+std::istream & operator >> (std::istream &is, quat &q)
 {
 	is >> q.w >> q.x >> q.y >> q.z;
 	return is;
 }
+
+}    // namespace age::math

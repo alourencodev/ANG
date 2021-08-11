@@ -5,6 +5,9 @@
 #include "Core/Range.hpp"
 
 
+namespace age
+{
+
 template<typename t_type, size_t t_maxSize>
 class StackArray
 {
@@ -27,13 +30,13 @@ public:
 
 	StackArray(const Range<t_type> &other)
 	{
-		g_assertFatal(other.count() < t_maxSize, "Source array's max size must be greater or equal to the destination array's max size.");
+		age_assertFatal(other.count() < t_maxSize, "Source array's max size must be greater or equal to the destination array's max size.");
 		add(other);
 	}
 
 	StackArray(std::initializer_list<t_type> &&list)
 	{
-		g_assertFatal(list.size() <= t_maxSize, "Trying to initiaize StackArray with an Initializer List bigger than the array size %d", t_maxSize);
+		age_assertFatal(list.size() <= t_maxSize, "Trying to initiaize StackArray with an Initializer List bigger than the array size %d", t_maxSize);
 		memcpy(_data, list.begin(), list.size() * sizeof(t_type));
 		_count = list.size();
 	}
@@ -42,13 +45,13 @@ public:
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
-		g_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
 		return _data[index];
 	}
 
 	_force_inline t_type &operator[](size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to access index %d of a DArray with count %d.", index, _count);
 		return _data[index];
 	}
 
@@ -117,15 +120,15 @@ public:
 	void add(std::initializer_list<t_type> list) { _add(list.begin(), list.size()); }
 	void add(t_type &&element)
 	{
-		g_assertFatal(_count < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal(_count < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		_data[_count] = std::move(element);
 		_count++;
 	}
 
 	void addEmpty(size_t count = 1)
 	{
-		g_assertFatal(count > 0, "Cannot add 0 empty elements.");
-		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal(count > 0, "Cannot add 0 empty elements.");
+		age_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		_count += count;
 	}
 
@@ -153,8 +156,8 @@ public:
 	void insert(std::initializer_list<t_type> list, size_t index) { insert(list.begin(), list.size(), index); }
 	void insert(t_type &&element, size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
-		g_assertFatal((_count + 1) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+		age_assertFatal((_count + 1) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 
 		const size_t movingChunkSize = _count - index;
 		t_type *insertionPtr = _data + index;
@@ -215,7 +218,7 @@ public:
 	**/
 	void swapPopIndex(size_t index) 
 	{ 
-		g_assertFatal(index < _count, "Trying to remove element in index %d from a dynamic array with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to remove element in index %d from a dynamic array with count %d.", index, _count);
 		_swapPopPtr(_data + index); 
 	}
 
@@ -239,7 +242,7 @@ public:
 	**/
 	_force_inline void pop() 
 	{ 
-		g_assertFatal(_count > 0, "Trying to pop an element of an empty array.");
+		age_assertFatal(_count > 0, "Trying to pop an element of an empty array.");
 		_count--; 
 	}
 
@@ -249,7 +252,7 @@ public:
 	**/
 	void removeIndex(size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to remove index %d from a dynamic array with count %d.", index, _count);
+		age_assertFatal(index < _count, "Trying to remove index %d from a dynamic array with count %d.", index, _count);
 
 		if (index == lastIndex()) {
 			_count--;
@@ -287,15 +290,15 @@ private:
 
 	_force_inline void _add(const t_type *ptr, size_t count)
 	{
-		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		memcpy(&_data[_count], ptr, count * sizeof(t_type));
 		_count += count;
 	}
 
 	_force_inline void _insert(const t_type *ptr, size_t count, size_t index)
 	{
-		g_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
-		g_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal(index < _count, "Trying to insert element in index %d of a DArray with only %d elements.", index, _count);
+		age_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 
 		const size_t movingChunkSize = _count - index;
 		t_type *insertionPtr = _data + index;
@@ -328,3 +331,5 @@ static std::istream &operator>>(std::istream &is, StackArray<t_type, t_maxSize> 
 
 	return is;
 }
+
+}    // namespace age

@@ -6,7 +6,7 @@
 #include "Core/BuildScheme.hpp"
 
 
-namespace logger
+namespace age::logger
 {
 
 struct LogSetting
@@ -30,13 +30,13 @@ void disable(const std::string &tag);
 
 }
 
-#ifdef _RELEASE_SYMB
-#	define g_log(tag, ...) logger::rawLog(logger::k_debugLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
-#	define g_warning(tag, ...) logger::rawLog(logger::k_warnLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
-#	define g_error(tag, ...) { logger::rawLog(logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
+#ifdef AGE_LOG_ENABLED
+#	define age_log(tag, ...) age::logger::rawLog(age::logger::k_debugLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
+#	define age_warning(tag, ...) age::logger::rawLog(age::logger::k_warnLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__)
+#	define age_error(tag, ...) { age::logger::rawLog(age::logger::k_errorLogSetting, __FILE__, __LINE__, tag, __VA_ARGS__); _breakpoint(); std::exit(EXIT_FAILURE); }
 #else
-#	define g_log(tag, ...) ;
-#	define g_warning(tag, ...) ;
-#	define g_error(tag, ...) ;
+#	define age_log(tag, ...) ;
+#	define age_warning(tag, ...) ;
+#	define age_error(tag, ...) ;
 #endif
 

@@ -7,6 +7,8 @@
 #include <Core/Math/Quat.hpp>
 
 
+using namespace age::math;
+
 constexpr static char k_tag[] = "[Quat]";
 
 TEST_CASE("Quaternion constructors", k_tag)
@@ -148,7 +150,7 @@ TEST_CASE("Quaternion Boolean Operations", k_tag)
 TEST_CASE("Quaternion to Matrix Conversion", k_tag)
 {
 	quat q(1, 2, 2, 4);
-	mat4 result = q;
+	mat4 result = q.toMat4();
 
 	REQUIRE(result.at(0,0) == Approx(-0.6f));
 	REQUIRE(result.at(1,0) == Approx(0.64f));
@@ -222,7 +224,7 @@ TEST_CASE("Quaternion Lerping Vector", k_tag)
 {
 	quat q1(1, -1, 2, 3);
 	quat q2(2, -2, 4, 6);
-	auto lerpedQuat = math::g_lerp(q1, q2, 0.5f);
+	auto lerpedQuat = lerp(q1, q2, 0.5f);
 
 	REQUIRE(lerpedQuat.w == 1.5f);
 	REQUIRE(lerpedQuat.x == -1.5f);

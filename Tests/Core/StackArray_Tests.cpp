@@ -4,6 +4,8 @@
 #include <Core/DArray.hpp>
 
 
+using namespace age;
+
 constexpr static char k_tag[] = "[StackArray]";
 
 TEST_CASE("StackArray Constructor", k_tag)

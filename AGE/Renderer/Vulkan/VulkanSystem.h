@@ -54,7 +54,7 @@ private:
 	VkDevice _device = VK_NULL_HANDLE;
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 
-#ifdef _RELEASE_SYMB
+#ifdef AGE_RELEASE_DBG_INFO
 	VkDebugUtilsMessengerEXT _debugMessenger;
 #endif
 };

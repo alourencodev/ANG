@@ -23,7 +23,7 @@ protected:
 	struct WindowInfo
 	{
 		std::string title;
-		sizei size;
+		math::sizei size;
 	};
 
 	virtual void init() = 0; 
@@ -33,15 +33,15 @@ protected:
 	virtual WindowInfo GetWindowInfo() = 0;
 
 private:
-	GLFWwindow *_window;
+	GLFWwindow *_window = nullptr;
 };
 
-static Game *g_game = nullptr;
+static Game *s_game = nullptr;
 
-}
+}    // namespace age
 
 #define DEFINE_GAME(GAME)	\
-age::Game *g_createGame()	\
+age::Game *s_createGame()	\
 {							\
-	return new GAME##();	\
+	return new GAME;		\
 }

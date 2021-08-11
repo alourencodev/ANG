@@ -8,6 +8,8 @@
 #include <Core/Math/Values.hpp>
 
 
+using namespace age::math;
+
 constexpr static char k_tag[] = "[Vec4]";
 
 TEST_CASE("4D Vector Constructors", k_tag)
@@ -349,7 +351,7 @@ TEST_CASE("4D Vector Lerping Vector", k_tag)
 {
 	vec4i vecA(1, -1, 2, 3);
 	vec4i vecB(2, -2, 4, 6);
-	auto lerpedVec = math::g_lerp(vecA, vecB, 0.5f);
+	auto lerpedVec = lerp(vecA, vecB, 0.5f);
 
 	REQUIRE(lerpedVec.x == 1.5f);
 	REQUIRE(lerpedVec.y == -1.5f);

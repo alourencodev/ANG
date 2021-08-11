@@ -20,7 +20,7 @@ public:
 		else {
 			t_type *newPtr = reinterpret_cast<t_type *>(std::realloc(*outPtr, sizeof(t_type) * count)); 
 			if (newPtr == nullptr) {
-				g_warning(k_tag, "Failed to reallocate memory with size %d", count);
+				age_warning(k_tag, "Failed to reallocate memory with size %d", count);
 				return false;
 			}
 
@@ -29,6 +29,7 @@ public:
 
 		return true;
 	}
+
 private:
 	constexpr static char k_tag[] = "DefaultHeapAllocator";
 };

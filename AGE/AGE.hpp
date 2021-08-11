@@ -2,14 +2,22 @@
 
 #include "Game.h"
 
-extern age::Game *g_createGame();
+#include <iostream>
+
+extern age::Game *s_createGame();
 
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-	age::g_game = g_createGame();
-	age::g_game->Run();
-	delete age::g_game;
+#ifdef AGE_DEBUG
+	// TODO: Parse command line parameters
+	for (int i = 1; i < argc; i++)
+		std::cout << "ARG" << argv[i] << std::endl;
+#endif
+
+	age::s_game = s_createGame();
+	age::s_game->Run();
+	delete age::s_game;
 
 	return 0;
 }

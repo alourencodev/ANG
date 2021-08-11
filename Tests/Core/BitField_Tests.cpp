@@ -5,6 +5,7 @@
 
 constexpr static char k_tag[] = "[BitField]";
 
+using namespace age;
 
 TEST_CASE("BitField Test", k_tag)
 {

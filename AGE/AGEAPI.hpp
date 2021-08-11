@@ -2,8 +2,8 @@
 
 #include <Core/Platform.hpp>
 
-#ifdef _WINDOWS
-#	ifdef _AGE_BUILD
+#ifdef AGE_WINDOWS
+#	ifdef AGE_BUILD
 #		define AGE_API __declspec(dllexport)
 #	else
 #		define AGE_API __declspec(dllimport)

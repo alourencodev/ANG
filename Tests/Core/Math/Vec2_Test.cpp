@@ -8,6 +8,7 @@
 #include <Core/Math/Values.hpp>
 
 
+using namespace age::math;
 
 constexpr static char k_tag[] = "[Vec2]";
 
@@ -262,7 +263,7 @@ TEST_CASE("2D Vector Lerping Vector", k_tag)
 {
 	vec2i vecA(1, -1);
 	vec2i vecB(2, -2);
-	auto lerpedVec = math::g_lerp(vecA, vecB, 0.5f);
+	auto lerpedVec = lerp(vecA, vecB, 0.5f);
 
 	REQUIRE(lerpedVec.x == 1.5f);
 	REQUIRE(lerpedVec.y == -1.5f);

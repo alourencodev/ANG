@@ -62,6 +62,21 @@ TEST_CASE("StaticArray Iteration", k_tag)
 	}
 }
 
+TEST_CASE("Static Array type cast operators", k_tag)
+{
+	SECTION("Cast to Range")
+	{
+		SArray<int, 4> sa = {1, 2, 3, 4};
+		Range<int> range = sa;
+	}
+
+	SECTION("Cast to const Range")
+	{
+		const SArray<int, 4> sa = {1, 2, 3, 4};
+		Range<const int> range = sa;
+	}
+}
+
 class NoCopiable
 {
 public:

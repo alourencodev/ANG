@@ -6,8 +6,10 @@
 #include <Core/SArray.hpp>
 #include <Core/NonCopyable.hpp>
 
-#include "Tests/TestUtils/TestNonCopyable.hpp"
+#include "TestUtils/TestNonCopyable.hpp"
 
+
+using namespace age;
 
 constexpr static char k_tag[] = "[DArray]";
 
@@ -38,6 +40,12 @@ TEST_CASE("Dynamic Array Constructors", k_tag)
 		REQUIRE(da[0] == 1);
 		REQUIRE(da[1] == 2);
 		REQUIRE(da[2] == 3);
+	}
+
+	SECTION("Constructor from a const static array with class")
+	{
+		const SArray<int, 3> sa = {1, 2, 3}; 
+		DArray<int> da(sa);
 	}
 
 	SECTION("Constructor from initializer list")

@@ -25,16 +25,16 @@ void Game::Run()
 		vk::VulkanSystem::get().init(_window);
 	}
 
-	g_log(k_tag, "Initializing Game.");
+	age_log(k_tag, "Initializing Game.");
 	init();
 
-	g_log(k_tag, "Starting Game Loop.");
+	age_log(k_tag, "Starting Game Loop.");
 	while(!glfwWindowShouldClose(_window)) {
 		glfwPollEvents();
 		update();
 	}
 
-	g_log(k_tag, "Starting Game Cleanup.");
+	age_log(k_tag, "Starting Game Cleanup.");
 	cleanup();
 
 	{	// cleanupEngineSystems

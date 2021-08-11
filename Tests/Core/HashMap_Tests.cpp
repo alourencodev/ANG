@@ -4,6 +4,9 @@
 
 #include <Core/HashMap.hpp>
 
+
+using namespace age;
+
 constexpr static char k_tag[] = "[HashMap]";
 
 TEST_CASE("Hash Map Constructor", k_tag)
@@ -77,3 +80,5 @@ TEST_CASE("HashMap Clear", k_tag)
 	REQUIRE(map.capacity() == 8);
 	REQUIRE(map.count() == 0);
 }
+
+// TODO: Test move and copy constructors
