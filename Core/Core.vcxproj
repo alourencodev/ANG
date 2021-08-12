@@ -145,6 +145,7 @@
     <ClInclude Include="BitField.hpp" />
     <ClInclude Include="BuildScheme.hpp" />
     <ClInclude Include="DArray.hpp" />
+    <ClInclude Include="Function.hpp" />
     <ClInclude Include="HashMap.hpp" />
     <ClInclude Include="Log\Assert.hpp" />
     <ClInclude Include="Log\Log.h" />

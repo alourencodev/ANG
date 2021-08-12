@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="BitField_Tests.cpp" />
     <ClCompile Include="DArray_Tests.cpp" />
+    <ClCompile Include="Function_Tests.cpp" />
     <ClCompile Include="HashMap_Tests.cpp" />
     <ClCompile Include="Main_Tests.cpp" />
     <ClCompile Include="Math\Math_Test.cpp" />
