@@ -20,10 +20,26 @@ public:
 		_callable = new Callable<t_type>(t);
 	}
 
+	Function(const Function &) = delete;
+	Function(Function &&other)
+	{
+		_callable = other._callable;
+		other._callable = nullptr;
+	}
+
 	~Function()
 	{
 		if (_callable != nullptr)
 			delete _callable;
+	}
+
+	Function &operator = (const Function &) = delete;
+	Function &operator = (Function &&other)
+	{
+		_callable = other._callable;
+		other._callable = nullptr;
+
+		return *this;
 	}
 
 	template<typename t_type>
