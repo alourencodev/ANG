@@ -15,7 +15,7 @@ public:
 	Game() = default;
 	virtual ~Game() = default;
 	
-	void Run();
+	void Run(int argc, char *argv[]);
 
 	GLFWwindow *GetWindow() { return _window; }
 

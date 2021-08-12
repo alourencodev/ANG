@@ -160,12 +160,14 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanSystem.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp" />
+    <ClCompile Include="Systems\CommandSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGE.hpp" />
     <ClInclude Include="AGEAPI.hpp" />
     <ClInclude Include="Renderer\Vulkan\VulkanSystem.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />
+    <ClInclude Include="Systems\CommandSystem.h" />
     <ClInclude Include="Vendor\GLFW.hpp" />
     <ClInclude Include="Game.h" />
   </ItemGroup>

@@ -180,6 +180,12 @@ public:
 
 	bool contains(const t_keyType &key) const { return _findExistingIndex(key) >= 0; }
 
+	const t_valueType *at(const t_keyType &key) const
+	{
+		const i32 index = _findExistingIndex(key);
+		return index >= 0 ? &(_data[index].value) : nullptr;
+	}
+
 private:
 	using Node = HashNode<t_keyType, t_valueType>;
 

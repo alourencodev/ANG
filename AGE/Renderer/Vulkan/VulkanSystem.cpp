@@ -204,9 +204,6 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 
 void VulkanSystem::init(GLFWwindow *window)
 {
-	// TODO: Remove when the command line argumensts support assert enable/disable
-	logger::enable(k_tag);
-
 	DArray<const char *> extensions;
 	QueueIndices queueIndices;
 	SwapChainDetails swapchainDetails;
