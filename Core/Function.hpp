@@ -39,7 +39,7 @@ public:
 	t_returnType operator()(t_argsTypes... args) const
 	{
 		age_assertFatal(_callable != nullptr, "Function has no valid callable. Make sure it is correctly initialized or that the defined callable is still alive.");
-		return _callable->Invoke(args...);
+		return _callable->invoke(args...);
 	}
 
 	bool isValid() const { return _callable != nullptr; }
@@ -49,7 +49,7 @@ private:
 	{
 	public:
 		virtual ~ICallable() = default;
-		virtual t_returnType Invoke(t_argsTypes... args) = 0;
+		virtual t_returnType invoke(t_argsTypes... args) = 0;
 	};
 
 	template <typename t_type>
@@ -59,7 +59,7 @@ private:
 		Callable(const t_type &t) : _t(t) {}
 		~Callable() override = default;
 
-		t_returnType Invoke(t_argsTypes... args) override
+		t_returnType invoke(t_argsTypes... args) override
 		{
 			return _t(args...);
 		}
