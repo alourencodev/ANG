@@ -36,8 +36,22 @@ struct HashNode
 
 }
 
+template<typename t_keyType, typename t_valueType>
+using DefaultHashMapAllocator = DefaultHeapAllocator<HashNode<t_keyType, t_valueType>>;
 
-template<typename t_keyType, typename t_valueType, typename t_allocator = DefaultHeapAllocator<HashNode<t_keyType, t_valueType>>>
+template<typename t_type>
+struct HashMapBehavior
+{
+public:
+	virtual bool isEqual(const t_type &a, const t_type &b) const { return a == b; }
+	virtual size_t hash(const t_type &value) const { return std::hash<t_type>{}(value); }
+};
+
+
+template<typename t_keyType, 
+		 typename t_valueType,
+		 typename t_behavior = HashMapBehavior<t_keyType>, 
+		 typename t_allocator = DefaultHashMapAllocator<t_keyType, t_valueType>>
 class HashMap
 {
 	constexpr static char k_tag[] = "HashMap";
@@ -94,7 +108,7 @@ public:
 		memcpy(_data, other._data, _capacity * sizeof(Node));
 	}
 
-	void operator = (HashMap &&other)
+	void operator = (HashMap &&other) noexcept
 	{
 		t_allocator::dealloc(_data);
 
@@ -136,15 +150,15 @@ public:
 	t_valueType & operator [] (const t_keyType &key) 
 	{
 		const i32 index = _findExistingIndex(key);
-		age_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key.c_str());
-		return _data[_findExistingIndex(key)].value; 
+		age_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key);
+		return _data[index].value; 
 	}
 
-	const t_valueType & operator [] (const t_keyType &key)  const
+	const t_valueType & operator [] (const t_keyType &key) const
 	{
 		const i32 index = _findExistingIndex(key);
-		age_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key.c_str());
-		return _data[_findExistingIndex(key)].value; 
+		age_assertFatal(index >= 0, "Item with key %s couldn't be found in the HashMap.", key);
+		return _data[index].value; 
 	}
 
 	bool remove(const t_keyType &key)
@@ -189,7 +203,7 @@ private:
 
 	_force_inline u32 _hashValue(const t_keyType &key) const
 	{
-		size_t hash = std::hash<t_keyType>{}(key);
+		size_t hash = t_behavior{}.hash(key);
 		return static_cast<u32>(hash & (_capacity - 1));
 	}
 
@@ -197,7 +211,7 @@ private:
 	{
 		i32 index = _hashValue(key);
 		while(_data[index].state != e_HashNodeState::Empty) {
-			if (_data[index].state == e_HashNodeState::Full && _data[index].key == key)
+			if (_data[index].state == e_HashNodeState::Full && t_behavior{}.isEqual(_data[index].key, key))
 				return index;
 
 			// If Removed it continues
