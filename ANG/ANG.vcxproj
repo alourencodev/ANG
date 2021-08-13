@@ -20,6 +20,10 @@
   <ItemGroup>
     <ClCompile Include="ANGame.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\dummy.frag" />
+    <None Include="Shaders\dummy.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -97,6 +101,14 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Bin\Lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Core.lib;AGE.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -v</Command>
+      <Message>Building Shaders</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -118,6 +130,14 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Bin\Lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Core.lib;AGE.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -O</Command>
+      <Message>Building Shaders</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDbgInfo|x64'">
     <ClCompile>
@@ -140,9 +160,13 @@
       <AdditionalDependencies>Core.lib;AGE.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
+      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -O</Command>
+      <Message>Building Shaders</Message>
+    </PreBuildEvent>
+    <PostBuildEvent>
       <Command>
       </Command>
-    </PreBuildEvent>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
