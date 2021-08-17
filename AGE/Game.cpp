@@ -62,7 +62,7 @@ void Game::Run(int argc, char *argv[])
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
-		vk::VulkanSystem::get().init(_window);
+		vk::s_vulkanSystem.init(_window);
 	}
 
 	age_log(k_tag, "Initializing Game.");
@@ -80,7 +80,7 @@ void Game::Run(int argc, char *argv[])
 
 	age_log(k_tag, "Starting Engine Systems Cleanup.");
 	{	// cleanupEngineSystems
-		vk::VulkanSystem::get().cleanup();
+		vk::s_vulkanSystem.cleanup();
 
 		glfwDestroyWindow(_window);
 		glfwTerminate();

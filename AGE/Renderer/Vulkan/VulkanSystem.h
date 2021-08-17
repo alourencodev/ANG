@@ -28,13 +28,12 @@ enum class e_QueueFamily : u8
 class VulkanSystem
 {
 public:
-	static VulkanSystem &get() { static VulkanSystem instance; return instance; } ;
-	
 	void init(GLFWwindow *window);
 	void cleanup();
 
-private:
+	VkDevice device() const { return _device; }
 
+private:
 	struct SwapchainData
 	{
 		DArray<VkImage> images;
@@ -58,5 +57,7 @@ private:
 	VkDebugUtilsMessengerEXT _debugMessenger;
 #endif
 };
+
+static VulkanSystem s_vulkanSystem;
 
 }

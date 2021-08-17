@@ -91,10 +91,19 @@
     <ClInclude Include="StringMap.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">
       <Filter>Source Files\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
