@@ -23,6 +23,9 @@ public:
 
 	DArray() = default;
 
+	/**
+	@brief Constructs a Dynamic Array and allocates a given capacity.
+	**/
 	DArray(size_t capacity) 
 	{ 
 		_data = t_allocator::alloc(capacity); 
