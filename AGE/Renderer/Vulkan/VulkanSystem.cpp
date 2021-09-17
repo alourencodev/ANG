@@ -18,6 +18,8 @@ namespace age::vk
 
 constexpr char k_tag[] = "VulkanSystem";
 
+VulkanSystem VulkanSystem::s_inst = VulkanSystem();
+
 struct QueueIndices
 {
 	using QueueIndexArray = SArray<u32, static_cast<u8>(e_QueueFamily::Count)>;
@@ -139,11 +141,10 @@ SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceK
 
 bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices, const SwapChainDetails &swapChainDetails)
 {
-	{	// CheckRequiredQueueFamilies
-		if (!queueIndices.indexMap.isSet(BitField(getRequiredQueueFamilies())))
-			return false;
-	}
-	
+	// CheckRequiredQueueFamilies
+	if (!queueIndices.indexMap.isSet(BitField(getRequiredQueueFamilies())))
+		return false;
+
 	{	// CheckRequiredExtensions
 		u32 extensionCount = 0;
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
@@ -166,10 +167,9 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &que
 			return false;
 	}
 
-	{	// CheckSwapChain
-		if (swapChainDetails.formats.isEmpty() || swapChainDetails.presentMode.isEmpty())
-			return false;
-	}
+	// CheckSwapChain
+	if (swapChainDetails.formats.isEmpty() || swapChainDetails.presentMode.isEmpty())
+		return false;
 
 	return true;
 }
@@ -265,6 +265,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		createInfo.ppEnabledLayerNames = k_validationLayers.data();
 #else
 		createInfo.enabledLayerCount = 0;
+		createInfo.ppEnabledLayerNames = nullptr;
 #endif
 
 		AGE_VK_CHECK(vkCreateInstance(&createInfo, nullptr, &_instance));

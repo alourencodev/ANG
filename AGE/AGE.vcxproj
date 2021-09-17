@@ -92,7 +92,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Lib\vulkan\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -119,7 +119,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Lib\vulkan\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -146,7 +146,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Lib\vulkan\Lib;$(SolutionDIr)Bin\Lib\$(Configuration);$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)Bin\Lib\$(Configuration);$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanShaderSystem.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanSystem.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp" />
@@ -166,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="AGE.hpp" />
     <ClInclude Include="AGEAPI.hpp" />
+    <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanShaderSystem.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanSystem.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />

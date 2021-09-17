@@ -5,7 +5,7 @@
 #include <Core/StackArray.hpp>
 
 #include "AGE/Vendor/GLFW.hpp"
-#include "AGE/Renderer/Vulkan/VulkanSystem.h"
+#include "AGE/Renderer/Renderer.h"
 #include "AGE/Systems/CommandSystem.h"
 
 namespace age
@@ -62,17 +62,17 @@ void Game::Run(int argc, char *argv[])
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
-		vk::s_vulkanSystem.init(_window);
+		Renderer::s_inst.init(_window);
 	}
 
 	age_log(k_tag, "Initializing Game.");
 	init();
 
-
 	age_log(k_tag, "Starting Game Loop.");
 	while(!glfwWindowShouldClose(_window)) {
 		glfwPollEvents();
 		update();
+		Renderer::s_inst.update();
 	}
 
 	age_log(k_tag, "Starting Game Cleanup.");
@@ -80,7 +80,7 @@ void Game::Run(int argc, char *argv[])
 
 	age_log(k_tag, "Starting Engine Systems Cleanup.");
 	{	// cleanupEngineSystems
-		vk::s_vulkanSystem.cleanup();
+		Renderer::s_inst.cleanup();
 
 		glfwDestroyWindow(_window);
 		glfwTerminate();

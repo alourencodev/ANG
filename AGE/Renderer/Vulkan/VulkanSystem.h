@@ -28,6 +28,8 @@ enum class e_QueueFamily : u8
 class VulkanSystem
 {
 public:
+	static VulkanSystem s_inst;
+
 	void init(GLFWwindow *window);
 	void cleanup();
 
@@ -37,8 +39,8 @@ private:
 	struct SwapchainData
 	{
 		DArray<VkImage> images;
-		VkFormat format;
-		VkExtent2D extent;
+		VkFormat format = VK_FORMAT_UNDEFINED;
+		VkExtent2D extent = {0, 0};
 	};
 
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
@@ -57,7 +59,5 @@ private:
 	VkDebugUtilsMessengerEXT _debugMessenger;
 #endif
 };
-
-static VulkanSystem s_vulkanSystem;
 
 }

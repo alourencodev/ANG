@@ -34,6 +34,9 @@
     <ClCompile Include="Renderer\Vulkan\VulkanShaderSystem.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGEAPI.hpp">
@@ -59,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\Vulkan\VulkanShaderSystem.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderer.h">
+      <Filter>Source Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

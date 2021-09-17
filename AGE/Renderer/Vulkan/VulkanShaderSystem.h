@@ -29,6 +29,8 @@ struct Shader
 class ShaderSystem
 {
 public:
+	static ShaderSystem s_inst;
+
 	ShaderHandle createShader(e_ShaderStage shaderStage, const char *path);
 	void cleanup();
 
@@ -37,7 +39,5 @@ public:
 private:
 	DArray<Shader> _shaders;
 };
-
-ShaderSystem s_shaderSystem;
 
 }

@@ -11,21 +11,26 @@ namespace age::vk
 
 constexpr const char k_tag[] = "VulkanShaderSystem";
 
+ShaderSystem ShaderSystem::s_inst = ShaderSystem();
+
 ShaderHandle ShaderSystem::createShader(e_ShaderStage shaderStage, const char *path)
 {
 	age_log(k_tag, "Creating shader from %s", path);
 
 	// TODO: Check if we can discard the source after the module gets created.
-	DArray<char> source = file::readText(path);
+	//		 Otherwise we cant's clean 'source' at the end of the scope.
+
+	DArray<char> source = file::readBinary(path);
 
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = source.count();
+	createInfo.pNext = nullptr;
+	createInfo.flags = 0;
+	createInfo.codeSize = static_cast<u32>(source.count());
 	createInfo.pCode = reinterpret_cast<const u32 *>(source.data());
 
 	Shader shader{};
-
-	AGE_VK_CHECK(vkCreateShaderModule(s_vulkanSystem.device(), &createInfo, nullptr, &shader.module));
+	AGE_VK_CHECK(vkCreateShaderModule(VulkanSystem::s_inst.device(), &createInfo, nullptr, &shader.module));
 
 	switch (shaderStage)
 	{
@@ -53,7 +58,7 @@ void ShaderSystem::cleanup()
 	age_log(k_tag, "Cleaning up shaders");
 
 	for (Shader &shader : _shaders) {
-		vkDestroyShaderModule(s_vulkanSystem.device(), shader.module, nullptr);
+		vkDestroyShaderModule(VulkanSystem::s_inst.device(), shader.module, nullptr);
 	}
 
 	_shaders.clear();
