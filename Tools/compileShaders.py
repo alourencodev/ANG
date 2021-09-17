@@ -3,6 +3,9 @@ import os
 
 #TODO: Add support for include directory
 
+# glslc or glslangValidator
+compiler = "glslc"
+
 # Setup arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("source", help="Directory of the shader files.", type=str)
@@ -22,7 +25,7 @@ def compile_shader(shader_file_name):
 
 	shader_dir = args.source + shader_file_name
 	output_shader_dir = args.output + shader_file_name + ".spv";
-	compile_command = "glslc " + shader_dir + " -o " + output_shader_dir
+	compile_command = compiler + " " + shader_dir + " -o " + output_shader_dir
 
 	if (args.optimize):
 		compile_command = compile_command + " -O"
