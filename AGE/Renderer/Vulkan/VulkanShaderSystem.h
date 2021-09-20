@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/BuildScheme.hpp>
 #include <Core/DArray.hpp>
 #include <Core/Handle.hpp>
 
@@ -8,16 +7,15 @@
 
 DECLARE_HANDLE(ShaderHandle);
 
-template<typename,typename>
-class age::DArray;
-
 namespace age::vk
 {
 
 enum class e_ShaderStage : u8
 {
 	Vertex,
-	Fragment
+	Fragment,
+
+	Count
 };
 
 struct Shader

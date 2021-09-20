@@ -13,7 +13,7 @@ using HandleName = age::Handle<HandleName ## _struct, HandleType>
 namespace age
 {
 
-template <typename t_tag, typename t_intType = u32>
+template <typename t_tag, typename t_intType = i32>
 class Handle
 {
 public:
@@ -24,8 +24,10 @@ public:
 
 	operator t_intType() const { return _handle; }
 
+	static const i32 k_invalid = -1;
+
 private:
-	t_intType _handle = 0;
+	t_intType _handle = -1;
 };
 
 }

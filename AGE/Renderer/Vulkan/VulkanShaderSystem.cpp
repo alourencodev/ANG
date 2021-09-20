@@ -1,7 +1,7 @@
 
 #include <AGE/Renderer/Vulkan/VulkanShaderSystem.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
 #include <AGE/Renderer/Vulkan/VulkanSystem.h>
+#include <AGE/Renderer/Vulkan/VulkanUtils.h>
 
 #include <Core/File.h>
 
@@ -55,7 +55,7 @@ ShaderHandle ShaderSystem::createShader(e_ShaderStage shaderStage, const char *p
 
 void ShaderSystem::cleanup()
 {
-	age_log(k_tag, "Cleaning up shaders");
+	age_log(k_tag, "Cleaning up shaders.");
 
 	for (Shader &shader : _shaders) {
 		vkDestroyShaderModule(VulkanSystem::s_inst.device(), shader.module, nullptr);

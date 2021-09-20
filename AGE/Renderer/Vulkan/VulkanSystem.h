@@ -28,20 +28,22 @@ enum class e_QueueFamily : u8
 class VulkanSystem
 {
 public:
-	static VulkanSystem s_inst;
-
-	void init(GLFWwindow *window);
-	void cleanup();
-
-	VkDevice device() const { return _device; }
-
-private:
 	struct SwapchainData
 	{
 		DArray<VkImage> images;
 		VkFormat format = VK_FORMAT_UNDEFINED;
 		VkExtent2D extent = {0, 0};
 	};
+
+	static VulkanSystem s_inst;
+
+	void init(GLFWwindow *window);
+	void cleanup();
+
+	VkDevice device() const { return _device; }
+	SwapchainData swapchainData() const { return _swapchainData; }
+
+private:
 
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
 
