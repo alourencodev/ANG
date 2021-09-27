@@ -2,7 +2,6 @@
 
 #include <AGE/Renderer/Vulkan/VulkanPipelineSystem.h>
 #include <AGE/Renderer/Vulkan/VulkanShaderSystem.h>
-#include <AGE/Renderer/Vulkan/VulkanSystem.h>
 
 namespace age
 {
@@ -22,16 +21,21 @@ void Renderer::init(GLFWwindow *window)
 	vk::PipelineSystem::CreateInfo info = {};
 	info.shaders.add(shaderSystem.get(vertexShader));
 	info.shaders.add(shaderSystem.get(fragmentShader));
-	PipelineHandle pipeline = vk::PipelineSystem::s_inst.createPipeline(info);
+	PipelineHandle pipelineHandle = vk::PipelineSystem::s_inst.createPipeline(info);
+
+	_testCommandBuffers = vk::VulkanSystem::s_inst.allocDrawCommandBuffer(pipelineHandle);
 }
 
 void Renderer::update()
 {
 	// TODO
+	vk::VulkanSystem::s_inst.draw(_testCommandBuffers);
 }
 
 void Renderer::cleanup()
 {
+	vk::VulkanSystem::s_inst.freeDrawCommandBuffers(_testCommandBuffers);
+
 	vk::PipelineSystem::s_inst.cleanup();
 	vk::ShaderSystem::s_inst.cleanup();
 	vk::VulkanSystem::s_inst.cleanup();

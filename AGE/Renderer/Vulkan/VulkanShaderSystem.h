@@ -1,9 +1,9 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
 #include <Core/DArray.hpp>
 #include <Core/Handle.hpp>
-
-#include <vulkan/vulkan.h>
 
 DECLARE_HANDLE(ShaderHandle);
 

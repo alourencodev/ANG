@@ -1,5 +1,8 @@
 #pragma once
 
+// TODO: After testing, check if this include is necessary
+#include <AGE/Renderer/Vulkan/VulkanSystem.h>
+
 struct GLFWwindow;
 
 namespace age
@@ -13,6 +16,10 @@ public:
 	void init(GLFWwindow *window);
 	void update();
 	void cleanup();
+
+private:
+	// TODO: Remove after testing
+	vk::CommandBuffers _testCommandBuffers;
 };
 
 }

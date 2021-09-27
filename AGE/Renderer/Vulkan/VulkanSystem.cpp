@@ -501,12 +501,25 @@ void VulkanSystem::init(GLFWwindow *window)
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 
+		// We want the render pass to start, even if there is no image available.
+		// Therefore, we need to set up a subpass dependency in order to go further
+		// until the color attachment output stage
+		VkSubpassDependency dependency = {};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = &colorAttachment;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		AGE_VK_CHECK(vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass));
 	}
@@ -537,13 +550,30 @@ void VulkanSystem::init(GLFWwindow *window)
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		commandPoolInfo.queueFamilyIndex = queueIndices.indices[static_cast<i32>(e_QueueFamily::Graphics)];
 
-		AGE_VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_commandPool));
+		AGE_VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_graphicsCommandPool));
+
+		age_log(k_tag, "Created Graphics Command Pool");
+	}
+
+	{	// createSemaphores
+		VkSemaphoreCreateInfo semaphoreInfo = {};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		AGE_VK_CHECK(vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore));
+		AGE_VK_CHECK(vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore));
+
+		age_log(k_tag, "Created Draw Semaphores");
 	}
 }
 
 void VulkanSystem::cleanup()
 {
-	vkDestroyCommandPool(_device, _commandPool, nullptr);
+	vkDeviceWaitIdle(_device);
+
+	vkDestroySemaphore(_device, _renderFinishedSemaphore, nullptr);
+	vkDestroySemaphore(_device, _imageAvailableSemaphore, nullptr);
+
+	vkDestroyCommandPool(_device, _graphicsCommandPool, nullptr);
 
 	for (VkFramebuffer framebuffer : _framebuffers) {
 		vkDestroyFramebuffer(_device, framebuffer, nullptr);
@@ -570,19 +600,63 @@ void VulkanSystem::cleanup()
 	vkDestroyInstance(_instance, nullptr);
 }
 
-CommandBuffers VulkanSystem::allocDrawCommandBuffer(VkPipeline pipeline) const
+void VulkanSystem::draw(const CommandBuffers &commandBuffers)
+{
+	age_assertFatal(commandBuffers.count() == _swapchainData.images.count(), "There must be as many command buffers as swap chain images.");
+
+	u32 imageIndex;
+	vkAcquireNextImageKHR(_device, _swapchain, UINT64_MAX, _imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+	{	// submit
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
+		const VkQueue graphicsQueue = _queueArray[static_cast<i32>(e_QueueFamily::Graphics)];
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = &_imageAvailableSemaphore;
+		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = &_renderFinishedSemaphore;
+
+		AGE_VK_CHECK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+	}
+
+	{	// present
+		const VkQueue presentQueue = _queueArray[static_cast<i32>(e_QueueFamily::Presentation)];
+
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = &_renderFinishedSemaphore;
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = &_swapchain;
+		presentInfo.pImageIndices = &imageIndex;
+
+		AGE_VK_CHECK(vkQueuePresentKHR(presentQueue, &presentInfo));
+
+		// TODO: Add support for frames in flight
+		vkQueueWaitIdle(presentQueue);
+	}
+}
+
+CommandBuffers VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandle) const
 {
 	// TODO: Track command buffer allocation
 	age_log(k_tag, "Draw Command Buffer Allocated");
 
 	// TODO: Make the clear color configurable
 	VkClearValue clearColor = {{{0.2f, 0.2f, 0.2f, 1.0f}}};
+	VkPipeline pipeline = PipelineSystem::s_inst.get(pipelineHandle).pipeline;
 
 	const u32 bufferCount = _framebuffers.count();
 
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = _commandPool;
+	allocInfo.commandPool = _graphicsCommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = bufferCount;
 
@@ -594,6 +668,7 @@ CommandBuffers VulkanSystem::allocDrawCommandBuffer(VkPipeline pipeline) const
 	for (int i = 0; i < commandBuffers.count(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
 		AGE_VK_CHECK(vkBeginCommandBuffer(commandBuffers[i], &beginInfo));
 
@@ -620,9 +695,10 @@ CommandBuffers VulkanSystem::allocDrawCommandBuffer(VkPipeline pipeline) const
 	return commandBuffers;
 }
 
-void VulkanSystem::freeDrawCommandBuffers(const CommandBuffers &commandBuffers) const
+void VulkanSystem::freeDrawCommandBuffers(CommandBuffers &commandBuffers) const
 {
-	vkFreeCommandBuffers(_device, _commandPool, _framebuffers.count(), commandBuffers.data());
+	vkFreeCommandBuffers(_device, _graphicsCommandPool, _framebuffers.count(), commandBuffers.data());
+	commandBuffers.clear();
 }
 
 }
