@@ -451,8 +451,7 @@ void VulkanSystem::init(GLFWwindow *window)
 
 	{	// CreateImageViews
 		const auto &images = _swapchainData.images;
-		_imageViews.reserve(images.count());
-		_imageViews.addEmpty(images.count());
+		_imageViews.reserveWithEmpty(images.count());
 
 		for (int i = 0; i < images.count(); i++) {
 			VkImageViewCreateInfo createInfo;
@@ -479,10 +478,79 @@ void VulkanSystem::init(GLFWwindow *window)
 
 		age_log(k_tag, "Created %d image views", _imageViews.count());
 	}
+
+	{	// createRenderPass
+		VkAttachmentDescription colorAttachment = {};
+		colorAttachment.format = _swapchainData.format;
+		// TODO: Increase when multisampling gets supported
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		// TODO: Change this to LOAD_OP_DONT_CARE when we have a whole scene being drawn
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VkAttachmentReference colorAttachmentRef = {};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		VkRenderPassCreateInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+
+		AGE_VK_CHECK(vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass));
+	}
+
+	{	// createFramebuffers
+		_framebuffers.reserveWithEmpty(_imageViews.count());
+
+		for (int i = 0; i < _imageViews.count(); i++) {
+			VkImageView attachments[] = {_imageViews[i]};
+
+			VkFramebufferCreateInfo framebufferInfo = {};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = _renderPass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = _swapchainData.extent.width;
+			framebufferInfo.height = _swapchainData.extent.height;
+			framebufferInfo.layers = 1;
+			
+			AGE_VK_CHECK(vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &(_framebuffers[i])));
+		}
+
+		age_log(k_tag, "Created %d framebuffers", _framebuffers.count());
+	}
+
+	{	// createCommandPool
+		VkCommandPoolCreateInfo commandPoolInfo = {};
+		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolInfo.queueFamilyIndex = queueIndices.indices[static_cast<i32>(e_QueueFamily::Graphics)];
+
+		AGE_VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_commandPool));
+	}
 }
 
 void VulkanSystem::cleanup()
 {
+	vkDestroyCommandPool(_device, _commandPool, nullptr);
+
+	for (VkFramebuffer framebuffer : _framebuffers) {
+		vkDestroyFramebuffer(_device, framebuffer, nullptr);
+	}
+
+	vkDestroyRenderPass(_device, _renderPass, nullptr);
+
 	for (VkImageView imageView : _imageViews) {
 		vkDestroyImageView(_device, imageView, nullptr);
 	}
@@ -500,6 +568,61 @@ void VulkanSystem::cleanup()
 
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyInstance(_instance, nullptr);
+}
+
+CommandBuffers VulkanSystem::allocDrawCommandBuffer(VkPipeline pipeline) const
+{
+	// TODO: Track command buffer allocation
+	age_log(k_tag, "Draw Command Buffer Allocated");
+
+	// TODO: Make the clear color configurable
+	VkClearValue clearColor = {{{0.2f, 0.2f, 0.2f, 1.0f}}};
+
+	const u32 bufferCount = _framebuffers.count();
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = _commandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = bufferCount;
+
+	CommandBuffers commandBuffers(bufferCount);
+	commandBuffers.addEmpty(bufferCount);
+
+	AGE_VK_CHECK(vkAllocateCommandBuffers(_device, &allocInfo, commandBuffers.data()));
+
+	for (int i = 0; i < commandBuffers.count(); i++) {
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		AGE_VK_CHECK(vkBeginCommandBuffer(commandBuffers[i], &beginInfo));
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = _renderPass;
+		renderPassInfo.framebuffer = _framebuffers[i];
+		renderPassInfo.renderArea.offset = {0, 0};
+		renderPassInfo.renderArea.extent = _swapchainData.extent;
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+		// TODO: Adapt this to proper meshes
+		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(commandBuffers[i]);
+
+		AGE_VK_CHECK(vkEndCommandBuffer(commandBuffers[i]));
+	}
+	
+	return commandBuffers;
+}
+
+void VulkanSystem::freeDrawCommandBuffers(const CommandBuffers &commandBuffers) const
+{
+	vkFreeCommandBuffers(_device, _commandPool, _framebuffers.count(), commandBuffers.data());
 }
 
 }

@@ -19,7 +19,6 @@ struct Pipeline
 	VkViewport viewport = {};
 	VkRect2D scissor = {};
 	VkPipeline pipeline = VK_NULL_HANDLE;
-	VkRenderPass renderPass = VK_NULL_HANDLE;
 };
 
 class PipelineSystem

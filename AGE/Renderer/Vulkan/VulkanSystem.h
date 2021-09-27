@@ -25,6 +25,8 @@ enum class e_QueueFamily : u8
 	Count
 };
 
+using CommandBuffers = DArray<VkCommandBuffer>;
+
 class VulkanSystem
 {
 public:
@@ -41,14 +43,18 @@ public:
 	void cleanup();
 
 	VkDevice device() const { return _device; }
+	VkRenderPass renderPass() const { return _renderPass; }
 	SwapchainData swapchainData() const { return _swapchainData; }
 
-private:
+	CommandBuffers allocDrawCommandBuffer(VkPipeline pipeline) const;
+	void freeDrawCommandBuffers(const CommandBuffers &commandBuffers) const;
 
+private:
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
 
 	SwapchainData _swapchainData;
 	DArray<VkImageView> _imageViews;
+	DArray<VkFramebuffer> _framebuffers;
 	QueueArray _queueArray;
 
 	VkInstance _instance = VK_NULL_HANDLE;
@@ -56,6 +62,8 @@ private:
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
+	VkRenderPass	 _renderPass;
+	VkCommandPool _commandPool;
 
 #ifdef AGE_RELEASE_DBG_INFO
 	VkDebugUtilsMessengerEXT _debugMessenger;

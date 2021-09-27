@@ -32,39 +32,6 @@ PipelineHandle PipelineSystem::createPipeline(const PipelineSystem::CreateInfo &
 		AGE_VK_CHECK(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipeline.layout));
 	}
 
-	// TODO: Maybe move the Render Pass to it's own system in case we have many.
-	{	// Create RenderPass
-		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = vk::VulkanSystem::s_inst.swapchainData().format;
-		// TODO: Increase when multisampling gets supported
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		// TODO: Change this to LOAD_OP_DONT_CARE when we have a whole scene being drawn
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-		VkAttachmentReference colorAttachmentRef = {};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-
-		VkRenderPassCreateInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttachment;
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
-
-		AGE_VK_CHECK(vkCreateRenderPass(device, &renderPassInfo, nullptr, &pipeline.renderPass));
-	}
-
 	{	// createPipeline
 		// TODO: Set this up to retrieve an arbitrary mesh instead of hardcoded vertices.
 		VkPipelineVertexInputStateCreateInfo vertexInput = {};
@@ -134,7 +101,7 @@ PipelineHandle PipelineSystem::createPipeline(const PipelineSystem::CreateInfo &
 		pipelineInfo.pMultisampleState = &multisampling;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.layout = pipeline.layout;
-		pipelineInfo.renderPass = pipeline.renderPass;
+		pipelineInfo.renderPass = VulkanSystem::s_inst.renderPass();
 		pipelineInfo.subpass = 0;
 		
 		AGE_VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline.pipeline));
@@ -154,7 +121,6 @@ void PipelineSystem::cleanup()
 	{
 		VkDevice device = VulkanSystem::s_inst.device();
 
-		vkDestroyRenderPass(device, pipeline.renderPass, nullptr);
 		vkDestroyPipeline(device, pipeline.pipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipeline.layout, nullptr);
 	}
