@@ -158,6 +158,15 @@ public:
 		_count = std::min(_count, _capacity);
 	}
 
+	/**
+	@brief	Reserves a given amount of slots in an array, if necessary. The reserved elements count as valid elements.
+	**/
+	void reserveWithEmpty(size_t count = 1)
+	{
+		age_assert(count > 0, "Cannot reserve 0 elements in a DArray.");
+		reserve(count);
+		_count += count;
+	}
 
 	/**
 	@brief	Returns pointer for the first element
