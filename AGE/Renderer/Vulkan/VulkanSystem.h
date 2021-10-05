@@ -71,6 +71,8 @@ private:
 	VkSemaphore _imageAvailableSemaphore;
 	VkSemaphore _renderFinishedSemaphore;
 
+	u8 _currentFrame = 0;
+
 #ifdef AGE_RELEASE_DBG_INFO
 	VkDebugUtilsMessengerEXT _debugMessenger;
 #endif

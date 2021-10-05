@@ -17,6 +17,7 @@ namespace age::vk
 {
 
 constexpr char k_tag[] = "VulkanSystem";
+constexpr u8 k_framesInFlight = 2;
 
 VulkanSystem VulkanSystem::s_inst = VulkanSystem();
 
@@ -603,6 +604,7 @@ void VulkanSystem::cleanup()
 void VulkanSystem::draw(const CommandBuffers &commandBuffers)
 {
 	age_assertFatal(commandBuffers.count() == _swapchainData.images.count(), "There must be as many command buffers as swap chain images.");
+	age_assertFatal(_currentFrame < k_framesInFlight ,"");
 
 	u32 imageIndex;
 	vkAcquireNextImageKHR(_device, _swapchain, UINT64_MAX, _imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
