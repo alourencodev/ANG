@@ -125,7 +125,11 @@ public:
 	/**
 	@brief	Reserve a given number of slots, additionally to the current capacity.
 	**/
-	void reserve(size_t slotCount) { resize(_capacity + slotCount); }
+	void reserve(size_t slotCount) 
+	{ 
+		age_assert(slotCount > 0, "Cannot reserve 0 elements in a DArray.");
+		resize(_capacity + slotCount); 
+	}
 
 	/**
 	@brief	Frees the memory that is currently empty.
@@ -159,12 +163,21 @@ public:
 	}
 
 	/**
-	@brief	Reserves a given amount of slots in an array, if necessary. The reserved elements count as valid elements.
+	@brief	Reserve a given amount of slots in an array. Reserved elements count as valid elements.
 	**/
 	void reserveWithEmpty(size_t count = 1)
 	{
-		age_assert(count > 0, "Cannot reserve 0 elements in a DArray.");
 		reserve(count);
+		_count += count;
+	}
+
+	/**
+	@brief	Reserve a given amount of slots in an array and fills the reserved slots with a given value. Reserved elements count as valid elements.
+	**/
+	void reserveWithValue(size_t count, t_type value)
+	{
+		reserve(count);
+		std::fill_n(_data + _count, count, value);
 		_count += count;
 	}
 
