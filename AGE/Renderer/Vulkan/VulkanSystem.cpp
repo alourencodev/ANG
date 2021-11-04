@@ -742,4 +742,12 @@ void VulkanSystem::freeDrawCommandBuffers(CommandBufferArray &commandBuffers) co
 	commandBuffers.clear();
 }
 
+void VulkanSystem::waitForAllFrames() const
+{
+	age_log(k_tag, "Waiting for all frames to finish...");
+
+	for (const FrameSyncData &data : _frameSyncData)
+		vkWaitForFences(_device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
+}
+
 }

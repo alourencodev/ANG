@@ -19,7 +19,7 @@ public:
 
 private:
 	// TODO: Remove after testing
-	vk::CommandBuffers _testCommandBuffers;
+	vk::CommandBufferArray _testCommandBuffers;
 };
 
 }

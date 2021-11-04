@@ -34,11 +34,15 @@ void Renderer::update()
 
 void Renderer::cleanup()
 {
-	vk::VulkanSystem::s_inst.freeDrawCommandBuffers(_testCommandBuffers);
+	vk::VulkanSystem &vkSystem = vk::VulkanSystem::s_inst;
+
+	vkSystem.waitForAllFrames();
+
+	vkSystem.freeDrawCommandBuffers(_testCommandBuffers);
 
 	vk::PipelineSystem::s_inst.cleanup();
 	vk::ShaderSystem::s_inst.cleanup();
-	vk::VulkanSystem::s_inst.cleanup();
+	vkSystem.cleanup();
 }
 
 }

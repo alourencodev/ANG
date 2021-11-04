@@ -48,6 +48,8 @@ public:
 	CommandBufferArray allocDrawCommandBuffer(PipelineHandle pipelineHandle) const;
 	void freeDrawCommandBuffers(CommandBufferArray &commandBuffers) const;
 
+	void waitForAllFrames() const;
+
 	VkDevice device() const { return _device; }
 	VkRenderPass renderPass() const { return _renderPass; }
 	SwapchainData swapchainData() const { return _swapchainData; }
