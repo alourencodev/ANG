@@ -17,7 +17,6 @@ namespace age::vk
 {
 
 constexpr char k_tag[] = "VulkanSystem";
-constexpr u8 k_framesInFlight = 2;
 
 VulkanSystem VulkanSystem::s_inst = VulkanSystem();
 
@@ -556,23 +555,48 @@ void VulkanSystem::init(GLFWwindow *window)
 		age_log(k_tag, "Created Graphics Command Pool");
 	}
 
+	{	// createFrameData
+		for (FrameSyncData &data : _frameSyncData)
+			createFrameData(data);
+
+		age_log(k_tag, "Created Frame Data");
+	}
+
+	_imageInFlightFences.reserveWithValue(_imageViews.count(), VK_NULL_HANDLE);
+}
+
+void VulkanSystem::createFrameData(FrameSyncData &frameData)
+{
 	{	// createSemaphores
 		VkSemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		AGE_VK_CHECK(vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore));
-		AGE_VK_CHECK(vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore));
-
-		age_log(k_tag, "Created Draw Semaphores");
+		AGE_VK_CHECK(vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &frameData.imageAvailableSemaphore));
+		AGE_VK_CHECK(vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &frameData.renderFinishedSemaphore));
 	}
+
+	{ // createFence
+		VkFenceCreateInfo fenceInfo = {};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		AGE_VK_CHECK(vkCreateFence(_device, &fenceInfo, nullptr, &frameData.inFlightFence));
+	}
+}
+
+
+void VulkanSystem::destroyFrameData(FrameSyncData &frameData)
+{
+	vkDestroySemaphore(_device, frameData.renderFinishedSemaphore, nullptr);
+	vkDestroySemaphore(_device, frameData.imageAvailableSemaphore, nullptr);
+
+	vkDestroyFence(_device, frameData.inFlightFence, nullptr);
 }
 
 void VulkanSystem::cleanup()
 {
-	vkDeviceWaitIdle(_device);
-
-	vkDestroySemaphore(_device, _renderFinishedSemaphore, nullptr);
-	vkDestroySemaphore(_device, _imageAvailableSemaphore, nullptr);
+	for (FrameSyncData &data : _frameSyncData)
+		destroyFrameData(data);
 
 	vkDestroyCommandPool(_device, _graphicsCommandPool, nullptr);
 
@@ -601,15 +625,28 @@ void VulkanSystem::cleanup()
 	vkDestroyInstance(_instance, nullptr);
 }
 
-void VulkanSystem::draw(const CommandBuffers &commandBuffers)
+void VulkanSystem::draw(const CommandBufferArray &commandBuffers)
 {
 	age_assertFatal(commandBuffers.count() == _swapchainData.images.count(), "There must be as many command buffers as swap chain images.");
-	age_assertFatal(_currentFrame < k_framesInFlight ,"");
+	age_assertFatal(_currentFrame < k_maxFramesInFlight ,"");
+
+	FrameSyncData &currentFrameData = _frameSyncData[_currentFrame];
+	vkWaitForFences(_device, 1, &currentFrameData.inFlightFence, VK_TRUE, UINT64_MAX);
 
 	u32 imageIndex;
-	vkAcquireNextImageKHR(_device, _swapchain, UINT64_MAX, _imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	vkAcquireNextImageKHR(_device, _swapchain, UINT64_MAX, currentFrameData.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-	{	// submit
+	{	// SyncImageInFlight
+
+		// Wait if the acquired image is in flight
+		if (_imageInFlightFences[imageIndex] != VK_NULL_HANDLE)
+			vkWaitForFences(_device, 1, &_imageInFlightFences[imageIndex], VK_TRUE, UINT64_MAX);
+
+		// Store current fence for the indexed image
+		_imageInFlightFences[imageIndex] = currentFrameData.inFlightFence;
+	}
+
+	{	// Submit
 		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
 		const VkQueue graphicsQueue = _queueArray[static_cast<i32>(e_QueueFamily::Graphics)];
@@ -617,35 +654,37 @@ void VulkanSystem::draw(const CommandBuffers &commandBuffers)
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &_imageAvailableSemaphore;
+		submitInfo.pWaitSemaphores = &currentFrameData.imageAvailableSemaphore;
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &_renderFinishedSemaphore;
+		submitInfo.pSignalSemaphores = &currentFrameData.renderFinishedSemaphore;
 
-		AGE_VK_CHECK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+		vkResetFences(_device, 1, &currentFrameData.inFlightFence);
+		AGE_VK_CHECK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, currentFrameData.inFlightFence));
 	}
 
-	{	// present
+	{	// Present
 		const VkQueue presentQueue = _queueArray[static_cast<i32>(e_QueueFamily::Presentation)];
 
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &_renderFinishedSemaphore;
+		presentInfo.pWaitSemaphores = &currentFrameData.renderFinishedSemaphore;
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &_swapchain;
 		presentInfo.pImageIndices = &imageIndex;
 
 		AGE_VK_CHECK(vkQueuePresentKHR(presentQueue, &presentInfo));
 
-		// TODO: Add support for frames in flight
 		vkQueueWaitIdle(presentQueue);
 	}
+
+	_currentFrame = (_currentFrame + 1) % k_maxFramesInFlight;
 }
 
-CommandBuffers VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandle) const
+CommandBufferArray VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandle) const
 {
 	// TODO: Track command buffer allocation
 	age_log(k_tag, "Draw Command Buffer Allocated");
@@ -654,7 +693,7 @@ CommandBuffers VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandl
 	VkClearValue clearColor = {{{0.2f, 0.2f, 0.2f, 1.0f}}};
 	VkPipeline pipeline = PipelineSystem::s_inst.get(pipelineHandle).pipeline;
 
-	const u32 bufferCount = _framebuffers.count();
+	const u32 bufferCount = static_cast<u32>(_framebuffers.count());
 
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -662,7 +701,7 @@ CommandBuffers VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandl
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = bufferCount;
 
-	CommandBuffers commandBuffers(bufferCount);
+	CommandBufferArray commandBuffers(bufferCount);
 	commandBuffers.addEmpty(bufferCount);
 
 	AGE_VK_CHECK(vkAllocateCommandBuffers(_device, &allocInfo, commandBuffers.data()));
@@ -697,9 +736,9 @@ CommandBuffers VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandl
 	return commandBuffers;
 }
 
-void VulkanSystem::freeDrawCommandBuffers(CommandBuffers &commandBuffers) const
+void VulkanSystem::freeDrawCommandBuffers(CommandBufferArray &commandBuffers) const
 {
-	vkFreeCommandBuffers(_device, _graphicsCommandPool, _framebuffers.count(), commandBuffers.data());
+	vkFreeCommandBuffers(_device, _graphicsCommandPool, static_cast<u32>(_framebuffers.count()), commandBuffers.data());
 	commandBuffers.clear();
 }
 
