@@ -28,6 +28,12 @@ public:
 		_count = other.count();
 	}
 
+	StackArray(const StackArray &other)
+	{
+		memcpy(_data, other.data(), t_maxSize * sizeof(t_type));
+		_count = other.count();
+	}
+
 	StackArray(const Range<t_type> &other)
 	{
 		age_assertFatal(other.count() < t_maxSize, "Source array's max size must be greater or equal to the destination array's max size.");
@@ -42,6 +48,14 @@ public:
 	}
 
 	StackArray(StackArray &&other) = delete;
+
+	void operator = (const StackArray &other)
+	{
+		memcpy(_data, other.data(), t_maxSize * sizeof(t_type));
+		_count = other.count();
+	}
+
+	void operator = (StackArray<t_type, t_maxSize> &&other) = delete;
 
 	_force_inline const t_type &operator[](size_t index) const
 	{
