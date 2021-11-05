@@ -290,7 +290,7 @@ private:
 
 	_force_inline void _add(const t_type *ptr, size_t count)
 	{
-		age_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal((_count + count) <= t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		memcpy(&_data[_count], ptr, count * sizeof(t_type));
 		_count += count;
 	}
