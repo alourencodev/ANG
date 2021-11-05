@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/DArray.hpp>
+#include <Core/HashMap.hpp>
 #include <Core/Handle.hpp>
 
 DECLARE_HANDLE(ShaderHandle);
@@ -32,10 +32,10 @@ public:
 	ShaderHandle createShader(e_ShaderStage shaderStage, const char *path);
 	void cleanup();
 
-	Shader get(ShaderHandle handle) { return _shaders[static_cast<u32>(handle)]; }
+	const Shader &get(ShaderHandle handle) const { return _shadersMap[static_cast<u32>(handle)]; }
 
 private:
-	DArray<Shader> _shaders;
+	HashMap<u32, Shader> _shadersMap;
 };
 
 }

@@ -47,8 +47,8 @@ ShaderHandle ShaderSystem::createShader(e_ShaderStage shaderStage, const char *p
 		}
 	}
 
-	ShaderHandle handle(static_cast<u32>(_shaders.count()));
-	_shaders.add(shader);
+	ShaderHandle handle;
+	_shadersMap.add(handle, shader);
 
 	return handle;
 }
@@ -57,11 +57,15 @@ void ShaderSystem::cleanup()
 {
 	age_log(k_tag, "Cleaning up shaders.");
 
-	for (Shader &shader : _shaders) {
+	for (const auto &shaderNode : _shadersMap.asRange()) {
+		if (!shaderNode.isValid())
+			continue;
+
+		const Shader &shader = shaderNode.value;
 		vkDestroyShaderModule(VulkanSystem::s_inst.device(), shader.module, nullptr);
 	}
 
-	_shaders.clear();
+	_shadersMap.clear();
 }
 
 }

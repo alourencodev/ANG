@@ -10,7 +10,7 @@ constexpr const char k_tag[] = "VulkanPipelineSystem";
 
 PipelineSystem PipelineSystem::s_inst = PipelineSystem();
 
-PipelineHandle PipelineSystem::createPipeline(const PipelineSystem::CreateInfo &info)
+PipelineHandle PipelineSystem::createPipeline(const Pipeline::CreateInfo &info)
 {
 	// TODO: Be more clear about what Pipeline are we making as soon as it gets a name
 	age_log(k_tag, "Creating Vulkan Pipeline.");
@@ -18,11 +18,15 @@ PipelineHandle PipelineSystem::createPipeline(const PipelineSystem::CreateInfo &
 	VkDevice device = VulkanSystem::s_inst.device();
 
 	Pipeline pipeline = {};
+	pipeline.createInfo = info;
 
 	// Shader Stages
 	StackArray<VkPipelineShaderStageCreateInfo, static_cast<u32>(e_ShaderStage::Count)> shaderStages;
-	for (const Shader &shader : info.shaders)
+	for (ShaderHandle shaderHandle : info.shaders)
+	{
+		const Shader &shader = vk::ShaderSystem::s_inst.get(shaderHandle);
 		shaderStages.add(createShaderStage(shader));
+	}
 
 	{	// createPipelineLayout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -107,8 +111,8 @@ PipelineHandle PipelineSystem::createPipeline(const PipelineSystem::CreateInfo &
 		AGE_VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline.pipeline));
 	}
 	
-	PipelineHandle handle(static_cast<i32>(_pipelines.count()));
-	_pipelines.add(pipeline);
+	PipelineHandle handle;
+	_pipelinesMap.add(handle, pipeline);
 
 	return handle;
 }
@@ -117,13 +121,19 @@ void PipelineSystem::cleanup()
 {
 	age_log(k_tag, "Cleaning up pipelines.");
 
-	for (Pipeline &pipeline : _pipelines)
+	for (auto &pipelineNode : _pipelinesMap.asRange())
 	{
+		if (!pipelineNode.isValid())
+			continue;
+
+		const Pipeline &pipeline = pipelineNode.value;
 		VkDevice device = VulkanSystem::s_inst.device();
 
 		vkDestroyPipeline(device, pipeline.pipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipeline.layout, nullptr);
 	}
+
+	_pipelinesMap.clear();
 }
 
 VkPipelineShaderStageCreateInfo PipelineSystem::createShaderStage(const Shader &shader)

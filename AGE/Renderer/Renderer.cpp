@@ -18,9 +18,9 @@ void Renderer::init(GLFWwindow *window)
 	ShaderHandle vertexShader = shaderSystem.createShader(vk::e_ShaderStage::Vertex, "Shaders/dummy.vert.spv");
 	ShaderHandle fragmentShader = shaderSystem.createShader(vk::e_ShaderStage::Fragment, "Shaders/dummy.frag.spv");
 
-	vk::PipelineSystem::CreateInfo info = {};
-	info.shaders.add(shaderSystem.get(vertexShader));
-	info.shaders.add(shaderSystem.get(fragmentShader));
+	vk::Pipeline::CreateInfo info = {};
+	info.shaders.add(vertexShader);
+	info.shaders.add(fragmentShader);
 	PipelineHandle pipelineHandle = vk::PipelineSystem::s_inst.createPipeline(info);
 
 	_testCommandBuffers = vk::VulkanSystem::s_inst.allocDrawCommandBuffer(pipelineHandle);
