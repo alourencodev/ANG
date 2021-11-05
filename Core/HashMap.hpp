@@ -3,6 +3,7 @@
 #include "Attributes.hpp"
 #include "Core/Math/Math.hpp"
 #include "Core/Meta.hpp"
+#include "Core/Range.hpp"
 #include "Core/Types.hpp"
 #include "Log/Assert.hpp"
 #include "Log/Log.h"
@@ -32,6 +33,8 @@ struct HashNode
 	t_keyType key;
 	t_valueType value;
 	e_HashNodeState state = e_HashNodeState::Empty;
+
+	bool isValid() const { return state == e_HashNodeState::Full; }
 };
 
 }
@@ -59,6 +62,8 @@ class HashMap
 	constexpr static float k_rehashThreshold = 0.7f;
 
 public:
+	using Node = HashNode<t_keyType, t_valueType>;
+
 	HashMap() = default;
 	HashMap(size_t capacity)
 	{
@@ -186,8 +191,9 @@ public:
 		return index >= 0 ? &(_data[index].value) : nullptr;
 	}
 
+	Range<Node> asRange() { return Range<Node>(_data, _capacity); }
+
 private:
-	using Node = HashNode<t_keyType, t_valueType>;
 
 	_force_inline void _grow()
 	{
