@@ -49,24 +49,6 @@ static const SArray<const char *, 1> k_debugExtensions = {
 	VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 };
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-													VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
-													const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
-													void */*userData*/)
-{
-	static const char *k_vulkanTag = "Vulkan";
-	using VkMessageSeverityFlag = VkDebugUtilsMessageSeverityFlagBitsEXT;
-
-	if (messageSeverity >= VkMessageSeverityFlag::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-		age_error(k_vulkanTag, callbackData->pMessage);
-	} else if (messageSeverity >= VkMessageSeverityFlag::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-		age_warning(k_vulkanTag, callbackData->pMessage);
-	} else {
-		age_log(k_vulkanTag, callbackData->pMessage);
-	}
-
-	return VK_FALSE;
-}
 #endif
 
 constexpr byte getRequiredQueueFamilies()

@@ -11,6 +11,11 @@ namespace age::vk
 
 std::string parseVulkanError(VkResult result);
 
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+											 VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
+											 const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
+											 void */*userData*/);
+
 }
 
 #define age_vulkanError(result) logVulkanError(__FILE__, __LINE__, result)
