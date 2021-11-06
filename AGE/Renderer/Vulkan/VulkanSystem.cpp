@@ -51,15 +51,6 @@ static const SArray<const char *, 1> k_debugExtensions = {
 
 #endif
 
-constexpr byte getRequiredQueueFamilies()
-{
-	byte field = 0;
-	for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
-		field |= 1 << i;
-	
-	return field;
-}
-
 QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
 {
 	u32 queueFamilyCount = 0;
@@ -124,7 +115,7 @@ SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceK
 bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices, const SwapChainDetails &swapChainDetails)
 {
 	// CheckRequiredQueueFamilies
-	if (!queueIndices.indexMap.isSet(BitField(getRequiredQueueFamilies())))
+	if (!queueIndices.indexMap.isSetBelow(static_cast<u8>(e_QueueFamily::Count)))
 		return false;
 
 	{	// CheckRequiredExtensions

@@ -24,6 +24,7 @@ public:
 
 	bool isSet(u8 bitIndex) const { age_assertBitIndex(bitIndex); return (_field & (1 << bitIndex)) > 0; }
 	bool isSet(BitField other) const { return (_field & other._field) == _field; }
+	bool isSetBelow(u8 bitIndex) const { age_assertBitIndex(bitIndex); return (_field & ((1 << bitIndex) - 1)) > 0; }
 	bool isClear() const { return _field == 0; }
 	
 	BitField operator & (BitField other) const { return BitField(_field & other._field); }
