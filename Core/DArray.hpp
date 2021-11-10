@@ -171,6 +171,13 @@ public:
 		_count = capacity;
 	}
 
+
+	void resizeWithValue(size_t capacity, t_type value)
+	{
+		reserveWithEmpty(capacity);
+		fill(value);
+	}
+
 	/**
 	@brief	Reserve a given amount of slots in an array. Reserved elements count as valid elements.
 	**/
@@ -185,8 +192,7 @@ public:
 	**/
 	void reserveWithValue(size_t count, t_type value)
 	{
-		reserve(count);
-		_count += count;
+		reserveWithEmpty(count);
 		fill(value);
 	}
 
