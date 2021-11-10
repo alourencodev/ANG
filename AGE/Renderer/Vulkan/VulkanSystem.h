@@ -47,6 +47,7 @@ public:
 
 	CommandBufferArray allocDrawCommandBuffer(PipelineHandle pipelineHandle) const;
 	void freeDrawCommandBuffers(CommandBufferArray &commandBuffers) const;
+	void createSwapchain(GLFWwindow *window);
 
 	void waitForAllFrames() const;
 
@@ -57,6 +58,21 @@ public:
 private:
 	using QueueArray = SArray<VkQueue, static_cast<u32>(e_QueueFamily::Count)>;
 
+	struct QueueIndices
+	{
+		using QueueIndexArray = SArray<u32, static_cast<u8>(e_QueueFamily::Count)>;
+
+		QueueIndexArray indices = {};
+		BitField indexMap;
+	};
+
+	struct SwapChainDetails
+	{
+		VkSurfaceCapabilitiesKHR capabilities;
+		DArray<VkSurfaceFormatKHR> formats;
+		DArray<VkPresentModeKHR> presentMode;
+	};
+
 	struct FrameSyncData
 	{
 		VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
@@ -64,13 +80,21 @@ private:
 		VkFence inFlightFence = VK_NULL_HANDLE;
 	};
 
+
 	void createFrameData(FrameSyncData &frameData);
 	void destroyFrameData(FrameSyncData &frameData);
+
+	QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) const;
+	SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) const;
+	VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, VkSurfaceKHR surface, QueueIndices &o_queueIndices, SwapChainDetails &o_swapChainDetails) const;
+	bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices, const SwapChainDetails &swapChainDetails) const;
 
 	SwapchainData _swapchainData;
 	DArray<VkImageView> _imageViews;
 	DArray<VkFramebuffer> _framebuffers;
 	QueueArray _queueArray;
+	QueueIndices _queueIndices;
+	SwapChainDetails _swapchainDetails;
 
 	VkInstance _instance = VK_NULL_HANDLE;
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;

@@ -20,21 +20,6 @@ constexpr char k_tag[] = "VulkanSystem";
 
 VulkanSystem VulkanSystem::s_inst = VulkanSystem();
 
-struct QueueIndices
-{
-	using QueueIndexArray = SArray<u32, static_cast<u8>(e_QueueFamily::Count)>;
-
-	QueueIndexArray indices = {};
-	BitField indexMap;
-};
-
-struct SwapChainDetails
-{
-	VkSurfaceCapabilitiesKHR capabilities;
-	DArray<VkSurfaceFormatKHR> formats;
-	DArray<VkPresentModeKHR> presentMode;
-};
-
 static const SArray<const char *, 1> k_requiredExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
@@ -51,7 +36,7 @@ static const SArray<const char *, 1> k_debugExtensions = {
 
 #endif
 
-QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+VulkanSystem::QueueIndices VulkanSystem::getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) const
 {
 	u32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
@@ -88,7 +73,7 @@ QueueIndices getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR
 	return queueIndices;
 }
 
-SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+VulkanSystem::SwapChainDetails VulkanSystem::getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) const
 {
 	SwapChainDetails details;
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
@@ -112,7 +97,7 @@ SwapChainDetails getSwapChainDetails(VkPhysicalDevice physicalDevice, VkSurfaceK
 	return details;
 }
 
-bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices, const SwapChainDetails &swapChainDetails)
+bool VulkanSystem::isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &queueIndices, const SwapChainDetails &swapChainDetails) const
 {
 	// CheckRequiredQueueFamilies
 	if (!queueIndices.indexMap.isSetBelow(static_cast<u8>(e_QueueFamily::Count)))
@@ -147,7 +132,7 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndices &que
 	return true;
 }
 
-VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, VkSurfaceKHR surface, QueueIndices &o_queueIndices, SwapChainDetails &o_swapChainDetails)
+VkPhysicalDevice VulkanSystem::pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, VkSurfaceKHR surface, QueueIndices &o_queueIndices, SwapChainDetails &o_swapChainDetails) const
 {
 	// TODO https://trello.com/c/FZ8pfoMI
 	// Currently we just pick the first dedicated GPU. 
@@ -179,7 +164,6 @@ void VulkanSystem::init(GLFWwindow *window)
 {
 	DArray<const char *> extensions;
 	QueueIndices queueIndices;
-	SwapChainDetails swapchainDetails;
 
 	{	// GetRequiredExtensions
 		u32 glfwExtensionCount = 0;
@@ -287,7 +271,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		physicalDevices.addEmpty(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, physicalDevices.data());
 
-		_physicalDevice = pickPhysicalDevice(physicalDevices, _surface, queueIndices, swapchainDetails);
+		_physicalDevice = pickPhysicalDevice(physicalDevices, _surface, queueIndices, _swapchainDetails);
 		age_assertFatal(_physicalDevice != VK_NULL_HANDLE, "Unable to find a suitable physical device.");
 	}
 
@@ -331,16 +315,27 @@ void VulkanSystem::init(GLFWwindow *window)
 			vkGetDeviceQueue(_device, queueIndices.indices[i], 0, &_queueArray[i]);
 	}
 
+
+	createSwapchain(window);
+
+	_imageInFlightFences.reserveWithValue(_imageViews.count(), VK_NULL_HANDLE);
+}
+
+
+
+void VulkanSystem::createSwapchain(GLFWwindow *window)
+{
+
 	{	// CreateSwapchain
-		const VkSurfaceCapabilitiesKHR &capabilities = swapchainDetails.capabilities;
+		const VkSurfaceCapabilitiesKHR &capabilities = _swapchainDetails.capabilities;
 
 		VkColorSpaceKHR colorSpace;
 		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
 		{	// ChooseFormat
-			VkSurfaceFormatKHR format = swapchainDetails.formats[0];
+			VkSurfaceFormatKHR format = _swapchainDetails.formats[0];
 
-			for (const auto &availableFormat : swapchainDetails.formats) {
+			for (const auto &availableFormat : _swapchainDetails.formats) {
 				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 					format = availableFormat;
 					break;
@@ -352,7 +347,7 @@ void VulkanSystem::init(GLFWwindow *window)
 		}
 
 		{	// ChoosePresentMode
-			for (const auto &availablePresentMode : swapchainDetails.presentMode) {
+			for (const auto &availablePresentMode : _swapchainDetails.presentMode) {
 				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 					presentMode = availablePresentMode;
 			}
@@ -373,8 +368,8 @@ void VulkanSystem::init(GLFWwindow *window)
 		constexpr u32 k_extraSwapchainImages = 1;
 
 		u32 imageCount = capabilities.minImageCount + k_extraSwapchainImages;
-		u32 presentationQueueIndex = queueIndices.indices[static_cast<u32>(e_QueueFamily::Presentation)];
-		u32 graphicsQueueIndex = queueIndices.indices[static_cast<u32>(e_QueueFamily::Graphics)];
+		u32 presentationQueueIndex = _queueIndices.indices[static_cast<u32>(e_QueueFamily::Presentation)];
+		u32 graphicsQueueIndex = _queueIndices.indices[static_cast<u32>(e_QueueFamily::Graphics)];
 		SArray<u32, 2> swapchainQueueIndices = {presentationQueueIndex, graphicsQueueIndex};
 
 		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount) {
@@ -521,7 +516,7 @@ void VulkanSystem::init(GLFWwindow *window)
 	{	// createCommandPool
 		VkCommandPoolCreateInfo commandPoolInfo = {};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		commandPoolInfo.queueFamilyIndex = queueIndices.indices[static_cast<i32>(e_QueueFamily::Graphics)];
+		commandPoolInfo.queueFamilyIndex = _queueIndices.indices[static_cast<i32>(e_QueueFamily::Graphics)];
 
 		AGE_VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_graphicsCommandPool));
 
@@ -534,9 +529,9 @@ void VulkanSystem::init(GLFWwindow *window)
 
 		age_log(k_tag, "Created Frame Data");
 	}
-
-	_imageInFlightFences.reserveWithValue(_imageViews.count(), VK_NULL_HANDLE);
 }
+
+
 
 void VulkanSystem::createFrameData(FrameSyncData &frameData)
 {
