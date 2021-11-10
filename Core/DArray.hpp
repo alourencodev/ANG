@@ -163,6 +163,15 @@ public:
 	}
 
 	/**
+	@brief Sets the array's capacity to the given value and is filled with empty elements.
+	**/
+	void resizeWithEmpty(size_t capacity)
+	{
+		resize(capacity);
+		_count = capacity;
+	}
+
+	/**
 	@brief	Reserve a given amount of slots in an array. Reserved elements count as valid elements.
 	**/
 	void reserveWithEmpty(size_t count = 1)
@@ -177,8 +186,16 @@ public:
 	void reserveWithValue(size_t count, t_type value)
 	{
 		reserve(count);
-		std::fill_n(_data + _count, count, value);
 		_count += count;
+		fill(value);
+	}
+
+	/**
+	@brief Fills existing elements elements with a given value
+	**/
+	void fill(t_type value)
+	{
+		std::fill_n(_data, _count, value);
 	}
 
 	/**

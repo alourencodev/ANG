@@ -46,6 +46,12 @@ void runGameArguments(int argc, char *argv[])
 }
 #endif
 
+
+static void onFramebufferResize(GLFWwindow *window, int width, int height)
+{
+	Renderer::s_inst.onWindowResize(window, width, height);
+}
+
 void Game::Run(int argc, char *argv[])
 {
 #ifdef AGE_RELEASE_DBG_INFO
@@ -63,6 +69,7 @@ void Game::Run(int argc, char *argv[])
 		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
 
 		Renderer::s_inst.init(_window);
+		glfwSetFramebufferSizeCallback(_window, onFramebufferResize);
 	}
 
 	age_log(k_tag, "Initializing Game.");

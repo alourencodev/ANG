@@ -119,6 +119,8 @@ PipelineHandle PipelineSystem::createPipeline(const Pipeline::CreateInfo &info)
 
 void PipelineSystem::cleanup()
 {
+	vkDeviceWaitIdle(vk::VulkanSystem::s_inst.device());
+
 	age_log(k_tag, "Cleaning up pipelines.");
 
 	for (auto &pipelineNode : _pipelinesMap.asRange())

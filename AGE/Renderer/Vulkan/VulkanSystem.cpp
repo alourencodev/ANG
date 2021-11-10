@@ -164,6 +164,7 @@ void VulkanSystem::init(GLFWwindow *window)
 {
 	DArray<const char *> extensions;
 	QueueIndices queueIndices;
+	_window = window;
 
 	{	// GetRequiredExtensions
 		u32 glfwExtensionCount = 0;
@@ -230,7 +231,7 @@ void VulkanSystem::init(GLFWwindow *window)
 	}
 
 	{	// CreateWindowSurface
-		AGE_VK_CHECK(glfwCreateWindowSurface(_instance, window, nullptr, &_surface));
+		AGE_VK_CHECK(glfwCreateWindowSurface(_instance, _window, nullptr, &_surface));
 		age_log(k_tag, "Created Window Surface.");
 	}
 
@@ -315,18 +316,16 @@ void VulkanSystem::init(GLFWwindow *window)
 			vkGetDeviceQueue(_device, queueIndices.indices[i], 0, &_queueArray[i]);
 	}
 
-
-	createSwapchain(window);
-
-	_imageInFlightFences.reserveWithValue(_imageViews.count(), VK_NULL_HANDLE);
+	createSwapchain();
 }
 
 
 
-void VulkanSystem::createSwapchain(GLFWwindow *window)
+void VulkanSystem::createSwapchain()
 {
 
 	{	// CreateSwapchain
+		_swapchainDetails = getSwapChainDetails(_physicalDevice, _surface);
 		const VkSurfaceCapabilitiesKHR &capabilities = _swapchainDetails.capabilities;
 
 		VkColorSpaceKHR colorSpace;
@@ -356,7 +355,7 @@ void VulkanSystem::createSwapchain(GLFWwindow *window)
 		{	// ChooseExtension
 			VkExtent2D extent;
 			i32 width, height;
-			glfwGetFramebufferSize(window, &width, &height);
+			glfwGetFramebufferSize(_window, &width, &height);
 			extent = { static_cast<u32>(width), static_cast<u32>(height)};
 
 			extent.width = math::clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
@@ -529,6 +528,9 @@ void VulkanSystem::createSwapchain(GLFWwindow *window)
 
 		age_log(k_tag, "Created Frame Data");
 	}
+
+	_imageInFlightFences.resizeWithEmpty(_imageViews.count());
+	_imageInFlightFences.fill(VK_NULL_HANDLE);
 }
 
 
@@ -553,6 +555,7 @@ void VulkanSystem::createFrameData(FrameSyncData &frameData)
 }
 
 
+
 void VulkanSystem::destroyFrameData(FrameSyncData &frameData)
 {
 	vkDestroySemaphore(_device, frameData.renderFinishedSemaphore, nullptr);
@@ -561,24 +564,39 @@ void VulkanSystem::destroyFrameData(FrameSyncData &frameData)
 	vkDestroyFence(_device, frameData.inFlightFence, nullptr);
 }
 
-void VulkanSystem::cleanup()
+
+
+void VulkanSystem::cleanupSwapchain()
 {
 	for (FrameSyncData &data : _frameSyncData)
 		destroyFrameData(data);
+	_imageInFlightFences.clear();
 
 	vkDestroyCommandPool(_device, _graphicsCommandPool, nullptr);
 
-	for (VkFramebuffer framebuffer : _framebuffers) {
+	for (VkFramebuffer framebuffer : _framebuffers)
 		vkDestroyFramebuffer(_device, framebuffer, nullptr);
-	}
+	_framebuffers.clear();
 
 	vkDestroyRenderPass(_device, _renderPass, nullptr);
 
-	for (VkImageView imageView : _imageViews) {
+	for (VkImageView imageView : _imageViews)
 		vkDestroyImageView(_device, imageView, nullptr);
-	}
+	_imageViews.clear();
+
+	// The images should only be destroyed internally when the swapchain is destroyed
+	// Although, we still need to clear the images array.
+	_swapchainData.images.clear();
 
 	vkDestroySwapchainKHR(_device, _swapchain, nullptr);
+}
+
+
+
+void VulkanSystem::cleanup()
+{
+	cleanupSwapchain();
+
 	vkDestroyDevice(_device, nullptr);
 
 #ifdef AGE_DEBUG
@@ -602,7 +620,12 @@ void VulkanSystem::draw(const CommandBufferArray &commandBuffers)
 	vkWaitForFences(_device, 1, &currentFrameData.inFlightFence, VK_TRUE, UINT64_MAX);
 
 	u32 imageIndex;
-	vkAcquireNextImageKHR(_device, _swapchain, UINT64_MAX, currentFrameData.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(_device, _swapchain, UINT64_MAX, currentFrameData.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		recreateSwapchain();
+	else
+		AGE_VK_CHECK(result);
 
 	{	// SyncImageInFlight
 
@@ -644,12 +667,25 @@ void VulkanSystem::draw(const CommandBufferArray &commandBuffers)
 		presentInfo.pSwapchains = &_swapchain;
 		presentInfo.pImageIndices = &imageIndex;
 
-		AGE_VK_CHECK(vkQueuePresentKHR(presentQueue, &presentInfo));
+		result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+			recreateSwapchain();
+		else
+			AGE_VK_CHECK(result);
 
 		vkQueueWaitIdle(presentQueue);
 	}
 
 	_currentFrame = (_currentFrame + 1) % k_maxFramesInFlight;
+}
+
+void VulkanSystem::recreateSwapchain()
+{
+	vkDeviceWaitIdle(_device);
+
+	cleanupSwapchain();
+	createSwapchain();
 }
 
 CommandBufferArray VulkanSystem::allocDrawCommandBuffer(PipelineHandle pipelineHandle) const

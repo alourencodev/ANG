@@ -44,11 +44,10 @@ public:
 	void cleanup();
 
 	void draw(const CommandBufferArray &commandBuffers);
+	void recreateSwapchain();
 
 	CommandBufferArray allocDrawCommandBuffer(PipelineHandle pipelineHandle) const;
 	void freeDrawCommandBuffers(CommandBufferArray &commandBuffers) const;
-	void createSwapchain(GLFWwindow *window);
-
 	void waitForAllFrames() const;
 
 	VkDevice device() const { return _device; }
@@ -80,6 +79,8 @@ private:
 		VkFence inFlightFence = VK_NULL_HANDLE;
 	};
 
+	void createSwapchain();
+	void cleanupSwapchain();
 
 	void createFrameData(FrameSyncData &frameData);
 	void destroyFrameData(FrameSyncData &frameData);
@@ -95,13 +96,14 @@ private:
 	QueueArray _queueArray;
 	QueueIndices _queueIndices;
 	SwapChainDetails _swapchainDetails;
+	GLFWwindow *_window = nullptr;
 
 	VkInstance _instance = VK_NULL_HANDLE;
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
-	VkRenderPass	 _renderPass;
+	VkRenderPass _renderPass;
 	VkCommandPool _graphicsCommandPool;
 
 	SArray<FrameSyncData, k_maxFramesInFlight>	_frameSyncData;
