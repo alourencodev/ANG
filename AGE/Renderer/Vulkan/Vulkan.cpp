@@ -9,11 +9,13 @@
 
 #include <AGE/Vendor/GLFW.hpp>
 #include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VulkanState.hpp>
 
 namespace age::vk
 {
 
 constexpr char k_tag[] = "VulkanBootstrap";
+constexpr u8 k_maxFramesInFlight = 2;
 
 
 
@@ -32,93 +34,6 @@ static const SArray<const char *, 1> k_debugExtensions = {
 };
 
 #endif	// AGE_DEBUG
-
-
-
-// If a new family is added to the enum, it is also necessary to check if the physical device supports it.
-enum class e_QueueFamily : u8
-{
-	Graphics,
-	Presentation,
-
-	Count
-};
-
-using QueueIndexArray = SArray<u32, static_cast<u8>(e_QueueFamily::Count)>;
-
-
-
-/**
-@brief	Helper structure that allows to quick check queue existence by queue family.
-**/
-struct QueueIndexBitMap
-{
-	QueueIndexArray indices = {};
-	BitField map;
-};
-
-
-
-struct FrameSyncData
-{
-	VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
-	VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
-	VkFence inFlightFence = VK_NULL_HANDLE;
-};
-
-
-
-struct SurfaceData
-{
-	VkSurfaceCapabilitiesKHR capabilities;
-	DArray<VkSurfaceFormatKHR> formats;
-	DArray<VkPresentModeKHR> presentMode;
-};
-
-
-
-/**
-@brief	The Context holds every data necessary to interface with Vulkan. 
-		This is data that doesn't change during an entire sesion.
-**/
-struct Context
-{
-	QueueIndexArray queueIndices = {};
-	VkInstance instance = VK_NULL_HANDLE;
-	VkSurfaceKHR surface = VK_NULL_HANDLE;
-	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-	VkDevice device = VK_NULL_HANDLE;
-	VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
-
-#ifdef AGE_DEBUG
-	VkDebugUtilsMessengerEXT debugMessenger;
-#endif // AGE_DEBUG
-};
-
-
-
-/**
-@brief	The RendenderEnvironment holds the vulkan structures that are directly necessary
-		for rendering. It must be created if the widow changes (e.g. resize).
-**/
-struct RenderEnvironment
-{
-	DArray<VkImage> images = {};
-	DArray<VkImageView> imageViews = {};
-	DArray<VkFramebuffer> framebuffers = {};
-	DArray<FrameSyncData> frameSyncData = {};
-	DArray<VkFence> imageInFlightFences = {};
-	VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-	VkExtent2D swapchainExtent = {0, 0};
-	VkRenderPass renderPass = VK_NULL_HANDLE;
-};
-
-
-
-// Static Vulkan State
-static GLFWwindow *s_window = nullptr;
-static Context s_context;
-static RenderEnvironment s_environment;
 
 
 
@@ -448,7 +363,7 @@ void createContext()
 	}
 
 
-	{	// createCommandPool
+	{	// Create Command Pool
 		VkCommandPoolCreateInfo commandPoolInfo = {};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		commandPoolInfo.queueFamilyIndex = s_context.queueIndices[static_cast<i32>(e_QueueFamily::Graphics)];
@@ -456,6 +371,12 @@ void createContext()
 		AGE_VK_CHECK(vkCreateCommandPool(s_context.device, &commandPoolInfo, nullptr, &s_context.graphicsCommandPool));
 
 		age_log(k_tag, "Created Graphics Command Pool");
+	}
+
+
+	{	// Store Queue Handles
+		for (int i = 0; i < static_cast<u8>(e_QueueFamily::Count); i++)
+			vkGetDeviceQueue(s_context.device, s_context.queueIndices[i], 0, &s_context.queues[i]);
 	}
 }
 
@@ -723,4 +644,92 @@ void cleanup()
 	cleanupContext();
 }
 
+
+
+void rescreateRenderEnvironment()
+{
+	vkDeviceWaitIdle(s_context.device);
+
+	cleanupRenderEnvironment();
+	createRenderEnvironment();
 }
+
+
+
+void draw(const DArray<VkCommandBuffer> &commandBuffers)
+{
+	age_assertFatal(commandBuffers.count() == s_environment.images.count(), "There must be as many command buffers as swap chain images.");
+	age_assertFatal(s_environment.currentFrame < k_maxFramesInFlight, "");
+
+	FrameSyncData currentSyncData = s_environment.frameSyncData[s_environment.currentFrame];
+	vkWaitForFences(s_context.device, 1, &currentSyncData.inFlightFence, VK_TRUE, UINT64_MAX);
+
+	u32 imageIndex;
+
+	{	// Acquire Image
+		VkResult result = vkAcquireNextImageKHR(s_context.device, s_environment.swapchain, UINT64_MAX, currentSyncData.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+			recreateRenderEnvironment();
+		else
+			AGE_VK_CHECK(result);
+	}
+
+
+	{	// SyncImageInFlight
+
+		// Wait if the acquired image is in flight
+		VkFence &imageInFlightFence = s_environment.imageInFlightFences[imageIndex];
+		if (imageInFlightFence != VK_NULL_HANDLE)
+			vkWaitForFences(s_context.device, 1, &imageInFlightFence, VK_TRUE, UINT64_MAX);
+
+		// Store current fence for the indexed image
+		imageInFlightFence = currentSyncData.inFlightFence;
+	}
+
+
+	{	// Submit
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
+		const VkQueue graphicsQueue = s_context.queues[static_cast<i32>(e_QueueFamily::Graphics)];
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = &currentSyncData.imageAvailableSemaphore;
+		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = &currentSyncData.renderFinishedSemaphore;
+
+		vkResetFences(s_context.device, 1, &currentSyncData.inFlightFence);
+		AGE_VK_CHECK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, currentSyncData.inFlightFence));
+	}
+
+
+	{	// Present
+		const VkQueue presentQueue = s_context.queues[static_cast<i32>(e_QueueFamily::Presentation)];
+
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = &currentSyncData.renderFinishedSemaphore;
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = &s_environment.swapchain;
+		presentInfo.pImageIndices = &imageIndex;
+
+		VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+			recreateRenderEnvironment();
+		else
+			AGE_VK_CHECK(result);
+
+		vkQueueWaitIdle(presentQueue);
+	}
+
+	s_environment.currentFrame = (s_environment.currentFrame + 1) % k_maxFramesInFlight;
+}
+
+}	// namespace age::vk
