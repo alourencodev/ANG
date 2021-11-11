@@ -78,8 +78,5 @@
     <ClInclude Include="Renderer\Vulkan\Vulkan.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanState.hpp">
-      <Filter>Source Files\Renderer\Vulkan</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

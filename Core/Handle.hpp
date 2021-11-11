@@ -15,26 +15,24 @@ using HandleName = age::Handle<HandleName ## _struct, HandleType>
 namespace age
 {
 
+// TODO: Simplify Handle. This should just be a strongly typed alias to an uint type
 template <typename t_tag, typename t_intType = u32>
 class Handle
 {
 public:
-	Handle() : _handle(s_nextValue) { s_nextValue++; };
+	Handle() = default;
+	Handle(t_intType value) : _value(value) {}
 
-	bool operator == (Handle other) const { return _handle == other._handle; }
-	bool operator != (Handle other) const { return _handle != other._handle; }
+	bool operator == (Handle other) const { return _value == other._value; }
+	bool operator != (Handle other) const { return _value != other._value; }
 
-	operator t_intType() const { return _handle; }
-
-	static const t_intType k_invalid = std::numeric_limits<t_intType>::max();
+	operator t_intType() const { return _value; }
+	static const Handle invalid() { return Handle(k_invalid); }
 
 private:
-	static t_intType s_nextValue;
+	static const t_intType k_invalid = std::numeric_limits<t_intType>::max();
 
-	t_intType _handle = k_invalid;
+	t_intType _value = k_invalid;
 };
-
-template <typename t_tag, typename t_intType>
-t_intType Handle<t_tag, t_intType>::s_nextValue = static_cast<t_intType>(0);
 
 }

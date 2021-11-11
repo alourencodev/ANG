@@ -173,7 +173,6 @@
     <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanPipelineSystem.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanShaderSystem.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanState.hpp" />
     <ClInclude Include="Renderer\Vulkan\VulkanSystem.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />
     <ClInclude Include="Systems\CommandSystem.h" />
