@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 #include <Core/DArray.hpp>
 #include <Core/Handle.hpp>
 #include <Core/StackArray.hpp>
@@ -13,6 +11,7 @@ namespace age::vk
 
 DECLARE_HANDLE(ShaderHandle);
 DECLARE_HANDLE(PipelineHandle);
+DECLARE_HANDLE(DrawCommandHandle);
 
 enum class e_ShaderStage : u8
 {
@@ -34,9 +33,12 @@ struct PipelineCreateInfo
 void init(GLFWwindow *window);
 void cleanup();
 void recreateRenderEnvironment();
-void draw(const DArray<VkCommandBuffer> &commandBuffers);
+void draw(const DrawCommandHandle &commandBufferHandle);
 
 ShaderHandle createShader(e_ShaderStage shaderStage, const char *path);
 PipelineHandle createPipeline(const PipelineCreateInfo &info);
+
+DrawCommandHandle createDrawCommand(const PipelineHandle &pipeline);
+void cleanupDrawCommand(const DrawCommandHandle &commandHandle);
 
 } // namespace age::vk

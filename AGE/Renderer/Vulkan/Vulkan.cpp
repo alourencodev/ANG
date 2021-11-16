@@ -145,6 +145,13 @@ struct Pipeline
 
 
 
+struct DrawCommand
+{
+	DArray<VkCommandBuffer> buffers;
+	PipelineHandle pipeline;
+};
+
+
 /**
 @brief	The Context holds every data necessary to interface with Vulkan. 
 		This is data that doesn't change during an entire sesion.
@@ -189,6 +196,7 @@ struct Resources
 {
 	DArray<Shader> shaders;
 	DArray<Pipeline> pipelines;
+	HashMap<u32, DrawCommand> drawCommandBuffers;
 };
 
 
@@ -199,6 +207,7 @@ static Context s_context;
 static RenderEnvironment s_environment;
 static Resources s_resources;
 
+static u32 s_drawCommandHandleCounter = 0;
 
 
 QueueIndexBitMap getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
@@ -750,6 +759,12 @@ void cleanupRenderEnvironment()
 }
 
 
+void cleanupPipeline(const Pipeline &pipeline)
+{
+	vkDestroyPipeline(s_context.device, pipeline.pipeline, nullptr);
+	vkDestroyPipelineLayout(s_context.device, pipeline.layout, nullptr);
+}
+
 
 void cleanupResources()
 {
@@ -767,10 +782,7 @@ void cleanupResources()
 		age_log(k_tag, "Cleaning up pipelines.");
 
 		for (const Pipeline &pipeline : s_resources.pipelines)
-		{
-			vkDestroyPipeline(s_context.device, pipeline.pipeline, nullptr);
-			vkDestroyPipelineLayout(s_context.device, pipeline.layout, nullptr);
-		}
+			cleanupPipeline(pipeline);
 
 		s_resources.pipelines.clear();
 	}
@@ -965,8 +977,94 @@ PipelineHandle createPipeline(const PipelineCreateInfo &info)
 
 
 
-void rescreateRenderEnvironment()
+DrawCommand createDrawCommandInternal(PipelineHandle pipelineHandle)
 {
+	// TODO: Track command buffer allocation
+	age_log(k_tag, "Draw Command Buffer Allocated");
+
+	// TODO: Make the clear color configurable
+	VkClearValue clearColor = {{{0.2f, 0.2f, 0.2f, 1.0f}}};
+	VkPipeline pipeline = s_resources.pipelines[pipelineHandle].pipeline;
+
+	const u32 bufferCount = static_cast<u32>(s_environment.framebuffers.count());
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = s_context.graphicsCommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = bufferCount;
+
+	DrawCommand command;
+	command.buffers.reserveWithEmpty(bufferCount);
+
+	AGE_VK_CHECK(vkAllocateCommandBuffers(s_context.device, &allocInfo, command.buffers.data()));
+
+	for (int i = 0; i < command.buffers.count(); i++) {
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+		AGE_VK_CHECK(vkBeginCommandBuffer(command.buffers[i], &beginInfo));
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = s_environment.renderPass;
+		renderPassInfo.framebuffer = s_environment.framebuffers[i];
+		renderPassInfo.renderArea.offset = {0, 0};
+		renderPassInfo.renderArea.extent = s_environment.swapchainExtent;
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(command.buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+		// TODO: Adapt this to proper meshes
+		vkCmdDraw(command.buffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(command.buffers[i]);
+
+		AGE_VK_CHECK(vkEndCommandBuffer(command.buffers[i]));
+	}
+
+	return command;
+}
+
+
+
+DrawCommandHandle createDrawCommand(PipelineHandle pipelineHandle)
+{
+	DrawCommandHandle handle(s_drawCommandHandleCounter);
+	s_drawCommandHandleCounter++;
+	s_resources.drawCommandBuffers.add(handle, createDrawCommandInternal(pipelineHandle));
+	
+	return handle;
+}
+
+
+
+void cleanupDrawCommandInternal(DrawCommand &drawCommand)
+{
+	DArray<VkCommandBuffer> &buffers = drawCommand.buffers;
+	vkFreeCommandBuffers(s_context.device, s_context.graphicsCommandPool, 
+						 static_cast<u32>(buffers.count()), buffers.data());
+	buffers.clear();
+}
+
+
+
+void cleanupDrawCommand(DrawCommandHandle &commandHandle)
+{
+	cleanupDrawCommandInternal(s_resources.drawCommandBuffers[commandHandle]);
+	s_resources.drawCommandBuffers.remove(commandHandle);
+	commandHandle = DrawCommandHandle::invalid();
+}
+
+
+
+void recreateRenderEnvironment()
+{
+	age_log(k_tag, "Recreating Render Environment.");
+
 	vkDeviceWaitIdle(s_context.device);
 
 	cleanupRenderEnvironment();
@@ -974,14 +1072,30 @@ void rescreateRenderEnvironment()
 
 	// Recreate Pipelines
 	for (Pipeline &pipeline : s_resources.pipelines)
+	{
+		cleanupPipeline(pipeline);
 		pipeline = createPipelineInternal(pipeline.createInfo);
+	}
+
+	// Recreate DrawCommands
+	for (auto &drawCommandEntry : s_resources.drawCommandBuffers.asRange())
+	{
+		if (!drawCommandEntry.isValid())
+			continue;
+
+		DrawCommand &drawCommand = drawCommandEntry.value;
+
+		cleanupDrawCommandInternal(drawCommand);
+		drawCommand = createDrawCommandInternal(drawCommand.pipeline);
+	}
 }
 
 
 
-void draw(const DArray<VkCommandBuffer> &commandBuffers)
+void draw(const DrawCommandHandle &commandBufferHandle)
 {
-	age_assertFatal(commandBuffers.count() == s_environment.images.count(), "There must be as many command buffers as swap chain images.");
+	const DrawCommand &commandBuffer = s_resources.drawCommandBuffers[commandBufferHandle];
+	age_assertFatal(commandBuffer.buffers.count() == s_environment.images.count(), "There must be as many command buffers as swap chain images.");
 	age_assertFatal(s_environment.currentFrame < k_maxFramesInFlight, "");
 
 	FrameSyncData currentSyncData = s_environment.frameSyncData[s_environment.currentFrame];
@@ -990,7 +1104,8 @@ void draw(const DArray<VkCommandBuffer> &commandBuffers)
 	u32 imageIndex;
 
 	{	// Acquire Image
-		VkResult result = vkAcquireNextImageKHR(s_context.device, s_environment.swapchain, UINT64_MAX, currentSyncData.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(s_context.device, s_environment.swapchain, UINT64_MAX, 
+												currentSyncData.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 			recreateRenderEnvironment();
@@ -1022,7 +1137,7 @@ void draw(const DArray<VkCommandBuffer> &commandBuffers)
 		submitInfo.pWaitSemaphores = &currentSyncData.imageAvailableSemaphore;
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+		submitInfo.pCommandBuffers = &commandBuffer.buffers[imageIndex];
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &currentSyncData.renderFinishedSemaphore;
 
