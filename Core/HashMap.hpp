@@ -173,7 +173,7 @@ public:
 			return false;
 
 		_data[index].state = e_HashNodeState::Removed;
-		count--;
+		_count--;
 		return true;
 	}
 	
