@@ -15,7 +15,6 @@ using HandleName = age::Handle<HandleName ## _struct, HandleType>
 namespace age
 {
 
-// TODO: Simplify Handle. This should just be a strongly typed alias to an uint type
 template <typename t_tag, typename t_intType = u32>
 class Handle
 {
