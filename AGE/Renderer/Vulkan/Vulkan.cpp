@@ -512,6 +512,8 @@ void createContext()
 
 void cleanupContext()
 {
+	age_log(k_tag, "Cleaning up Context");
+
 	vkDestroyCommandPool(s_context.device, s_context.graphicsCommandPool, nullptr);
 	vkDestroyDevice(s_context.device, nullptr);
 
@@ -727,19 +729,22 @@ void createRenderEnvironment()
 
 
 	{	// Create Frame Sync Data
+		s_environment.frameSyncData.resizeWithEmpty(k_maxFramesInFlight);
 		for (FrameSyncData &data : s_environment.frameSyncData)
 			createFrameData(data);
 
 		age_log(k_tag, "Created Frame Data");
 	}
 
-	s_environment.imageInFlightFences.resizeWithValue(s_environment.frameSyncData.count(), VK_NULL_HANDLE);
+	s_environment.imageInFlightFences.resizeWithValue(s_environment.images.count(), VK_NULL_HANDLE);
 }
 
 
 
 void cleanupRenderEnvironment()
 {
+	age_log(k_tag, "Cleaning up Render Environment");
+
 	s_environment.imageInFlightFences.clear();
 
 	for (FrameSyncData &data : s_environment.frameSyncData)
@@ -756,6 +761,8 @@ void cleanupRenderEnvironment()
 	// The actual images get destroyed when the swapchain is destroyed.
 	s_environment.images.clear();
 	vkDestroySwapchainKHR(s_context.device, s_environment.swapchain, nullptr);
+
+	vkDestroyRenderPass(s_context.device, s_environment.renderPass, nullptr);
 }
 
 
@@ -801,6 +808,9 @@ void init(GLFWwindow *window)
 
 void cleanup()
 {
+	for (const auto &frameSyncData : s_environment.frameSyncData)
+		vkWaitForFences(s_context.device, 1, &frameSyncData.inFlightFence, VK_TRUE, INT64_MAX);
+
 	cleanupRenderEnvironment();
 	cleanupResources();
 	cleanupContext();
@@ -873,7 +883,9 @@ Pipeline createPipelineInternal(const PipelineCreateInfo &info)
 	// Create Shader Stages
 	StackArray<VkPipelineShaderStageCreateInfo, static_cast<u32>(e_ShaderStage::Count)> shaderStages;
 	for (ShaderHandle shaderHandle : info.shaders) {
+		age_assertFatal(shaderHandle.isValid(), "Trying to create pipeline with invalid shader.");
 		age_assertFatal(shaderHandle < s_resources.shaders.count(), "Trying to create pipeline with inexistent shader.");
+
 		shaderStages.add(createShaderStage(s_resources.shaders[shaderHandle]));
 	}
 
@@ -977,8 +989,10 @@ PipelineHandle createPipeline(const PipelineCreateInfo &info)
 
 
 
-DrawCommand createDrawCommandInternal(PipelineHandle pipelineHandle)
+DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle)
 {
+	age_assertFatal(pipelineHandle.isValid(), "Trying to create a draw command with an invalid pipeline handle.");
+
 	// TODO: Track command buffer allocation
 	age_log(k_tag, "Draw Command Buffer Allocated");
 
@@ -996,6 +1010,7 @@ DrawCommand createDrawCommandInternal(PipelineHandle pipelineHandle)
 
 	DrawCommand command;
 	command.buffers.reserveWithEmpty(bufferCount);
+	command.pipeline = pipelineHandle;
 
 	AGE_VK_CHECK(vkAllocateCommandBuffers(s_context.device, &allocInfo, command.buffers.data()));
 
@@ -1031,7 +1046,7 @@ DrawCommand createDrawCommandInternal(PipelineHandle pipelineHandle)
 
 
 
-DrawCommandHandle createDrawCommand(PipelineHandle pipelineHandle)
+DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle)
 {
 	DrawCommandHandle handle(s_drawCommandHandleCounter);
 	s_drawCommandHandleCounter++;
@@ -1054,6 +1069,8 @@ void cleanupDrawCommandInternal(DrawCommand &drawCommand)
 
 void cleanupDrawCommand(DrawCommandHandle &commandHandle)
 {
+	age_assertFatal(commandHandle.isValid(), "Trying to cleanup an invalid draw command.");
+
 	cleanupDrawCommandInternal(s_resources.drawCommandBuffers[commandHandle]);
 	s_resources.drawCommandBuffers.remove(commandHandle);
 	commandHandle = DrawCommandHandle::invalid();
@@ -1063,7 +1080,7 @@ void cleanupDrawCommand(DrawCommandHandle &commandHandle)
 
 void recreateRenderEnvironment()
 {
-	age_log(k_tag, "Recreating Render Environment.");
+	age_log(k_tag, "Recreating Render Environment...");
 
 	vkDeviceWaitIdle(s_context.device);
 
@@ -1071,15 +1088,13 @@ void recreateRenderEnvironment()
 	createRenderEnvironment();
 
 	// Recreate Pipelines
-	for (Pipeline &pipeline : s_resources.pipelines)
-	{
+	for (Pipeline &pipeline : s_resources.pipelines) {
 		cleanupPipeline(pipeline);
 		pipeline = createPipelineInternal(pipeline.createInfo);
 	}
 
 	// Recreate DrawCommands
-	for (auto &drawCommandEntry : s_resources.drawCommandBuffers.asRange())
-	{
+	for (auto &drawCommandEntry : s_resources.drawCommandBuffers.asRange()) {
 		if (!drawCommandEntry.isValid())
 			continue;
 
@@ -1088,6 +1103,8 @@ void recreateRenderEnvironment()
 		cleanupDrawCommandInternal(drawCommand);
 		drawCommand = createDrawCommandInternal(drawCommand.pipeline);
 	}
+
+	age_log(k_tag, "Render Environment recreated.");
 }
 
 

@@ -28,6 +28,8 @@ public:
 	operator t_intType() const { return _value; }
 	static const Handle invalid() { return Handle(k_invalid); }
 
+	bool isValid() const { return _value != k_invalid; }
+
 private:
 	static const t_intType k_invalid = std::numeric_limits<t_intType>::max();
 
