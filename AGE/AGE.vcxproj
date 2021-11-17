@@ -160,9 +160,6 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Vulkan\Vulkan.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanPipelineSystem.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanShaderSystem.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanSystem.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp" />
     <ClCompile Include="Systems\CommandSystem.cpp" />
   </ItemGroup>
@@ -171,9 +168,6 @@
     <ClInclude Include="AGEAPI.hpp" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanPipelineSystem.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanShaderSystem.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanSystem.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />
     <ClInclude Include="Systems\CommandSystem.h" />
     <ClInclude Include="Vendor\GLFW.hpp" />
