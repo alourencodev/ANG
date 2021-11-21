@@ -23,3 +23,20 @@
 #else
 #	define IF_RELEASE_DBG_INGO(X)
 #endif
+
+
+
+#if defined(AGE_DEBUG)
+#	define BUILD_SCHEME_STR "Debug"
+#elif defined(AGE_RELEASE_DBG_INFO)
+#	define BUILD_SCHEME_STR "ReleaseDbgInfo"
+#else
+#	define BUILD_SCHEME_STR ""
+#endif
+
+
+
+#if !defined(AGE_DEBUG) && !defined(AGE_RELEASE_DBG_INFO)
+#	define AGE_RELEASE
+#endif
+

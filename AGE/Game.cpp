@@ -8,10 +8,15 @@
 #include "AGE/Renderer/Renderer.h"
 #include "AGE/Systems/CommandSystem.h"
 
+#ifndef AGE_RELEASE
+#include <cstdio>
+#endif
+
 namespace age
 {
 
 constexpr char k_tag[] = "Game";
+constexpr u8 k_maxTitleLength = 128;
 
 #ifdef AGE_RELEASE_DBG_INFO
 void runGameArguments(int argc, char *argv[])
@@ -65,8 +70,16 @@ void Game::Run(int argc, char *argv[])
 		glfwInit();
 
 		WindowInfo windowInfo = GetWindowInfo();
+
+#ifdef AGE_RELEASE
+		const char *title = windowInfo.title.c_str();
+#else
+		char title[k_maxTitleLength];
+		snprintf(title, sizeof(title), "%s [%s]", windowInfo.title.c_str(), BUILD_SCHEME_STR);
+#endif
+
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, windowInfo.title.c_str(), nullptr, nullptr);
+		_window = glfwCreateWindow(windowInfo.size.w, windowInfo.size.h, title, nullptr, nullptr);
 
 		Renderer::s_inst.init(_window);
 		glfwSetFramebufferSizeCallback(_window, onFramebufferResize);
