@@ -175,7 +175,7 @@ struct Context
 
 /**
 @brief	The RendenderEnvironment holds the vulkan structures that are directly necessary
-		for rendering. It must be created if the widow changes (e.g. resize).
+		for rendering. It must be recreated if the widow changes (e.g. resize).
 **/
 struct RenderEnvironment
 {
@@ -192,6 +192,9 @@ struct RenderEnvironment
 
 
 
+/**
+@brief	Holds every resource that is referenced externally through handles.
+**/
 struct Resources
 {
 	DArray<Shader> shaders;
@@ -207,6 +210,9 @@ static Context s_context;
 static RenderEnvironment s_environment;
 static Resources s_resources;
 
+
+
+// Handle counters
 static u32 s_drawCommandHandleCounter = 0;
 
 
@@ -766,11 +772,13 @@ void cleanupRenderEnvironment()
 }
 
 
+
 void cleanupPipeline(const Pipeline &pipeline)
 {
 	vkDestroyPipeline(s_context.device, pipeline.pipeline, nullptr);
 	vkDestroyPipelineLayout(s_context.device, pipeline.layout, nullptr);
 }
+
 
 
 void cleanupResources()
@@ -822,6 +830,7 @@ ShaderHandle createShader(e_ShaderStage shaderStage, const char *path)
 {
 	age_log(k_tag, "Creating shader from %s", path);
 
+	// This source will be discarded at the end of the function, since it's not needed anymore.
 	DArray<char> source = file::readBinary(path);
 
 	VkShaderModuleCreateInfo createInfo = {};
