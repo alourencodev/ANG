@@ -106,7 +106,7 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -v</Command>
+      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -v -I $(ProjectDir)Shaders\ $(SolutionDir)AGE\Shaders\</Command>
       <Message>Building Shaders</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
