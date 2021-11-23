@@ -5,6 +5,12 @@
 namespace age
 {
 
+const DArray<vk::Vertex> vertices = {
+    {{0.0f, -0.5f, 0.0f}},
+    {{0.5f, 0.5f, 0.0f}},
+    {{-0.5f, 0.5f, 0.0f}}
+};
+
 Renderer Renderer::s_inst = Renderer();
 
 constexpr char k_tag[] = "Renderer";
@@ -13,6 +19,7 @@ vk::ShaderHandle vertexShader;
 vk::ShaderHandle fragmentShader;
 
 vk::DrawCommandHandle testDrawCommand;
+vk::MeshBufferHandle testMeshBuffer;
 
 void Renderer::init(GLFWwindow *window)
 {
@@ -26,7 +33,8 @@ void Renderer::init(GLFWwindow *window)
 	info.shaders.add(fragmentShader);
 	vk::PipelineHandle pipelineHandle = vk::createPipeline(info);
 
-	testDrawCommand = vk::createDrawCommand(pipelineHandle);
+	testMeshBuffer = vk::createMeshBuffer(vertices);
+	testDrawCommand = vk::createDrawCommand(pipelineHandle, testMeshBuffer);
 }
 
 void Renderer::update()
@@ -36,6 +44,11 @@ void Renderer::update()
 
 void Renderer::cleanup()
 {
+	vk::waitForFramesToFinish();
+
+	vk::cleanupDrawCommand(testDrawCommand);
+	vk::cleanupMeshBuffer(testMeshBuffer);
+
 	vk::cleanup();
 }
 

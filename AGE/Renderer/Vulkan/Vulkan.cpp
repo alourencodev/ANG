@@ -149,6 +149,15 @@ struct DrawCommand
 {
 	DArray<VkCommandBuffer> buffers;
 	PipelineHandle pipeline;
+	MeshBufferHandle meshBuffer;
+};
+
+
+struct MeshBuffer
+{
+	VkBuffer buffer;
+	VkDeviceMemory memory;
+	u32 vertexCount;
 };
 
 
@@ -200,6 +209,7 @@ struct Resources
 	DArray<Shader> shaders;
 	DArray<Pipeline> pipelines;
 	HashMap<u32, DrawCommand> drawCommandBuffers;
+	HashMap<u32, MeshBuffer> meshBuffers;
 };
 
 
@@ -214,6 +224,8 @@ static Resources s_resources;
 
 // Handle counters
 static u32 s_drawCommandHandleCounter = 0;
+static u32 s_meshBufferHandleCounter = 0;
+
 
 
 QueueIndexBitMap getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
@@ -783,6 +795,10 @@ void cleanupPipeline(const Pipeline &pipeline)
 
 void cleanupResources()
 {
+	// Check if resources that are owned externally were cleaned.
+	age_assertFatal(s_resources.drawCommandBuffers.isEmpty(), "Resources are being cleaned, but %d drawCommands still exist. Every drawCommand should be cleaned.", s_resources.drawCommandBuffers.count());
+	age_assertFatal(s_resources.meshBuffers.isEmpty(), "Resources are being cleaned, but %d meshBuffers still exist. Every meshBuffer should be cleaned.", s_resources.meshBuffers.count());
+
 	{	// Cleanup Shaders
 		age_log(k_tag, "Cleaning up shaders.");
 
@@ -816,9 +832,6 @@ void init(GLFWwindow *window)
 
 void cleanup()
 {
-	for (const auto &frameSyncData : s_environment.frameSyncData)
-		vkWaitForFences(s_context.device, 1, &frameSyncData.inFlightFence, VK_TRUE, INT64_MAX);
-
 	cleanupRenderEnvironment();
 	cleanupResources();
 	cleanupContext();
@@ -909,13 +922,29 @@ Pipeline createPipelineInternal(const PipelineCreateInfo &info)
 
 
 	{	// Create Pipeline
-		// TODO: Set this up to retrieve an arbitrary mesh instead of hardcoded vertices.
+
+		// Set vertex Attributes
+		constexpr u8 k_attributesPerVertex = 1;
+		SArray<VkVertexInputAttributeDescription, k_attributesPerVertex> attributesDescription;
+		{
+			// pos
+			attributesDescription[0].binding = 0;
+			attributesDescription[0].location = 0;
+			attributesDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributesDescription[0].offset = offsetof(Vertex, pos);
+		}
+
+		VkVertexInputBindingDescription bindingDescription;
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
 		VkPipelineVertexInputStateCreateInfo vertexInput = {};
 		vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInput.vertexBindingDescriptionCount = 0;
-		vertexInput.pVertexBindingDescriptions = nullptr;
-		vertexInput.vertexAttributeDescriptionCount = 0;
-		vertexInput.pVertexAttributeDescriptions = nullptr;
+		vertexInput.vertexBindingDescriptionCount = 1;
+		vertexInput.pVertexBindingDescriptions = &bindingDescription;
+		vertexInput.vertexAttributeDescriptionCount = k_attributesPerVertex;
+		vertexInput.pVertexAttributeDescriptions = attributesDescription.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -998,7 +1027,7 @@ PipelineHandle createPipeline(const PipelineCreateInfo &info)
 
 
 
-DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle)
+DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, const MeshBufferHandle &meshBufferHandle)
 {
 	age_assertFatal(pipelineHandle.isValid(), "Trying to create a draw command with an invalid pipeline handle.");
 
@@ -1020,8 +1049,11 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle)
 	DrawCommand command;
 	command.buffers.reserveWithEmpty(bufferCount);
 	command.pipeline = pipelineHandle;
+	command.meshBuffer = meshBufferHandle;
 
 	AGE_VK_CHECK(vkAllocateCommandBuffers(s_context.device, &allocInfo, command.buffers.data()));
+
+	const MeshBuffer meshBuffer = s_resources.meshBuffers[meshBufferHandle];
 
 	for (int i = 0; i < command.buffers.count(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -1039,13 +1071,18 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle)
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
-		vkCmdBeginRenderPass(command.buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		{	// Record Command Buffer
+			vkCmdBeginRenderPass(command.buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-		// TODO: Adapt this to proper meshes
-		vkCmdDraw(command.buffers[i], 3, 1, 0, 0);
+			const VkDeviceSize offsets[] = {0};
+			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &meshBuffer.buffer, offsets);
 
-		vkCmdEndRenderPass(command.buffers[i]);
+			// TODO: Adapt this to proper meshes
+			vkCmdDraw(command.buffers[i], meshBuffer.vertexCount, 1, 0, 0);
+
+			vkCmdEndRenderPass(command.buffers[i]);
+		}
 
 		AGE_VK_CHECK(vkEndCommandBuffer(command.buffers[i]));
 	}
@@ -1055,11 +1092,11 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle)
 
 
 
-DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle)
+DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle, const MeshBufferHandle &meshBufferHandle)
 {
 	DrawCommandHandle handle(s_drawCommandHandleCounter);
 	s_drawCommandHandleCounter++;
-	s_resources.drawCommandBuffers.add(handle, createDrawCommandInternal(pipelineHandle));
+	s_resources.drawCommandBuffers.add(handle, createDrawCommandInternal(pipelineHandle, meshBufferHandle));
 	
 	return handle;
 }
@@ -1087,6 +1124,74 @@ void cleanupDrawCommand(DrawCommandHandle &commandHandle)
 
 
 
+MeshBufferHandle createMeshBuffer(const DArray<Vertex> &vertices)
+{
+	age_assertFatal(!vertices.isEmpty(), "Unable to create MeshBuffer with no vertices.");
+
+	MeshBufferHandle handle(s_meshBufferHandleCounter);
+	s_meshBufferHandleCounter++;
+
+	MeshBuffer meshBuffer;
+	meshBuffer.vertexCount = static_cast<u32>(vertices.count());
+	const size_t bufferSize = sizeof(vertices[0]) * vertices.count();
+	
+	{	// Create Buffer
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.flags = 0;
+		bufferInfo.size = bufferSize;
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		AGE_VK_CHECK(vkCreateBuffer(s_context.device, &bufferInfo, nullptr, &meshBuffer.buffer));
+	}
+
+
+	{	// Allocate Buffer
+		VkMemoryRequirements memoryRequirements;
+		vkGetBufferMemoryRequirements(s_context.device, meshBuffer.buffer, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memoryRequirements.size;
+		allocInfo.memoryTypeIndex = findMemoryType(s_context.physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		AGE_VK_CHECK(vkAllocateMemory(s_context.device, &allocInfo, nullptr, &meshBuffer.memory));
+
+		vkBindBufferMemory(s_context.device, meshBuffer.buffer, meshBuffer.memory, 0);
+	}
+
+
+	{	// Fill Buffer
+		void *data;
+		vkMapMemory(s_context.device, meshBuffer.memory, 0, bufferSize, 0, &data);
+		memcpy(data, vertices.data(), bufferSize);
+		vkUnmapMemory(s_context.device, meshBuffer.memory);
+	}
+
+
+	s_resources.meshBuffers.add(handle, meshBuffer);
+
+	return handle;
+}
+
+
+
+void cleanupMeshBuffer(MeshBufferHandle &meshBufferHandle)
+{
+	age_assertFatal(meshBufferHandle.isValid(), "Trying to cleanup an invalid mesh buffer.");
+
+	MeshBuffer &meshBuffer = s_resources.meshBuffers[meshBufferHandle];
+	s_resources.meshBuffers.remove(meshBufferHandle);
+
+	vkDestroyBuffer(s_context.device, meshBuffer.buffer, nullptr);
+	vkFreeMemory(s_context.device, meshBuffer.memory, nullptr);
+
+	meshBufferHandle = MeshBufferHandle::invalid();
+}
+
+
+
 void recreateRenderEnvironment()
 {
 	age_log(k_tag, "Recreating Render Environment...");
@@ -1110,7 +1215,7 @@ void recreateRenderEnvironment()
 		DrawCommand &drawCommand = drawCommandEntry.value;
 
 		cleanupDrawCommandInternal(drawCommand);
-		drawCommand = createDrawCommandInternal(drawCommand.pipeline);
+		drawCommand = createDrawCommandInternal(drawCommand.pipeline, drawCommand.meshBuffer);
 	}
 
 	age_log(k_tag, "Render Environment recreated.");
@@ -1194,6 +1299,14 @@ void draw(const DrawCommandHandle &commandBufferHandle)
 	}
 
 	s_environment.currentFrame = (s_environment.currentFrame + 1) % k_maxFramesInFlight;
+}
+
+
+
+void waitForFramesToFinish()
+{
+	for (const auto &frameSyncData : s_environment.frameSyncData)
+		vkWaitForFences(s_context.device, 1, &frameSyncData.inFlightFence, VK_TRUE, INT64_MAX);
 }
 
 }	// namespace age::vk

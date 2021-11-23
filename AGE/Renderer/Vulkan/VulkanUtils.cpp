@@ -5,6 +5,29 @@
 namespace age::vk
 {
 
+
+constexpr char k_tag[] = "Vulkan";
+
+
+
+u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    for (u32 i = 0; i < memoryProperties.memoryTypeCount; i++) {
+        const bool hasSuitableMemTypes = typeFilter & (1 << i);
+        const bool hasSuitableProperties = (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties;
+
+        if (hasSuitableMemTypes && hasSuitableProperties)
+            return i;
+    }
+
+    age_error(k_tag, "Unable to find suitable memory type.");
+}
+
+
+
 #define AGE_VK_UTILS_CASE_TO_STR(C)  \
 case C:                 \
   return #C;			\
@@ -47,15 +70,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
 											 const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
 											 void */*userData*/)
 {
-	static const char *k_vulkanTag = "Vulkan";
 	using VkMessageSeverityFlag = VkDebugUtilsMessageSeverityFlagBitsEXT;
 
 	if (messageSeverity >= VkMessageSeverityFlag::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-		age_error(k_vulkanTag, callbackData->pMessage);
+		age_error(k_tag, callbackData->pMessage);
 	} else if (messageSeverity >= VkMessageSeverityFlag::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-		age_warning(k_vulkanTag, callbackData->pMessage);
+		age_warning(k_tag, callbackData->pMessage);
 	} else {
-		age_log(k_vulkanTag, callbackData->pMessage);
+		age_log(k_tag, callbackData->pMessage);
 	}
 
 	return VK_FALSE;
