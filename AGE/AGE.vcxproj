@@ -169,6 +169,8 @@
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />
+    <ClInclude Include="Shaders\meshCore.frag.glsl" />
+    <ClInclude Include="Shaders\meshCore.vert.glsl" />
     <ClInclude Include="Systems\CommandSystem.h" />
     <ClInclude Include="Vendor\GLFW.hpp" />
     <ClInclude Include="Game.h" />

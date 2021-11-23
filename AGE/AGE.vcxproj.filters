@@ -17,6 +17,9 @@
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{ce337dea-7ffd-441b-92cc-fc7df2d09b7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{75e26dc8-3460-4bc6-8191-3bb6592bce61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -59,6 +62,12 @@
     </ClInclude>
     <ClInclude Include="Renderer\Vulkan\Vulkan.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\meshCore.frag.glsl">
+      <Filter>Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\meshCore.vert.glsl">
+      <Filter>Shader Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
