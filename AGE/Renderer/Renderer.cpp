@@ -19,7 +19,7 @@ vk::ShaderHandle vertexShader;
 vk::ShaderHandle fragmentShader;
 
 vk::DrawCommandHandle testDrawCommand;
-vk::MeshBufferHandle testMeshBuffer;
+vk::MeshHandle testMeshBuffer;
 
 void Renderer::init(GLFWwindow *window)
 {
@@ -33,7 +33,7 @@ void Renderer::init(GLFWwindow *window)
 	info.shaders.add(fragmentShader);
 	vk::PipelineHandle pipelineHandle = vk::createPipeline(info);
 
-	testMeshBuffer = vk::createMeshBuffer(vertices);
+	testMeshBuffer = vk::createMesh(vertices);
 	testDrawCommand = vk::createDrawCommand(pipelineHandle, testMeshBuffer);
 }
 
@@ -47,7 +47,7 @@ void Renderer::cleanup()
 	vk::waitForFramesToFinish();
 
 	vk::cleanupDrawCommand(testDrawCommand);
-	vk::cleanupMeshBuffer(testMeshBuffer);
+	vk::cleanupMesh(testMeshBuffer);
 
 	vk::cleanup();
 }

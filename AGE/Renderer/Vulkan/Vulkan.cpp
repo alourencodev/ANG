@@ -149,11 +149,11 @@ struct DrawCommand
 {
 	DArray<VkCommandBuffer> buffers;
 	PipelineHandle pipeline;
-	MeshBufferHandle meshBuffer;
+	MeshHandle mesh;
 };
 
 
-struct MeshBuffer
+struct Mesh
 {
 	Buffer buffer;
 	u32 vertexCount;
@@ -207,8 +207,8 @@ struct Resources
 {
 	DArray<Shader> shaders;
 	DArray<Pipeline> pipelines;
-	HashMap<u32, DrawCommand> drawCommandBuffers;
-	HashMap<u32, MeshBuffer> meshBuffers;
+	HashMap<u32, DrawCommand> drawCommandMap;
+	HashMap<u32, Mesh> meshMap;
 };
 
 
@@ -795,8 +795,8 @@ void cleanupPipeline(const Pipeline &pipeline)
 void cleanupResources()
 {
 	// Check if resources that are owned externally were cleaned.
-	age_assertFatal(s_resources.drawCommandBuffers.isEmpty(), "Resources are being cleaned, but %d drawCommands still exist. Every drawCommand should be cleaned.", s_resources.drawCommandBuffers.count());
-	age_assertFatal(s_resources.meshBuffers.isEmpty(), "Resources are being cleaned, but %d meshBuffers still exist. Every meshBuffer should be cleaned.", s_resources.meshBuffers.count());
+	age_assertFatal(s_resources.drawCommandMap.isEmpty(), "Resources are being cleaned, but %d drawCommands still exist. Every drawCommand should be cleaned.", s_resources.drawCommandMap.count());
+	age_assertFatal(s_resources.meshMap.isEmpty(), "Resources are being cleaned, but %d meshBuffers still exist. Every meshBuffer should be cleaned.", s_resources.meshMap.count());
 
 	{	// Cleanup Shaders
 		age_log(k_tag, "Cleaning up shaders.");
@@ -1026,7 +1026,7 @@ PipelineHandle createPipeline(const PipelineCreateInfo &info)
 
 
 
-DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, const MeshBufferHandle &meshBufferHandle)
+DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, const MeshHandle &meshHandle)
 {
 	age_assertFatal(pipelineHandle.isValid(), "Trying to create a draw command with an invalid pipeline handle.");
 
@@ -1048,11 +1048,11 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 	DrawCommand command;
 	command.buffers.reserveWithEmpty(bufferCount);
 	command.pipeline = pipelineHandle;
-	command.meshBuffer = meshBufferHandle;
+	command.mesh = meshHandle;
 
 	AGE_VK_CHECK(vkAllocateCommandBuffers(s_context.device, &allocInfo, command.buffers.data()));
 
-	const MeshBuffer meshBuffer = s_resources.meshBuffers[meshBufferHandle];
+	const Mesh &mesh = s_resources.meshMap[meshHandle];
 
 	for (int i = 0; i < command.buffers.count(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -1075,9 +1075,9 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 			vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 			const VkDeviceSize offsets[] = {0};
-			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &meshBuffer.buffer.buffer, offsets);
+			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &mesh.buffer.buffer, offsets);
 
-			vkCmdDraw(command.buffers[i], meshBuffer.vertexCount, 1, 0, 0);
+			vkCmdDraw(command.buffers[i], mesh.vertexCount, 1, 0, 0);
 
 			vkCmdEndRenderPass(command.buffers[i]);
 		}
@@ -1090,11 +1090,11 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 
 
 
-DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle, const MeshBufferHandle &meshBufferHandle)
+DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle, const MeshHandle &meshHandle)
 {
 	DrawCommandHandle handle(s_drawCommandHandleCounter);
 	s_drawCommandHandleCounter++;
-	s_resources.drawCommandBuffers.add(handle, createDrawCommandInternal(pipelineHandle, meshBufferHandle));
+	s_resources.drawCommandMap.add(handle, createDrawCommandInternal(pipelineHandle, meshHandle));
 	
 	return handle;
 }
@@ -1115,49 +1115,49 @@ void cleanupDrawCommand(DrawCommandHandle &commandHandle)
 {
 	age_assertFatal(commandHandle.isValid(), "Trying to cleanup an invalid draw command.");
 
-	cleanupDrawCommandInternal(s_resources.drawCommandBuffers[commandHandle]);
-	s_resources.drawCommandBuffers.remove(commandHandle);
+	cleanupDrawCommandInternal(s_resources.drawCommandMap[commandHandle]);
+	s_resources.drawCommandMap.remove(commandHandle);
 	commandHandle = DrawCommandHandle::invalid();
 }
 
 
 
-MeshBufferHandle createMeshBuffer(const DArray<Vertex> &vertices)
+MeshHandle createMesh(const DArray<Vertex> &vertices)
 {
 	age_assertFatal(!vertices.isEmpty(), "Unable to create MeshBuffer with no vertices.");
 
-	MeshBufferHandle handle(s_meshBufferHandleCounter);
+	MeshHandle handle(s_meshBufferHandleCounter);
 	s_meshBufferHandleCounter++;
 
 	const size_t bufferSize = sizeof(vertices[0]) * vertices.count();
-	MeshBuffer meshBuffer;
-	meshBuffer.vertexCount = static_cast<u32>(vertices.count());
-	meshBuffer.buffer = vk::allocBuffer(s_context.physicalDevice, s_context.device, bufferSize);
+	Mesh mesh;
+	mesh.vertexCount = static_cast<u32>(vertices.count());
+	mesh.buffer = vk::allocBuffer(s_context.physicalDevice, s_context.device, bufferSize);
 
 	{	// Fill Buffer
 		void *data;
-		vkMapMemory(s_context.device, meshBuffer.buffer.memory, 0, bufferSize, 0, &data);
+		vkMapMemory(s_context.device, mesh.buffer.memory, 0, bufferSize, 0, &data);
 		memcpy(data, vertices.data(), bufferSize);
-		vkUnmapMemory(s_context.device, meshBuffer.buffer.memory);
+		vkUnmapMemory(s_context.device, mesh.buffer.memory);
 	}
 
-	s_resources.meshBuffers.add(handle, meshBuffer);
+	s_resources.meshMap.add(handle, mesh);
 
 	return handle;
 }
 
 
 
-void cleanupMeshBuffer(MeshBufferHandle &meshBufferHandle)
+void cleanupMesh(MeshHandle &meshHandle)
 {
-	age_assertFatal(meshBufferHandle.isValid(), "Trying to cleanup an invalid mesh buffer.");
+	age_assertFatal(meshHandle.isValid(), "Trying to cleanup an invalid mesh buffer.");
 
-	MeshBuffer &meshBuffer = s_resources.meshBuffers[meshBufferHandle];
-	s_resources.meshBuffers.remove(meshBufferHandle);
+	Mesh &mesh = s_resources.meshMap[meshHandle];
+	s_resources.meshMap.remove(meshHandle);
 
-	vk::freeBuffer(s_context.device, meshBuffer.buffer);
+	vk::freeBuffer(s_context.device, mesh.buffer);
 
-	meshBufferHandle = MeshBufferHandle::invalid();
+	meshHandle = MeshHandle::invalid();
 }
 
 
@@ -1178,14 +1178,14 @@ void recreateRenderEnvironment()
 	}
 
 	// Recreate DrawCommands
-	for (auto &drawCommandEntry : s_resources.drawCommandBuffers.asRange()) {
+	for (auto &drawCommandEntry : s_resources.drawCommandMap.asRange()) {
 		if (!drawCommandEntry.isValid())
 			continue;
 
 		DrawCommand &drawCommand = drawCommandEntry.value;
 
 		cleanupDrawCommandInternal(drawCommand);
-		drawCommand = createDrawCommandInternal(drawCommand.pipeline, drawCommand.meshBuffer);
+		drawCommand = createDrawCommandInternal(drawCommand.pipeline, drawCommand.mesh);
 	}
 
 	age_log(k_tag, "Render Environment recreated.");
@@ -1195,7 +1195,7 @@ void recreateRenderEnvironment()
 
 void draw(const DrawCommandHandle &commandBufferHandle)
 {
-	const DrawCommand &commandBuffer = s_resources.drawCommandBuffers[commandBufferHandle];
+	const DrawCommand &commandBuffer = s_resources.drawCommandMap[commandBufferHandle];
 	age_assertFatal(commandBuffer.buffers.count() == s_environment.images.count(), "There must be as many command buffers as swap chain images.");
 	age_assertFatal(s_environment.currentFrame < k_maxFramesInFlight, "");
 
