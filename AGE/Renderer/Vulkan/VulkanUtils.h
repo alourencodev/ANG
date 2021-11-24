@@ -11,8 +11,6 @@
 namespace age::vk
 {
 
-u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryPropertyFlags properties);
-
 std::string parseVulkanError(VkResult result);
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

@@ -5,32 +5,13 @@
 namespace age::vk
 {
 
-
 constexpr char k_tag[] = "Vulkan";
-
-
-
-u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
-
-    for (u32 i = 0; i < memoryProperties.memoryTypeCount; i++) {
-        const bool hasSuitableMemTypes = typeFilter & (1 << i);
-        const bool hasSuitableProperties = (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties;
-
-        if (hasSuitableMemTypes && hasSuitableProperties)
-            return i;
-    }
-
-    age_error(k_tag, "Unable to find suitable memory type.");
-}
-
-
 
 #define AGE_VK_UTILS_CASE_TO_STR(C)  \
 case C:                 \
   return #C;			\
+
+
 
 std::string parseVulkanError(VkResult result)
 {
@@ -64,6 +45,8 @@ std::string parseVulkanError(VkResult result)
     }
 }
 #undef AGE_VK_UTILS_CASE_TO_STR
+
+
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 											 VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,

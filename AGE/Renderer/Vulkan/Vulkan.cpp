@@ -155,8 +155,7 @@ struct DrawCommand
 
 struct MeshBuffer
 {
-	VkBuffer buffer;
-	VkDeviceMemory memory;
+	Buffer buffer;
 	u32 vertexCount;
 };
 
@@ -1076,9 +1075,8 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 			vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 			const VkDeviceSize offsets[] = {0};
-			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &meshBuffer.buffer, offsets);
+			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &meshBuffer.buffer.buffer, offsets);
 
-			// TODO: Adapt this to proper meshes
 			vkCmdDraw(command.buffers[i], meshBuffer.vertexCount, 1, 0, 0);
 
 			vkCmdEndRenderPass(command.buffers[i]);
@@ -1131,44 +1129,17 @@ MeshBufferHandle createMeshBuffer(const DArray<Vertex> &vertices)
 	MeshBufferHandle handle(s_meshBufferHandleCounter);
 	s_meshBufferHandleCounter++;
 
+	const size_t bufferSize = sizeof(vertices[0]) * vertices.count();
 	MeshBuffer meshBuffer;
 	meshBuffer.vertexCount = static_cast<u32>(vertices.count());
-	const size_t bufferSize = sizeof(vertices[0]) * vertices.count();
-	
-	{	// Create Buffer
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.flags = 0;
-		bufferInfo.size = bufferSize;
-		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		AGE_VK_CHECK(vkCreateBuffer(s_context.device, &bufferInfo, nullptr, &meshBuffer.buffer));
-	}
-
-
-	{	// Allocate Buffer
-		VkMemoryRequirements memoryRequirements;
-		vkGetBufferMemoryRequirements(s_context.device, meshBuffer.buffer, &memoryRequirements);
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memoryRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(s_context.physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-		AGE_VK_CHECK(vkAllocateMemory(s_context.device, &allocInfo, nullptr, &meshBuffer.memory));
-
-		vkBindBufferMemory(s_context.device, meshBuffer.buffer, meshBuffer.memory, 0);
-	}
-
+	meshBuffer.buffer = vk::allocBuffer(s_context.physicalDevice, s_context.device, bufferSize);
 
 	{	// Fill Buffer
 		void *data;
-		vkMapMemory(s_context.device, meshBuffer.memory, 0, bufferSize, 0, &data);
+		vkMapMemory(s_context.device, meshBuffer.buffer.memory, 0, bufferSize, 0, &data);
 		memcpy(data, vertices.data(), bufferSize);
-		vkUnmapMemory(s_context.device, meshBuffer.memory);
+		vkUnmapMemory(s_context.device, meshBuffer.buffer.memory);
 	}
-
 
 	s_resources.meshBuffers.add(handle, meshBuffer);
 
@@ -1184,8 +1155,7 @@ void cleanupMeshBuffer(MeshBufferHandle &meshBufferHandle)
 	MeshBuffer &meshBuffer = s_resources.meshBuffers[meshBufferHandle];
 	s_resources.meshBuffers.remove(meshBufferHandle);
 
-	vkDestroyBuffer(s_context.device, meshBuffer.buffer, nullptr);
-	vkFreeMemory(s_context.device, meshBuffer.memory, nullptr);
+	vk::freeBuffer(s_context.device, meshBuffer.buffer);
 
 	meshBufferHandle = MeshBufferHandle::invalid();
 }

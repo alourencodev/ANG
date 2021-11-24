@@ -5,6 +5,8 @@
 #include <Core/Math/Vec3.hpp>
 #include <Core/StackArray.hpp>
 
+#include <AGE/Renderer/Vulkan/VulkanMemory.h>
+
 struct GLFWwindow;
 
 namespace age::vk

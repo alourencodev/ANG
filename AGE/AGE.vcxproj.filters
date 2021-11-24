@@ -37,6 +37,9 @@
     <ClCompile Include="Renderer\Vulkan\Vulkan.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Vulkan\VulkanMemory.cpp">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGEAPI.hpp">
@@ -68,6 +71,9 @@
     </ClInclude>
     <ClInclude Include="Shaders\meshCore.vert.glsl">
       <Filter>Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VulkanMemory.h">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

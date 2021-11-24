@@ -160,6 +160,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Vulkan\Vulkan.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VulkanMemory.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp" />
     <ClCompile Include="Systems\CommandSystem.cpp" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClInclude Include="AGEAPI.hpp" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
+    <ClInclude Include="Renderer\Vulkan\VulkanMemory.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />
     <ClInclude Include="Shaders\meshCore.frag.glsl" />
     <ClInclude Include="Shaders\meshCore.vert.glsl" />
