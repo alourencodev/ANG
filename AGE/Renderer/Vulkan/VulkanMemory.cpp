@@ -30,7 +30,7 @@ u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryProp
 
 
 
-Buffer allocBuffer(const Context &context, size_t size)
+Buffer allocBuffer(const Context &context, size_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
 {
 	Buffer buffer;
 
@@ -39,7 +39,7 @@ Buffer allocBuffer(const Context &context, size_t size)
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.flags = 0;
 		bufferInfo.size = size;
-		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		AGE_VK_CHECK(vkCreateBuffer(context.device, &bufferInfo, nullptr, &buffer.buffer));
@@ -53,14 +53,68 @@ Buffer allocBuffer(const Context &context, size_t size)
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memoryRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(context.physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		allocInfo.memoryTypeIndex = findMemoryType(context.physicalDevice, memoryRequirements.memoryTypeBits, properties);
 
+		// TODO: Have a custom allocator
 		AGE_VK_CHECK(vkAllocateMemory(context.device, &allocInfo, nullptr, &buffer.memory));
 
 		vkBindBufferMemory(context.device, buffer.buffer, buffer.memory, 0);
 	}
 
 	return buffer;
+}
+
+
+
+void copyToBuffer(const Context &context, Buffer &buffer, const void *srcData, size_t size)
+{
+	Buffer stagingBuffer = vk::allocBuffer(context, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	{	// Fill Staging Buffer
+		void *dstData;
+		vkMapMemory(context.device, stagingBuffer.memory, 0, size, 0, &dstData);
+		memcpy(dstData, srcData, size);
+		vkUnmapMemory(context.device, stagingBuffer.memory);
+	}
+
+	// Transfer Buffer to GPU
+	copyBuffer(context, stagingBuffer, buffer, size);
+	freeBuffer(context, stagingBuffer);
+}
+
+
+
+void copyBuffer(const Context &context, const Buffer &src, Buffer &dst, VkDeviceSize size)
+{
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = context.transferCommandPool;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
+	AGE_VK_CHECK(vkAllocateCommandBuffers(context.device, &allocInfo, &commandBuffer));
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	{
+		VkBufferCopy copyRegion = {};
+		copyRegion.srcOffset = 0;
+		copyRegion.dstOffset = 0;
+		copyRegion.size = size;
+		vkCmdCopyBuffer(commandBuffer, src.buffer, dst.buffer, 1, &copyRegion);
+	}
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	VkQueue transferQueue = context.queues[static_cast<u8>(e_QueueFamily::Transfer)];
+	vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(transferQueue);
 }
 
 

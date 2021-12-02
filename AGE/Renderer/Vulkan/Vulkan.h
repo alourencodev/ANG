@@ -53,7 +53,7 @@ PipelineHandle createPipeline(const PipelineCreateInfo &info);
 DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle, const MeshHandle &meshHandle);
 void cleanupDrawCommand(DrawCommandHandle &commandHandle);
 
-MeshHandle createMesh(const DArray<Vertex> &vertices);
+MeshHandle createMesh(const DArray<Vertex> &vertices, const DArray<u32> &indices);
 void cleanupMesh(MeshHandle &meshHandle);
 
 } // namespace age::vk

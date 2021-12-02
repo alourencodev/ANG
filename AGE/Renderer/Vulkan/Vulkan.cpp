@@ -404,6 +404,7 @@ void createContext()
 	{	// Create Transfer Command Pool
 		VkCommandPoolCreateInfo commandPoolInfo = {};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
 		commandPoolInfo.queueFamilyIndex = s_context.queueIndices[static_cast<i32>(e_QueueFamily::Transfer)];
 
 		AGE_VK_CHECK(vkCreateCommandPool(s_context.device, &commandPoolInfo, nullptr, &s_context.transferCommandPool));
@@ -968,9 +969,11 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 			vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 			const VkDeviceSize offsets[] = {0};
-			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &mesh.buffer.buffer, offsets);
+			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &mesh.vertexBuffer.buffer, offsets);
 
-			vkCmdDraw(command.buffers[i], mesh.vertexCount, 1, 0, 0);
+			vkCmdBindIndexBuffer(command.buffers[i], mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+
+			vkCmdDrawIndexed(command.buffers[i], mesh.indexCount, 1, 0, 0, 0);
 
 			vkCmdEndRenderPass(command.buffers[i]);
 		}
@@ -1015,23 +1018,26 @@ void cleanupDrawCommand(DrawCommandHandle &commandHandle)
 
 
 
-MeshHandle createMesh(const DArray<Vertex> &vertices)
+MeshHandle createMesh(const DArray<Vertex> &vertices, const DArray<u32> &indices)
 {
 	age_assertFatal(!vertices.isEmpty(), "Unable to create MeshBuffer with no vertices.");
 
 	MeshHandle handle(s_meshBufferHandleCounter);
 	s_meshBufferHandleCounter++;
 
-	const size_t bufferSize = sizeof(vertices[0]) * vertices.count();
 	Mesh mesh;
-	mesh.vertexCount = static_cast<u32>(vertices.count());
-	mesh.buffer = vk::allocBuffer(s_context, bufferSize);
 
-	{	// Fill Buffer
-		void *data;
-		vkMapMemory(s_context.device, mesh.buffer.memory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), bufferSize);
-		vkUnmapMemory(s_context.device, mesh.buffer.memory);
+	{	// Vertex Buffer
+		const size_t vertexBufferSize = sizeof(vertices[0]) * vertices.count();
+		mesh.vertexBuffer = vk::allocBuffer(s_context, vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		copyToBuffer(s_context, mesh.vertexBuffer, vertices.data(), vertexBufferSize);
+	}
+
+	{	// Index Buffer
+		const size_t indexBufferSize = sizeof(indices[0]) * indices.count();
+		mesh.indexBuffer = vk::allocBuffer(s_context, indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		mesh.indexCount = indices.count();
+		copyToBuffer(s_context, mesh.indexBuffer, indices.data(), indexBufferSize);
 	}
 
 	s_resources.meshMap.add(handle, mesh);
@@ -1048,7 +1054,8 @@ void cleanupMesh(MeshHandle &meshHandle)
 	Mesh &mesh = s_resources.meshMap[meshHandle];
 	s_resources.meshMap.remove(meshHandle);
 
-	vk::freeBuffer(s_context, mesh.buffer);
+	vk::freeBuffer(s_context, mesh.indexBuffer);
+	vk::freeBuffer(s_context, mesh.vertexBuffer);
 
 	meshHandle = MeshHandle::invalid();
 }

@@ -93,8 +93,9 @@ struct Buffer
 
 struct Mesh
 {
-	Buffer buffer;
-	u32 vertexCount;
+	Buffer vertexBuffer;
+	Buffer indexBuffer;
+	u64 indexCount;
 };
 
 
