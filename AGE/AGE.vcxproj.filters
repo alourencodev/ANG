@@ -75,5 +75,8 @@
     <ClInclude Include="Renderer\Vulkan\VulkanMemory.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VulkanData.h">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
