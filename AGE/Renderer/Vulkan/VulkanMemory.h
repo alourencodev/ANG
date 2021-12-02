@@ -5,14 +5,12 @@
 
 namespace age::vk
 {
-	
-struct Buffer
-{
-	VkBuffer buffer;
-	VkDeviceMemory memory;
-};
 
-Buffer allocBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size);
-void freeBuffer(VkDevice device, const Buffer &buffer);
+struct Context;
+struct Buffer;
+	
+
+Buffer allocBuffer(const Context &context, size_t size);
+void freeBuffer(const Context &context, const Buffer &buffer);
 
 }

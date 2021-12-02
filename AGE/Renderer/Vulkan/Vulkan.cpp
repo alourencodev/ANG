@@ -1025,7 +1025,7 @@ MeshHandle createMesh(const DArray<Vertex> &vertices)
 	const size_t bufferSize = sizeof(vertices[0]) * vertices.count();
 	Mesh mesh;
 	mesh.vertexCount = static_cast<u32>(vertices.count());
-	mesh.buffer = vk::allocBuffer(s_context.physicalDevice, s_context.device, bufferSize);
+	mesh.buffer = vk::allocBuffer(s_context, bufferSize);
 
 	{	// Fill Buffer
 		void *data;
@@ -1048,7 +1048,7 @@ void cleanupMesh(MeshHandle &meshHandle)
 	Mesh &mesh = s_resources.meshMap[meshHandle];
 	s_resources.meshMap.remove(meshHandle);
 
-	vk::freeBuffer(s_context.device, mesh.buffer);
+	vk::freeBuffer(s_context, mesh.buffer);
 
 	meshHandle = MeshHandle::invalid();
 }

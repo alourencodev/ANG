@@ -4,9 +4,9 @@
 
 #include <Core/BitField.hpp>
 #include <Core/DArray.hpp>
+#include <Core/HashMap.hpp>
 
 #include <AGE/Renderer/Vulkan/Vulkan.h>
-#include <AGE/Renderer/Vulkan/VulkanMemory.h>
 
 namespace age::vk
 {
@@ -80,6 +80,15 @@ struct DrawCommand
 	PipelineHandle pipeline;
 	MeshHandle mesh;
 };
+
+
+
+struct Buffer
+{
+	VkBuffer buffer;
+	VkDeviceMemory memory;
+};
+
 
 
 struct Mesh

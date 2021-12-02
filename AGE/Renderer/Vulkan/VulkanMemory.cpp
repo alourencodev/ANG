@@ -1,8 +1,10 @@
 
 #include <Core/Log/Log.h>
 
+#include <AGE/Renderer/Vulkan/VulkanData.h>
 #include <AGE/Renderer/Vulkan/VulkanMemory.h>
 #include <AGE/Renderer/Vulkan/VulkanUtils.h>
+
 
 
 namespace age::vk
@@ -28,7 +30,7 @@ u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryProp
 
 
 
-Buffer allocBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size)
+Buffer allocBuffer(const Context &context, size_t size)
 {
 	Buffer buffer;
 
@@ -40,22 +42,22 @@ Buffer allocBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size
 		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		AGE_VK_CHECK(vkCreateBuffer(device, &bufferInfo, nullptr, &buffer.buffer));
+		AGE_VK_CHECK(vkCreateBuffer(context.device, &bufferInfo, nullptr, &buffer.buffer));
 	}
 
 
 	{	// Allocate Buffer
 		VkMemoryRequirements memoryRequirements;
-		vkGetBufferMemoryRequirements(device, buffer.buffer, &memoryRequirements);
+		vkGetBufferMemoryRequirements(context.device, buffer.buffer, &memoryRequirements);
 
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memoryRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		allocInfo.memoryTypeIndex = findMemoryType(context.physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-		AGE_VK_CHECK(vkAllocateMemory(device, &allocInfo, nullptr, &buffer.memory));
+		AGE_VK_CHECK(vkAllocateMemory(context.device, &allocInfo, nullptr, &buffer.memory));
 
-		vkBindBufferMemory(device, buffer.buffer, buffer.memory, 0);
+		vkBindBufferMemory(context.device, buffer.buffer, buffer.memory, 0);
 	}
 
 	return buffer;
@@ -63,10 +65,10 @@ Buffer allocBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size
 
 
 
-void freeBuffer(VkDevice device, const Buffer &buffer)
+void freeBuffer(const Context &context, const Buffer &buffer)
 {
-	vkDestroyBuffer(device, buffer.buffer, nullptr);
-	vkFreeMemory(device, buffer.memory, nullptr);
+	vkDestroyBuffer(context.device, buffer.buffer, nullptr);
+	vkFreeMemory(context.device, buffer.memory, nullptr);
 }
 
 }
