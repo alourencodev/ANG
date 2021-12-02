@@ -88,6 +88,7 @@ enum class e_QueueFamily : u8
 {
 	Graphics,
 	Presentation,
+	Transfer,
 
 	Count
 };
@@ -173,6 +174,7 @@ struct Context
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkDevice device = VK_NULL_HANDLE;
 	VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
+	VkCommandPool transferCommandPool = VK_NULL_HANDLE;
 
 #ifdef AGE_DEBUG
 	VkDebugUtilsMessengerEXT debugMessenger;
@@ -257,6 +259,16 @@ QueueIndexBitMap getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfac
 				const u8 presentationIndex = static_cast<u8>(e_QueueFamily::Presentation);
 				queueIndices.map.set(presentationIndex);
 				queueIndices.indices[presentationIndex] = i;
+			}
+		}
+
+		// Transfer Queue
+		{
+			const VkQueueFlags queueFlags = queueFamilies[i].queueFlags;
+			if ((queueFlags & VK_QUEUE_TRANSFER_BIT) && !(queueFlags & VK_QUEUE_GRAPHICS_BIT) && !(queueFlags & VK_QUEUE_COMPUTE_BIT)) {
+				const u8 transferIndex = static_cast<u8>(e_QueueFamily::Transfer);
+				queueIndices.map.set(transferIndex);
+				queueIndices.indices[transferIndex] = i;
 			}
 		}
 	}
@@ -499,7 +511,7 @@ void createContext()
 		createInfo.enabledExtensionCount = static_cast<u32>(k_requiredExtensions.size());
 		createInfo.ppEnabledExtensionNames = k_requiredExtensions.data();
 
-		// For older versions on Vulkan, it might be necessary to also set the validation layers here.
+		// For older versions of Vulkan, it might be necessary to also set the validation layers here.
 		// Since this is not necessary at the time of this implementation, let's skip that.
 		createInfo.enabledLayerCount = 0;
 		
@@ -508,7 +520,7 @@ void createContext()
 	}
 
 
-	{	// Create Command Pool
+	{	// Create Graphics Command Pool
 		VkCommandPoolCreateInfo commandPoolInfo = {};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		commandPoolInfo.queueFamilyIndex = s_context.queueIndices[static_cast<i32>(e_QueueFamily::Graphics)];
@@ -516,6 +528,17 @@ void createContext()
 		AGE_VK_CHECK(vkCreateCommandPool(s_context.device, &commandPoolInfo, nullptr, &s_context.graphicsCommandPool));
 
 		age_log(k_tag, "Created Graphics Command Pool");
+	}
+
+
+	{	// Create Transfer Command Pool
+		VkCommandPoolCreateInfo commandPoolInfo = {};
+		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolInfo.queueFamilyIndex = s_context.queueIndices[static_cast<i32>(e_QueueFamily::Transfer)];
+
+		AGE_VK_CHECK(vkCreateCommandPool(s_context.device, &commandPoolInfo, nullptr, &s_context.transferCommandPool));
+
+		age_log(k_tag, "Created Transfer Command Pool");
 	}
 
 
@@ -531,6 +554,7 @@ void cleanupContext()
 {
 	age_log(k_tag, "Cleaning up Context");
 
+	vkDestroyCommandPool(s_context.device, s_context.transferCommandPool, nullptr);
 	vkDestroyCommandPool(s_context.device, s_context.graphicsCommandPool, nullptr);
 	vkDestroyDevice(s_context.device, nullptr);
 
@@ -595,9 +619,6 @@ void createRenderEnvironment()
 		constexpr u32 k_extraSwapchainImages = 1;
 
 		u32 imageCount = capabilities.minImageCount + k_extraSwapchainImages;
-		u32 presentationQueueIndex = s_context.queueIndices[static_cast<u32>(e_QueueFamily::Presentation)];
-		u32 graphicsQueueIndex = s_context.queueIndices[static_cast<u32>(e_QueueFamily::Graphics)];
-		SArray<u32, 2> swapchainQueueIndices = {presentationQueueIndex, graphicsQueueIndex};
 
 		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount) {
 			age_warning(k_tag, "Trying to have more swapchain images than what is allowed. SwapChain images count will be clamped to the allowed maximum.");
@@ -621,10 +642,12 @@ void createRenderEnvironment()
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
+		u32 presentationQueueIndex = s_context.queueIndices[static_cast<u32>(e_QueueFamily::Presentation)];
+		u32 graphicsQueueIndex = s_context.queueIndices[static_cast<u32>(e_QueueFamily::Graphics)];
 		if (presentationQueueIndex != graphicsQueueIndex) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = static_cast<u32>(swapchainQueueIndices.size());
-			createInfo.pQueueFamilyIndices = swapchainQueueIndices.data();
+			createInfo.queueFamilyIndexCount = static_cast<u32>(s_context.queueIndices.size());
+			createInfo.pQueueFamilyIndices = s_context.queueIndices.data();
 		} else {
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			createInfo.queueFamilyIndexCount = 0;
@@ -806,7 +829,7 @@ void cleanupResources()
 
 		s_resources.shaders.clear();
 	}
-	
+
 
 	{	// Cleanup Pipelines
 		age_log(k_tag, "Cleaning up pipelines.");
