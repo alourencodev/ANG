@@ -161,6 +161,7 @@
     <ClInclude Include="Memory\Allocator.hpp" />
     <ClInclude Include="Meta.hpp" />
     <ClInclude Include="NonCopyable.hpp" />
+    <ClInclude Include="Pair.hpp" />
     <ClInclude Include="Platform.hpp" />
     <ClInclude Include="Range.hpp" />
     <ClInclude Include="SArray.hpp" />

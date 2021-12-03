@@ -97,6 +97,9 @@
     <ClInclude Include="Handle.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Pair.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">
