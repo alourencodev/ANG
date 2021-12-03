@@ -40,7 +40,7 @@ void Renderer::init(GLFWwindow *window)
 	vk::PipelineCreateInfo info = {};
 	info.shaders.add(vertexShader);
 	info.shaders.add(fragmentShader);
-	vk::PipelineHandle pipelineHandle = vk::createPipeline(info);
+	vk::MeshPipelineHandle pipelineHandle = vk::createMeshPipeline(info);
 
 	testMeshBuffer = vk::createMesh(vertices, indices);
 	testDrawCommand = vk::createDrawCommand(pipelineHandle, testMeshBuffer);

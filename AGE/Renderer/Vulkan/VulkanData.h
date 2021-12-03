@@ -63,6 +63,11 @@ struct Shader
 
 
 
+/*
+* @brief		Base struct for a vulkan Pipeline.
+*			Pipelines have the same info, but are created with different parameters.
+*			We have multiple sub structs of Pipeline (e.g. MeshPipeline) to keep type safety.
+*/
 struct Pipeline
 {
 	VkPipelineLayout layout = {};
@@ -74,10 +79,19 @@ struct Pipeline
 
 
 
+/*
+* @brief A specific pipeline for a 3D mesh
+*/
+struct MeshPipeline : public Pipeline
+{
+};
+
+
+
 struct DrawCommand
 {
 	DArray<VkCommandBuffer> buffers;
-	PipelineHandle pipeline;
+	MeshPipelineHandle pipeline;
 	MeshHandle mesh;
 };
 
@@ -147,7 +161,7 @@ struct RenderEnvironment
 struct Resources
 {
 	DArray<Shader> shaders;
-	DArray<Pipeline> pipelines;
+	DArray<MeshPipeline> meshPipelines;
 	HashMap<u32, DrawCommand> drawCommandMap;
 	HashMap<u32, Mesh> meshMap;
 };

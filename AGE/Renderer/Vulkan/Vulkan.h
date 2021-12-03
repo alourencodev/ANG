@@ -11,7 +11,7 @@ namespace age::vk
 {
 
 DECLARE_HANDLE(ShaderHandle);
-DECLARE_HANDLE(PipelineHandle);
+DECLARE_HANDLE(MeshPipelineHandle);
 DECLARE_HANDLE(DrawCommandHandle);
 DECLARE_HANDLE(MeshHandle);
 
@@ -48,9 +48,9 @@ void draw(const DrawCommandHandle &commandHandle);
 void waitForFramesToFinish();
 
 ShaderHandle createShader(e_ShaderStage shaderStage, const char *path);
-PipelineHandle createPipeline(const PipelineCreateInfo &info);
+MeshPipelineHandle createMeshPipeline(const PipelineCreateInfo &info);
 
-DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle, const MeshHandle &meshHandle);
+DrawCommandHandle createDrawCommand(const MeshPipelineHandle &pipelineHandle, const MeshHandle &meshHandle);
 void cleanupDrawCommand(DrawCommandHandle &commandHandle);
 
 MeshHandle createMesh(const DArray<Vertex> &vertices, const DArray<u32> &indices);

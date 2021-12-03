@@ -705,10 +705,10 @@ void cleanupResources()
 	{	// Cleanup Pipelines
 		age_log(k_tag, "Cleaning up pipelines.");
 
-		for (const Pipeline &pipeline : s_resources.pipelines)
+		for (const Pipeline &pipeline : s_resources.meshPipelines)
 			cleanupPipeline(pipeline);
 
-		s_resources.pipelines.clear();
+		s_resources.meshPipelines.clear();
 	}
 }
 
@@ -787,12 +787,12 @@ VkPipelineShaderStageCreateInfo createShaderStage(const Shader &shader)
 
 
 
-Pipeline createPipelineInternal(const PipelineCreateInfo &info)
+MeshPipeline createMeshPipelineInternal(const PipelineCreateInfo &info)
 {
 	// TODO: Be more clear about what Pipeline are we making as soon as it gets a name
 	age_log(k_tag, "Creating Vulkan Pipeline.");
 
-	Pipeline pipeline = {};
+	MeshPipeline pipeline = {};
 	pipeline.createInfo = info;
 
 	// Create Shader Stages
@@ -910,17 +910,17 @@ Pipeline createPipelineInternal(const PipelineCreateInfo &info)
 
 
 
-PipelineHandle createPipeline(const PipelineCreateInfo &info)
+MeshPipelineHandle createMeshPipeline(const PipelineCreateInfo &info)
 {
-	PipelineHandle handle(static_cast<u32>(s_resources.pipelines.count()));
-	s_resources.pipelines.add(createPipelineInternal(info));
+	MeshPipelineHandle handle(static_cast<u32>(s_resources.meshPipelines.count()));
+	s_resources.meshPipelines.add(createMeshPipelineInternal(info));
 
 	return handle;
 }
 
 
 
-DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, const MeshHandle &meshHandle)
+DrawCommand createDrawCommandInternal(const MeshPipelineHandle &pipelineHandle, const MeshHandle &meshHandle)
 {
 	age_assertFatal(pipelineHandle.isValid(), "Trying to create a draw command with an invalid pipeline handle.");
 
@@ -929,7 +929,7 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 
 	// TODO: Make the clear color configurable
 	VkClearValue clearColor = {{{0.2f, 0.2f, 0.2f, 1.0f}}};
-	VkPipeline pipeline = s_resources.pipelines[pipelineHandle].pipeline;
+	VkPipeline pipeline = s_resources.meshPipelines[pipelineHandle].pipeline;
 
 	const u32 bufferCount = static_cast<u32>(s_environment.framebuffers.count());
 
@@ -986,7 +986,7 @@ DrawCommand createDrawCommandInternal(const PipelineHandle &pipelineHandle, cons
 
 
 
-DrawCommandHandle createDrawCommand(const PipelineHandle &pipelineHandle, const MeshHandle &meshHandle)
+DrawCommandHandle createDrawCommand(const MeshPipelineHandle &pipelineHandle, const MeshHandle &meshHandle)
 {
 	DrawCommandHandle handle(s_drawCommandHandleCounter);
 	s_drawCommandHandleCounter++;
@@ -1071,10 +1071,10 @@ void recreateRenderEnvironment()
 	cleanupRenderEnvironment();
 	createRenderEnvironment();
 
-	// Recreate Pipelines
-	for (Pipeline &pipeline : s_resources.pipelines) {
-		cleanupPipeline(pipeline);
-		pipeline = createPipelineInternal(pipeline.createInfo);
+	// Recreate MeshPipelines
+	for (MeshPipeline &meshPipeline : s_resources.meshPipelines) {
+		cleanupPipeline(meshPipeline);
+		meshPipeline = createMeshPipelineInternal(meshPipeline.createInfo);
 	}
 
 	// Recreate DrawCommands
