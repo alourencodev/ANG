@@ -66,15 +66,20 @@ Buffer allocBuffer(const Context &context, size_t size, VkBufferUsageFlags usage
 
 
 
-void copyToBuffer(const Context &context, Buffer &buffer, const void *srcData, size_t size)
+void writeToBuffer(const Context &context, const Buffer &buffer, const void *data, size_t size)
+{
+	void *dstData;
+	vkMapMemory(context.device, buffer.memory, 0, size, 0, &dstData);
+	memcpy(dstData, data, size);
+	vkUnmapMemory(context.device, buffer.memory);
+}
+
+
+
+void stageBuffer(const Context &context, const Buffer &buffer, const void *srcData, size_t size)
 {
 	Buffer stagingBuffer = vk::allocBuffer(context, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	{	// Fill Staging Buffer
-		void *dstData;
-		vkMapMemory(context.device, stagingBuffer.memory, 0, size, 0, &dstData);
-		memcpy(dstData, srcData, size);
-		vkUnmapMemory(context.device, stagingBuffer.memory);
-	}
+	writeToBuffer(context, stagingBuffer, srcData, size);
 
 	// Transfer Buffer to GPU
 	copyBuffer(context, stagingBuffer, buffer, size);
@@ -83,7 +88,7 @@ void copyToBuffer(const Context &context, Buffer &buffer, const void *srcData, s
 
 
 
-void copyBuffer(const Context &context, const Buffer &src, Buffer &dst, VkDeviceSize size)
+void copyBuffer(const Context &context, const Buffer &src, const Buffer &dst, VkDeviceSize size)
 {
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

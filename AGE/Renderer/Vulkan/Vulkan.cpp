@@ -1030,14 +1030,14 @@ MeshHandle createMesh(const DArray<Vertex> &vertices, const DArray<u32> &indices
 	{	// Vertex Buffer
 		const size_t vertexBufferSize = sizeof(vertices[0]) * vertices.count();
 		mesh.vertexBuffer = vk::allocBuffer(s_context, vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		copyToBuffer(s_context, mesh.vertexBuffer, vertices.data(), vertexBufferSize);
+		writeToBuffer(s_context, mesh.vertexBuffer, vertices.data(), vertexBufferSize);
 	}
 
 	{	// Index Buffer
 		const size_t indexBufferSize = sizeof(indices[0]) * indices.count();
 		mesh.indexBuffer = vk::allocBuffer(s_context, indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		mesh.indexCount = indices.count();
-		copyToBuffer(s_context, mesh.indexBuffer, indices.data(), indexBufferSize);
+		writeToBuffer(s_context, mesh.indexBuffer, indices.data(), indexBufferSize);
 	}
 
 	s_resources.meshMap.add(handle, mesh);
