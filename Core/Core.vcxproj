@@ -169,6 +169,7 @@
     <ClInclude Include="StringMap.hpp" />
     <ClInclude Include="StringView.hpp" />
     <ClInclude Include="Types.hpp" />
+    <ClInclude Include="Version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="File.cpp" />
