@@ -160,6 +160,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Vulkan\Vulkan.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VulkanContext.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanMemory.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp" />
     <ClCompile Include="Systems\CommandSystem.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="AGE.hpp" />
     <ClInclude Include="AGEAPI.hpp" />
     <ClInclude Include="Renderer\Renderer.h" />
+    <ClInclude Include="Renderer\Vulkan\VulkanContext.h" />
     <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanData.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanMemory.h" />
