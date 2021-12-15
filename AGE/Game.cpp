@@ -92,7 +92,7 @@ void Game::Run(int argc, char *argv[])
 	while(!glfwWindowShouldClose(_window)) {
 		glfwPollEvents();
 		update();
-		Renderer::s_inst.update();
+		Renderer::s_inst.draw();
 	}
 
 	age_log(k_tag, "Starting Game Cleanup.");

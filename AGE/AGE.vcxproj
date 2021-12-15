@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VulkanFrameSync.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanRenderTarget.cpp" />
     <ClCompile Include="Renderer\Vulkan\Vulkan.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanContext.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Renderer\Vulkan\VulkanContext.h" />
     <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanData.h" />
+    <ClInclude Include="Renderer\Vulkan\VulkanFrameSync.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanMemory.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanPhysicalDevice.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanRenderTarget.h" />

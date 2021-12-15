@@ -18,6 +18,7 @@ struct Swapchain
 	VkAllocationCallbacks *allocator = nullptr;
 	DArray<VkImage> images = {};
 	DArray<VkImageView> imageViews = {};
+	DArray<VkFence> imageInFlightFences = {};
 	VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 	VkFormat format = VK_FORMAT_UNDEFINED;
 	VkExtent2D extent = {0, 0};

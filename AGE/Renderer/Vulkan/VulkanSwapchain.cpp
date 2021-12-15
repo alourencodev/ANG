@@ -11,41 +11,6 @@ constexpr const char k_tag[] = "VulkanBootstrap";
 
 
 
-struct SurfaceData
-{
-	VkSurfaceCapabilitiesKHR capabilities;
-	DArray<VkSurfaceFormatKHR> formats;
-	DArray<VkPresentModeKHR> presentMode;
-};
-
-
-
-SurfaceData getSurfaceData(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
-{
-	SurfaceData details;
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
-
-	u32 formatCount = 0;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
-	if (formatCount > 0) {
-		details.formats.reserve(formatCount);
-		details.formats.addEmpty(formatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
-	}
-
-	u32 presentModesCount = 0;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, nullptr);
-	if (presentModesCount > 0) {
-		details.presentMode.reserve(presentModesCount);
-		details.presentMode.addEmpty(presentModesCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, details.presentMode.data());
-	}
-
-	return details;
-}
-
-
-
 void createSwapchainInternal(const Context &context, const SwapchainCreateInfo &info, Swapchain &swapchain)
 {
 	SurfaceData surfaceData = getSurfaceData(context.physicalDevice, context.surface);
@@ -95,33 +60,38 @@ void createSwapchainInternal(const Context &context, const SwapchainCreateInfo &
 
 	age_log(k_tag, "Using %d swapchain images.", minImageCount);
 
-	VkSwapchainCreateInfoKHR createInfo;
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.pNext = nullptr;
-	createInfo.flags = 0;
-	createInfo.surface = context.surface;
-	createInfo.minImageCount = minImageCount;
-	createInfo.imageFormat = swapchain.format;
-	createInfo.imageColorSpace = colorSpace;
-	createInfo.imageExtent = swapchain.extent;
-	createInfo.imageArrayLayers = 1;
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	createInfo.preTransform = capabilities.currentTransform;
-	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	createInfo.presentMode = presentMode;
-	createInfo.clipped = VK_TRUE;
-	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	u32 presentationQueueIndex = context.queueIndices[static_cast<u32>(EQueueFamily::Presentation)];
-	u32 graphicsQueueIndex = context.queueIndices[static_cast<u32>(EQueueFamily::Graphics)];
-	if (presentationQueueIndex != graphicsQueueIndex) {
-		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		createInfo.queueFamilyIndexCount = static_cast<u32>(context.queueIndices.size());
-		createInfo.pQueueFamilyIndices = context.queueIndices.data();
-	} else {
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		createInfo.queueFamilyIndexCount = 0;
-		createInfo.pQueueFamilyIndices = nullptr;
+	{	// Create Swapchain
+		VkSwapchainCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.pNext = nullptr;
+		createInfo.flags = 0;
+		createInfo.surface = context.surface;
+		createInfo.minImageCount = minImageCount;
+		createInfo.imageFormat = swapchain.format;
+		createInfo.imageColorSpace = colorSpace;
+		createInfo.imageExtent = swapchain.extent;
+		createInfo.imageArrayLayers = 1;
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.preTransform = capabilities.currentTransform;
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode = presentMode;
+		createInfo.clipped = VK_TRUE;
+		createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+		u32 presentationQueueIndex = context.queueIndices[static_cast<u32>(EQueueFamily::Presentation)];
+		u32 graphicsQueueIndex = context.queueIndices[static_cast<u32>(EQueueFamily::Graphics)];
+		if (presentationQueueIndex != graphicsQueueIndex) {
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.queueFamilyIndexCount = static_cast<u32>(context.queueIndices.size());
+			createInfo.pQueueFamilyIndices = context.queueIndices.data();
+		} else {
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			createInfo.queueFamilyIndexCount = 0;
+			createInfo.pQueueFamilyIndices = nullptr;
+		}
+
+		AGE_VK_CHECK(vkCreateSwapchainKHR(context.device, &createInfo, swapchain.allocator, &swapchain.swapchain));
 	}
 
 
@@ -133,8 +103,8 @@ void createSwapchainInternal(const Context &context, const SwapchainCreateInfo &
 		vkGetSwapchainImagesKHR(context.device, swapchain.swapchain, &imageCount, swapchain.images.data());
 	}
 
+	swapchain.imageInFlightFences.resizeWithValue(swapchain.images.count(), VK_NULL_HANDLE);
 
-	AGE_VK_CHECK(vkCreateSwapchainKHR(context.device, &createInfo, swapchain.allocator, &swapchain.swapchain));
 	age_log(k_tag, "Swapchain created.");
 }
 

@@ -52,6 +52,9 @@
     <ClCompile Include="Renderer\Vulkan\VulkanRenderTarget.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Vulkan\VulkanFrameSync.cpp">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGEAPI.hpp">
@@ -100,6 +103,9 @@
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Vulkan\VulkanRenderTarget.h">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VulkanFrameSync.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

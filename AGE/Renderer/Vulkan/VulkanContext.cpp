@@ -12,7 +12,7 @@ namespace age::vk
 
 constexpr const char k_tag[] = "VulkanBootstrap";
 
-static const SArray<const char *, 1> k_requiredExtensions = {
+static const SArray<const char *, 1> k_deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
@@ -192,8 +192,8 @@ Context createContext(const ContextCreateInfo &info)
 		age_log(k_tag, "Created Window Surface.");
 	}
 
-	selectPhysicalDevice(context, extensions);
-	createDevice(context, extensions);
+	selectPhysicalDevice(context, k_deviceExtensions);
+	createDevice(context, k_deviceExtensions);
 	createCommandPools(context);
 
 	{	// Store Queue Handles

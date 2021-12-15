@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <Core/DArray.hpp>
 #include <Core/Log/Log.h>
 #include <Core/Types.hpp>
 
@@ -11,12 +12,29 @@
 namespace age::vk
 {
 
+
+
+struct SurfaceData
+{
+	VkSurfaceCapabilitiesKHR capabilities;
+	DArray<VkSurfaceFormatKHR> formats;
+	DArray<VkPresentModeKHR> presentMode;
+};
+
+
+
 std::string parseVulkanError(VkResult result);
+
+
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 											 VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
 											 const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
 											 void */*userData*/);
+
+
+
+SurfaceData getSurfaceData(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
 
 }
 
@@ -29,7 +47,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
 {																																		\
 	VkResult vkCheckResult = exp;																										\
 	if (vkCheckResult != VK_SUCCESS)																									\
-		age_error("Vulkan", "Vulkan check failed for expression (" #exp ") with error %s", parseVulkanError(vkCheckResult).c_str());	\
+		age_error("Vulkan", "Vulkan check failed for expression (" #exp ") with error %s", vk::parseVulkanError(vkCheckResult).c_str());	\
 }
 #endif
 

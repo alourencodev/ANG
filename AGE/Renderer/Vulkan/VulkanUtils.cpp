@@ -66,4 +66,30 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
 	return VK_FALSE;
 }
 
+
+
+SurfaceData getSurfaceData(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+{
+	SurfaceData details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
+
+	u32 formatCount = 0;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+	if (formatCount > 0) {
+		details.formats.reserve(formatCount);
+		details.formats.addEmpty(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
+	}
+
+	u32 presentModesCount = 0;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, nullptr);
+	if (presentModesCount > 0) {
+		details.presentMode.reserve(presentModesCount);
+		details.presentMode.addEmpty(presentModesCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, details.presentMode.data());
+	}
+
+	return details;
 }
+
+}	// namesapce age::vk
