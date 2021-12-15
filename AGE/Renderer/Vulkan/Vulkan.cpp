@@ -22,7 +22,7 @@ constexpr u8 k_maxFramesInFlight = 2;
 
 
 
-static const SArray<const char *, 1> k_requiredExtensions = {
+static const SArray<const char *, 1> k_deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
@@ -37,24 +37,6 @@ static const SArray<const char *, 1> k_debugExtensions = {
 };
 
 #endif	// AGE_DEBUG
-
-
-
-DArray<const char *> getRequiredExtensions()
-{
-	DArray<const char *> extensions;
-
-	u32 glfwExtensionCount = 0;
-	const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-	extensions.reserve(glfwExtensionCount IF_DEBUG(+ k_debugExtensions.size()));
-
-#ifdef AGE_DEBUG
-	extensions.add(k_debugExtensions);
-#endif
-	extensions.add(glfwExtensions, glfwExtensionCount);
-
-	return extensions;
-}
 
 
 
@@ -99,58 +81,9 @@ static u32 s_meshBufferHandleCounter = 0;
 
 
 
-QueueIndexBitMap getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+SurfaceData_Legacy getSurfaceData_Legacy(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
 {
-	u32 queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-	DArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	queueFamilies.addEmpty(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
-
-	QueueIndexBitMap queueIndices;
-	for (u32 i = 0; i < queueFamilies.count(); i++) {
-
-		// Graphics Queue
-		{
-			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-				const u8 graphicsIndex = static_cast<u8>(e_QueueFamily::Graphics);
-				queueIndices.map.set(graphicsIndex);
-				queueIndices.indices[graphicsIndex] = i;
-			}
-		}
-
-		// Presentation Queue
-		{
-			VkBool32 supportsPresentation = false;
-			AGE_VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportsPresentation));
-
-			if (supportsPresentation) {
-				const u8 presentationIndex = static_cast<u8>(e_QueueFamily::Presentation);
-				queueIndices.map.set(presentationIndex);
-				queueIndices.indices[presentationIndex] = i;
-			}
-		}
-
-		// Transfer Queue
-		{
-			const VkQueueFlags queueFlags = queueFamilies[i].queueFlags;
-			if ((queueFlags & VK_QUEUE_TRANSFER_BIT) && !(queueFlags & VK_QUEUE_GRAPHICS_BIT) && !(queueFlags & VK_QUEUE_COMPUTE_BIT)) {
-				const u8 transferIndex = static_cast<u8>(e_QueueFamily::Transfer);
-				queueIndices.map.set(transferIndex);
-				queueIndices.indices[transferIndex] = i;
-			}
-		}
-	}
-
-	return queueIndices;
-}
-
-
-
-SurfaceData getSurfaceData(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
-{
-	SurfaceData details;
+	SurfaceData_Legacy details;
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
 
 	u32 formatCount = 0;
@@ -174,7 +107,7 @@ SurfaceData getSurfaceData(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface
 
 
 
-bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndexBitMap &queueIndexBitMap, const SurfaceData &swapChainDetails)
+bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndexBitMap &queueIndexBitMap, const SurfaceData_Legacy &swapChainDetails)
 {
 	// CheckRequiredQueueFamilies
 	if (!queueIndexBitMap.map.isSetBelow(static_cast<u8>(e_QueueFamily::Count)))
@@ -188,7 +121,7 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice, const QueueIndexBitMap 
 		availableExtensions.addEmpty(extensionCount);
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
-		DArray<const char *> missingRequiredExtensions(k_requiredExtensions);
+		DArray<const char *> missingRequiredExtensions(k_deviceExtensions);
 		for (const auto &extension : availableExtensions) {
 			for (int i = 0; i < missingRequiredExtensions.count(); i++) {
 				if (strcmp(missingRequiredExtensions[i], extension.extensionName) == 0) {
@@ -222,8 +155,8 @@ VkPhysicalDevice pickPhysicalDevice(const DArray<VkPhysicalDevice> &candidates, 
 		VkPhysicalDeviceProperties properties;
 		vkGetPhysicalDeviceProperties(candidate, &properties);
 		
-		QueueIndexBitMap queueIndexBitMap = getDeviceQueueIndices(candidate, surface);
-		SurfaceData swapChainDetails = getSurfaceData(candidate, surface);
+		QueueIndexBitMap queueIndexBitMap;
+		SurfaceData_Legacy swapChainDetails = getSurfaceData_Legacy(candidate, surface);
 		if (!isDeviceCompatible(candidate, queueIndexBitMap, swapChainDetails))
 			continue;
 
@@ -273,7 +206,7 @@ void destroyFrameData(FrameSyncData &frameData)
 
 void createContext()
 {
-	const auto extensions = getRequiredExtensions();
+	const DArray<const char *> extensions = {};	/* getRequiredExtensions()*/
 
 	{	// Create Instance
 		VkApplicationInfo appInfo;
@@ -378,8 +311,8 @@ void createContext()
 		createInfo.pQueueCreateInfos = queueCreateInfoArray.data();
 		createInfo.queueCreateInfoCount = static_cast<u32>(queueCreateInfoArray.count());
 		createInfo.pEnabledFeatures = nullptr;	// TODO: Assign
-		createInfo.enabledExtensionCount = static_cast<u32>(k_requiredExtensions.size());
-		createInfo.ppEnabledExtensionNames = k_requiredExtensions.data();
+		createInfo.enabledExtensionCount = static_cast<u32>(k_deviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = k_deviceExtensions.data();
 
 		// For older versions of Vulkan, it might be necessary to also set the validation layers here.
 		// Since this is not necessary at the time of this implementation, let's skip that.
@@ -448,7 +381,7 @@ void createRenderEnvironment()
 	VkFormat swapchainFormat = VK_FORMAT_UNDEFINED;
 
 	{	// Create Swapchain
-		SurfaceData surfaceData = getSurfaceData(s_context.physicalDevice, s_context.surface);
+		SurfaceData_Legacy surfaceData = getSurfaceData_Legacy(s_context.physicalDevice, s_context.surface);
 		const VkSurfaceCapabilitiesKHR &capabilities = surfaceData.capabilities;
 
 		VkColorSpaceKHR colorSpace;

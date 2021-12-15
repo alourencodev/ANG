@@ -46,7 +46,7 @@ struct FrameSyncData
 
 
 
-struct SurfaceData
+struct SurfaceData_Legacy
 {
 	VkSurfaceCapabilitiesKHR capabilities;
 	DArray<VkSurfaceFormatKHR> formats;
