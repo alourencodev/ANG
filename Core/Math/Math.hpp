@@ -78,7 +78,7 @@ _force_inline bool approx(float a, float b)
 }
 
 
-_force_inline constexpr byte indexToByte(u8 index) 
+_force_inline constexpr u8 indexToByte(u8 index) 
 { 
 	return 1 << index; 
 }

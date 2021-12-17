@@ -16,6 +16,6 @@ using u32 = uint32_t;
 using u64 = uint64_t;
 
 // Other
-using byte = u8;
+using byte = char;
 using f32 = float;
 using f64 = double;

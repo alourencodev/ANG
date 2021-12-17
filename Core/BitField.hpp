@@ -12,7 +12,7 @@ class BitField
 {
 public:
 	BitField() = default;
-	BitField(byte field) : _field(field) {}
+	BitField(u8 field) : _field(field) {}
 	BitField(const BitField &other) : _field(other._field) {}
 
 	void setAll() { _field = 0xFF; }
@@ -37,16 +37,16 @@ public:
 	void operator ^= (BitField other) { _field ^= other._field; }
 
 	bool operator == (BitField other) { return _field == other._field; }
-	bool operator == (byte field) { return _field == field; }
+	bool operator == (u8 field) { return _field == field; }
 
 	BitField operator << (i32 offset) { return BitField(_field << offset); }
 	BitField operator >> (i32 offset) { return BitField(_field >> offset); }
 	BitField operator ~ () const { return BitField(~_field); }
 
-	operator byte () const { return _field; }
+	operator u8 () const { return _field; }
 
 private:
-	byte _field = 0x00;
+	u8 _field = 0x00;
 };
 
 } // namespace age
