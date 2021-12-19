@@ -163,7 +163,6 @@
     <ClCompile Include="Renderer\Vulkan\VulkanMesh.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanPipeline.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanRenderTarget.cpp" />
-    <ClCompile Include="Renderer\Vulkan\Vulkan.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanContext.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanMemory.cpp" />
     <ClCompile Include="Renderer\Vulkan\VulkanPhysicalDevice.cpp" />
@@ -178,8 +177,6 @@
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Vertex.hpp" />
     <ClInclude Include="Renderer\Vulkan\VulkanContext.h" />
-    <ClInclude Include="Renderer\Vulkan\Vulkan.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanData.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanFrameSync.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanMemory.h" />
     <ClInclude Include="Renderer\Vulkan\VulkanMesh.h" />
