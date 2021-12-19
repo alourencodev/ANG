@@ -142,7 +142,7 @@ public:
 	void addEmpty(size_t count = 1)
 	{
 		age_assertFatal(count > 0, "Cannot add 0 empty elements.");
-		age_assertFatal((_count + count) < t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
+		age_assertFatal((_count + count) <= t_maxSize, "StackArray overflow. Array can only take %d elements", t_maxSize);
 		_count += count;
 	}
 
