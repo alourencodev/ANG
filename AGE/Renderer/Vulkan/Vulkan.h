@@ -10,7 +10,7 @@ struct GLFWwindow;
 namespace age::vk
 {
 
-DECLARE_HANDLE(ShaderHandle);
+DECLARE_HANDLE(ShaderHandle_Legacy);
 DECLARE_HANDLE(MeshPipelineHandle);
 DECLARE_HANDLE(DrawCommandHandle);
 DECLARE_HANDLE(MeshHandle);
@@ -32,11 +32,11 @@ struct Vertex
 
 
 
-using ShaderArray = StackArray<ShaderHandle, static_cast<u32>(e_ShaderStage::Count)>;
+using ShaderHandleArray_Legacy = StackArray<ShaderHandle_Legacy, static_cast<u32>(e_ShaderStage::Count)>;
 
-struct PipelineCreateInfo
+struct PipelineCreateInfo_Legacy
 {
-	ShaderArray shaders;
+	ShaderHandleArray_Legacy shaders;
 };
 
 
@@ -47,8 +47,8 @@ void recreateRenderEnvironment();
 void draw(const DrawCommandHandle &commandHandle);
 void waitForFramesToFinish();
 
-ShaderHandle createShader(e_ShaderStage shaderStage, const char *path);
-MeshPipelineHandle createMeshPipeline(const PipelineCreateInfo &info);
+ShaderHandle_Legacy createShader(e_ShaderStage shaderStage, const char *path);
+MeshPipelineHandle createMeshPipeline(const PipelineCreateInfo_Legacy &info);
 
 DrawCommandHandle createDrawCommand(const MeshPipelineHandle &pipelineHandle, const MeshHandle &meshHandle);
 void cleanupDrawCommand(DrawCommandHandle &commandHandle);

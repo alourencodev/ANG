@@ -623,7 +623,6 @@ void cleanupResources()
 {
 	// Check if resources that are owned externally were cleaned.
 	age_assertFatal(s_resources.drawCommandMap.isEmpty(), "Resources are being cleaned, but %d drawCommands still exist. Every drawCommand should be cleaned.", s_resources.drawCommandMap.count());
-	age_assertFatal(s_resources.meshMap.isEmpty(), "Resources are being cleaned, but %d meshBuffers still exist. Every meshBuffer should be cleaned.", s_resources.meshMap.count());
 
 	{	// Cleanup Shaders
 		age_log(k_tag, "Cleaning up shaders.");
@@ -665,7 +664,7 @@ void cleanup()
 
 
 
-ShaderHandle createShader(e_ShaderStage shaderStage, const char *path)
+ShaderHandle_Legacy createShader(e_ShaderStage shaderStage, const char *path)
 {
 	age_log(k_tag, "Creating shader from %s", path);
 
@@ -697,7 +696,7 @@ ShaderHandle createShader(e_ShaderStage shaderStage, const char *path)
 		}
 	}
 
-	ShaderHandle handle(static_cast<u32>(s_resources.shaders.count()));
+	ShaderHandle_Legacy handle(static_cast<u32>(s_resources.shaders.count()));
 	s_resources.shaders.add(shader);
 
 	return handle;
@@ -705,7 +704,7 @@ ShaderHandle createShader(e_ShaderStage shaderStage, const char *path)
 
 
 
-VkPipelineShaderStageCreateInfo createShaderStage(const Shader &shader)
+VkPipelineShaderStageCreateInfo createShaderStage_Legacy(const Shader &shader)
 {
 	VkPipelineShaderStageCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -720,7 +719,7 @@ VkPipelineShaderStageCreateInfo createShaderStage(const Shader &shader)
 
 
 
-MeshPipeline createMeshPipelineInternal(const PipelineCreateInfo &info)
+MeshPipeline createMeshPipelineInternal(const PipelineCreateInfo_Legacy &info)
 {
 	// TODO: Be more clear about what Pipeline are we making as soon as it gets a name
 	age_log(k_tag, "Creating Vulkan Pipeline.");
@@ -730,11 +729,11 @@ MeshPipeline createMeshPipelineInternal(const PipelineCreateInfo &info)
 
 	// Create Shader Stages
 	StackArray<VkPipelineShaderStageCreateInfo, static_cast<u32>(e_ShaderStage::Count)> shaderStages;
-	for (ShaderHandle shaderHandle : info.shaders) {
+	for (ShaderHandle_Legacy shaderHandle : info.shaders) {
 		age_assertFatal(shaderHandle.isValid(), "Trying to create pipeline with invalid shader.");
 		age_assertFatal(shaderHandle < s_resources.shaders.count(), "Trying to create pipeline with inexistent shader.");
 
-		shaderStages.add(createShaderStage(s_resources.shaders[shaderHandle]));
+		shaderStages.add(createShaderStage_Legacy(s_resources.shaders[shaderHandle]));
 	}
 
 
@@ -843,7 +842,7 @@ MeshPipeline createMeshPipelineInternal(const PipelineCreateInfo &info)
 
 
 
-MeshPipelineHandle createMeshPipeline(const PipelineCreateInfo &info)
+MeshPipelineHandle createMeshPipeline(const PipelineCreateInfo_Legacy &info)
 {
 	MeshPipelineHandle handle(static_cast<u32>(s_resources.meshPipelines.count()));
 	s_resources.meshPipelines.add(createMeshPipelineInternal(info));
@@ -879,8 +878,6 @@ DrawCommand createDrawCommandInternal(const MeshPipelineHandle &pipelineHandle, 
 
 	AGE_VK_CHECK(vkAllocateCommandBuffers(s_context.device, &allocInfo, command.buffers.data()));
 
-	const Mesh &mesh = s_resources.meshMap[meshHandle];
-
 	for (int i = 0; i < command.buffers.count(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -900,13 +897,6 @@ DrawCommand createDrawCommandInternal(const MeshPipelineHandle &pipelineHandle, 
 		{	// Record Command Buffer
 			vkCmdBeginRenderPass(command.buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 			vkCmdBindPipeline(command.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-			const VkDeviceSize offsets[] = {0};
-			vkCmdBindVertexBuffers(command.buffers[i], 0, 1, &mesh.vertexBuffer.buffer, offsets);
-
-			vkCmdBindIndexBuffer(command.buffers[i], mesh.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-
-			vkCmdDrawIndexed(command.buffers[i], mesh.indexCount, 1, 0, 0, 0);
 
 			vkCmdEndRenderPass(command.buffers[i]);
 		}
@@ -947,50 +937,6 @@ void cleanupDrawCommand(DrawCommandHandle &commandHandle)
 	cleanupDrawCommandInternal(s_resources.drawCommandMap[commandHandle]);
 	s_resources.drawCommandMap.remove(commandHandle);
 	commandHandle = DrawCommandHandle::invalid();
-}
-
-
-
-MeshHandle createMesh(const DArray<Vertex> &vertices, const DArray<u32> &indices)
-{
-	age_assertFatal(!vertices.isEmpty(), "Unable to create MeshBuffer with no vertices.");
-
-	MeshHandle handle(s_meshBufferHandleCounter);
-	s_meshBufferHandleCounter++;
-
-	Mesh mesh;
-
-	{	// Vertex Buffer
-		const size_t vertexBufferSize = sizeof(vertices[0]) * vertices.count();
-		mesh.vertexBuffer = vk::allocBuffer(s_context, vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		writeToBuffer(s_context, mesh.vertexBuffer, vertices.data(), vertexBufferSize);
-	}
-
-	{	// Index Buffer
-		const size_t indexBufferSize = sizeof(indices[0]) * indices.count();
-		mesh.indexBuffer = vk::allocBuffer(s_context, indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		mesh.indexCount = indices.count();
-		writeToBuffer(s_context, mesh.indexBuffer, indices.data(), indexBufferSize);
-	}
-
-	s_resources.meshMap.add(handle, mesh);
-
-	return handle;
-}
-
-
-
-void cleanupMesh(MeshHandle &meshHandle)
-{
-	age_assertFatal(meshHandle.isValid(), "Trying to cleanup an invalid mesh buffer.");
-
-	Mesh &mesh = s_resources.meshMap[meshHandle];
-	s_resources.meshMap.remove(meshHandle);
-
-	vk::freeBuffer(s_context, mesh.indexBuffer);
-	vk::freeBuffer(s_context, mesh.vertexBuffer);
-
-	meshHandle = MeshHandle::invalid();
 }
 
 

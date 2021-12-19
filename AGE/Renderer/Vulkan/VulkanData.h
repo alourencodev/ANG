@@ -74,7 +74,7 @@ struct Pipeline
 	VkViewport viewport = {};
 	VkRect2D scissor = {};
 	VkPipeline pipeline = VK_NULL_HANDLE;
-	PipelineCreateInfo createInfo;
+	PipelineCreateInfo_Legacy createInfo;
 };
 
 
@@ -93,23 +93,6 @@ struct DrawCommand
 	DArray<VkCommandBuffer> buffers;
 	MeshPipelineHandle pipeline;
 	MeshHandle mesh;
-};
-
-
-
-struct Buffer
-{
-	VkBuffer buffer;
-	VkDeviceMemory memory;
-};
-
-
-
-struct Mesh
-{
-	Buffer vertexBuffer;
-	Buffer indexBuffer;
-	u64 indexCount;
 };
 
 
@@ -163,7 +146,6 @@ struct Resources
 	DArray<Shader> shaders;
 	DArray<MeshPipeline> meshPipelines;
 	HashMap<u32, DrawCommand> drawCommandMap;
-	HashMap<u32, Mesh> meshMap;
 };
 
 

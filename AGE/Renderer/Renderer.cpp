@@ -1,13 +1,14 @@
 #include <AGE/Renderer/Renderer.h>
 
-#include <AGE/Renderer/Vulkan/Vulkan.h>
+#include <AGE/Renderer/Vulkan/VulkanShader.h>
 #include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vertex.hpp>
 #include <AGE/Vendor/GLFW.hpp>
 
 namespace age
 {
 
-const DArray<vk::Vertex> vertices = {
+const DArray<Vertex> vertices = {
 	{{-0.5f, -0.5f, 0.0f}},
     {{0.5f, -0.5f, 0.0f}},
     {{0.5f, 0.5f, 1.0f}},
@@ -28,9 +29,6 @@ constexpr char k_tag[] = "Renderer";
 
 vk::ShaderHandle vertexShader;
 vk::ShaderHandle fragmentShader;
-
-vk::DrawCommandHandle testDrawCommand;
-vk::MeshHandle testMeshBuffer;
 
 void Renderer::init(GLFWwindow *window)
 {
@@ -59,17 +57,8 @@ void Renderer::init(GLFWwindow *window)
 	for (vk::FrameSync &frameSync : _frameSyncArray)
 		frameSync = vk::createFrameSync(_context, nullptr);
 
-	//vertexShader = vk::createShader(vk::e_ShaderStage::Vertex, "Shaders/dummy.vert.spv");
-	//fragmentShader = vk::createShader(vk::e_ShaderStage::Fragment, "Shaders/dummy.frag.spv");
 
-	//vk::PipelineCreateInfo info = {};
-	//info.shaders.add(vertexShader);
-	//info.shaders.add(fragmentShader);
-	//vk::MeshPipelineHandle pipelineHandle = vk::createMeshPipeline(info);
 
-	//testMeshBuffer = vk::createMesh(vertices, indices);
-	//testDrawCommand = vk::createDrawCommand(pipelineHandle, testMeshBuffer);
-}
 
 void Renderer::draw()
 {
