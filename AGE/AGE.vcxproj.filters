@@ -61,6 +61,9 @@
     <ClCompile Include="Renderer\Vulkan\VulkanPipeline.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Vulkan\VulkanMesh.cpp">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGEAPI.hpp">
@@ -120,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\Vertex.hpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VulkanMesh.h">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

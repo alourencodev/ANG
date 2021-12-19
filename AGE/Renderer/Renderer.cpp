@@ -1,5 +1,6 @@
 #include <AGE/Renderer/Renderer.h>
 
+#include <AGE/Renderer/Vulkan/VulkanMesh.h>
 #include <AGE/Renderer/Vulkan/VulkanShader.h>
 #include <AGE/Renderer/Vulkan/VulkanUtils.h>
 #include <AGE/Renderer/Vertex.hpp>
@@ -37,6 +38,10 @@ vk::ShaderHandle vertexShader;
 vk::ShaderHandle fragmentShader;
 
 vk::PipelineHandle testPipeline;
+
+vk::Mesh testMesh;
+
+
 
 void Renderer::init(GLFWwindow *window)
 {
@@ -104,6 +109,8 @@ void Renderer::init(GLFWwindow *window)
 		vk::Pipeline pipeline = {};
 		_pipelineArray.add(vk::createPipeline(_context, _swapchain, _renderTarget, _shaderArray, pipelineInfo));
 		testPipeline = vk::PipelineHandle(0);
+
+		testMesh = vk::createMesh(_context, vertices, indices);
 	}
 }
 
@@ -151,11 +158,19 @@ void Renderer::draw()
 		renderPassBeginInfo.renderArea.offset.y = 0;
 		renderPassBeginInfo.renderArea.extent = _swapchain.extent;
 		renderPassBeginInfo.framebuffer = _renderTarget.framebuffers[imageIndex];
-		renderPassBeginInfo.clearValueCount = _clearValues.size();
+		renderPassBeginInfo.clearValueCount = static_cast<u32>(_clearValues.size());
 		renderPassBeginInfo.pClearValues = _clearValues.data();
 
 		vkCmdBeginRenderPass(currentCmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	
+		{	// Placeholders
+			const VkDeviceSize offsets[] = {0};
+			vkCmdBindPipeline(currentCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineArray[testPipeline].pipeline);
+			vkCmdBindVertexBuffers(currentCmdBuffer, 0, 1, &testMesh.vertices.buffer, offsets);
+			vkCmdBindIndexBuffer(currentCmdBuffer, testMesh.indices.buffer, 0, VK_INDEX_TYPE_UINT32);
+			vkCmdDrawIndexed(currentCmdBuffer, testMesh.indexCount, 1 ,0, 0, 0);
+		}
+
 		// TODO: Draw Objects
 
 		vkCmdEndRenderPass(currentCmdBuffer);
@@ -221,6 +236,10 @@ void Renderer::present(u32 imageIndex)
 void Renderer::cleanup()
 {
 	vkDeviceWaitIdle(_context.device);
+
+	{	// Placeholders
+		vk::destroyMesh(_context, testMesh);
+	}
 
 	for (vk::Pipeline &pipeline : _pipelineArray)
 		vk::destroyPipeline(_context, pipeline);

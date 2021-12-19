@@ -47,7 +47,6 @@ private:
 	void present(u32 imageIndex);
 	void reacreateSwapchain();
 
-	DArray<MeshComponent> meshComponents;
 	vk::Context _context;
 	vk::Swapchain _swapchain;
 	vk::RenderTarget _renderTarget;
