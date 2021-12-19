@@ -15,6 +15,16 @@ namespace age::vk
 
 constexpr const char k_tag[] = "VulkanBootstrap";
 
+enum class EVertexAttributes
+{
+	Vertex,
+	// Normal,
+	// UV,
+
+	Count
+};
+
+using VertexAttributesDescription = StackArray<VkVertexInputAttributeDescription, static_cast<size_t>(EVertexAttributes::Count)>;
 
 
 VkPipelineShaderStageCreateInfo createShaderStage(const Shader &shader)
@@ -28,6 +38,27 @@ VkPipelineShaderStageCreateInfo createShaderStage(const Shader &shader)
 	info.pName = "main";
 
 	return info;
+}
+
+VertexAttributesDescription getVertexAttributesDescription()
+{
+	static VertexAttributesDescription s_vertexAttributeDescription = {};
+	
+	if (s_vertexAttributeDescription.isEmpty())
+	{
+		s_vertexAttributeDescription.addEmpty(s_vertexAttributeDescription.capacity());
+
+		VkVertexInputAttributeDescription &vertexDescription = s_vertexAttributeDescription[static_cast<u32>(EVertexAttributes::Vertex)];
+		vertexDescription.binding = 0;
+		vertexDescription.location = 0;
+		vertexDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+		vertexDescription.offset = offsetof(Vertex, pos);
+		
+		// TODO: Normals
+		// TODO: UV
+	}
+
+	return s_vertexAttributeDescription;
 }
 
 
@@ -63,17 +94,7 @@ Pipeline createPipeline(const Context &context, const Swapchain &swapchain, cons
 
 
 	{	// Create Pipeline
-
-		// Set vertex Attributes
-		constexpr u8 k_attributesPerVertex = 1;
-		SArray<VkVertexInputAttributeDescription, k_attributesPerVertex> attributesDescription;
-		{
-			// pos
-			attributesDescription[0].binding = 0;
-			attributesDescription[0].location = 0;
-			attributesDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributesDescription[0].offset = offsetof(Vertex, pos);
-		}
+		const VertexAttributesDescription &attributesDescription = getVertexAttributesDescription();
 
 		VkVertexInputBindingDescription bindingDescription;
 		bindingDescription.binding = 0;
@@ -84,7 +105,7 @@ Pipeline createPipeline(const Context &context, const Swapchain &swapchain, cons
 		vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInput.vertexBindingDescriptionCount = 1;
 		vertexInput.pVertexBindingDescriptions = &bindingDescription;
-		vertexInput.vertexAttributeDescriptionCount = k_attributesPerVertex;
+		vertexInput.vertexAttributeDescriptionCount = attributesDescription.count();
 		vertexInput.pVertexAttributeDescriptions = attributesDescription.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
