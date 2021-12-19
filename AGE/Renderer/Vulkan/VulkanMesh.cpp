@@ -15,7 +15,7 @@ Mesh createMesh(const Context &context, const DArray<Vertex> &vertexArray, const
 	VkMemoryPropertyFlags commonFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 	Mesh mesh;
-	mesh.indexCount = indexArray.count();
+	mesh.indexCount = static_cast<u32>(indexArray.count());
 
 	// Vertex Buffer
 	const size_t vertexBufferSize = sizeof(Vertex) * vertexArray.count();

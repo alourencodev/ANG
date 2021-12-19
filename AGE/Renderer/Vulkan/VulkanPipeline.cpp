@@ -105,7 +105,7 @@ Pipeline createPipeline(const Context &context, const Swapchain &swapchain, cons
 		vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInput.vertexBindingDescriptionCount = 1;
 		vertexInput.pVertexBindingDescriptions = &bindingDescription;
-		vertexInput.vertexAttributeDescriptionCount = attributesDescription.count();
+		vertexInput.vertexAttributeDescriptionCount = static_cast<u32>(attributesDescription.count());
 		vertexInput.pVertexAttributeDescriptions = attributesDescription.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
