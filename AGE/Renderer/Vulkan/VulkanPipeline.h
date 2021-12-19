@@ -4,6 +4,8 @@
 
 #include <AGE/Renderer/Vulkan/VulkanShader.h>
 
+#include <Core/Handle.hpp>
+
 
 namespace age::vk
 {
@@ -11,6 +13,7 @@ namespace age::vk
 struct RenderTarget;
 struct Swapchain;
 
+DECLARE_HANDLE(PipelineHandle);
 
 
 struct Pipeline

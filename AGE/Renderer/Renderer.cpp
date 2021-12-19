@@ -5,6 +5,9 @@
 #include <AGE/Renderer/Vertex.hpp>
 #include <AGE/Vendor/GLFW.hpp>
 
+#include <Core/File.h>
+
+
 namespace age
 {
 
@@ -27,8 +30,13 @@ Renderer Renderer::s_inst = Renderer();
 
 constexpr char k_tag[] = "Renderer";
 
+static const VkClearValue k_defaultClearColor = {{0.2f, 0.2f, 0.2f, 1.0f}};
+constexpr VkClearValue k_defaultClearDepth = {{1.0f, 0}};
+
 vk::ShaderHandle vertexShader;
 vk::ShaderHandle fragmentShader;
+
+vk::PipelineHandle testPipeline;
 
 void Renderer::init(GLFWwindow *window)
 {
@@ -52,11 +60,52 @@ void Renderer::init(GLFWwindow *window)
 		_swapchain = vk::createSwapchain(_context, createInfo);
 	}
 
+
+	{	// Allocate Command Buffers
+		VkCommandBufferAllocateInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		info.commandPool = _context.graphicsCommandPool;
+		info.commandBufferCount = k_maxFramesInFlight;
+
+		AGE_VK_CHECK(vkAllocateCommandBuffers(_context.device, &info, _commandBuffers.data()));
+	}
+
+
 	_renderTarget = vk::createRenderTarget(_context, _swapchain, nullptr);
+
+	_clearValues[static_cast<u32>(EClearValueType::Color)] = k_defaultClearColor;
+	_clearValues[static_cast<u32>(EClearValueType::Depth)] = k_defaultClearDepth;
 
 	for (vk::FrameSync &frameSync : _frameSyncArray)
 		frameSync = vk::createFrameSync(_context, nullptr);
 
+
+	{	// Placeholders
+		const DArray<byte> vertexSource = file::readBinary("Shaders/dummy.vert.spv");
+		const DArray<byte> fragmentSource = file::readBinary("Shaders/dummy.frag.spv");
+
+		vk::ShaderCreateInfo vertInfo = {};
+		vertInfo.source = &vertexSource;
+		vertInfo.stage = vk::EShaderStage::Vertex;
+		_shaderArray.add(vk::createShader(_context, vertInfo));
+		vertexShader = vk::ShaderHandle(0);
+
+		vk::ShaderCreateInfo fragInfo = {};
+		fragInfo.source = &fragmentSource;
+		fragInfo.stage = vk::EShaderStage::Fragment;
+		_shaderArray.add(vk::createShader(_context, fragInfo));
+		fragmentShader = vk::ShaderHandle(1);
+
+		vk::PipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.shaderHandles[static_cast<u8>(vk::EShaderStage::Vertex)] = vertexShader;
+		pipelineInfo.shaderHandles[static_cast<u8>(vk::EShaderStage::Fragment)] = fragmentShader;
+
+		vk::Pipeline pipeline = {};
+		_pipelineArray.add(vk::createPipeline(_context, _swapchain, _renderTarget, _shaderArray, pipelineInfo));
+		testPipeline = vk::PipelineHandle(0);
+	}
+}
 
 
 
@@ -86,9 +135,34 @@ void Renderer::draw()
 		imageInFlightFence = frameSync.inFlightFence;
 	}
 
-	// TODO: Create Command Buffer
-	// TODO: Submit
+	VkCommandBufferBeginInfo cmdBeginInfo = {};
+	cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	cmdBeginInfo.pInheritanceInfo = nullptr;
 
+	VkCommandBuffer currentCmdBuffer = _commandBuffers[_currentFrame];
+	// vkBeginCommandBuffer implicitly resets the command buffer
+	AGE_VK_CHECK(vkBeginCommandBuffer(currentCmdBuffer, &cmdBeginInfo));
+	{
+		VkRenderPassBeginInfo renderPassBeginInfo = {};
+		renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassBeginInfo.renderPass = _renderTarget.renderPass;
+		renderPassBeginInfo.renderArea.offset.x = 0;
+		renderPassBeginInfo.renderArea.offset.y = 0;
+		renderPassBeginInfo.renderArea.extent = _swapchain.extent;
+		renderPassBeginInfo.framebuffer = _renderTarget.framebuffers[imageIndex];
+		renderPassBeginInfo.clearValueCount = _clearValues.size();
+		renderPassBeginInfo.pClearValues = _clearValues.data();
+
+		vkCmdBeginRenderPass(currentCmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	
+		// TODO: Draw Objects
+
+		vkCmdEndRenderPass(currentCmdBuffer);
+	}
+	AGE_VK_CHECK(vkEndCommandBuffer(currentCmdBuffer));
+
+	submit(currentCmdBuffer);
 	present(imageIndex);
 
 	_currentFrame = (_currentFrame + 1) % k_maxFramesInFlight;
@@ -146,6 +220,14 @@ void Renderer::present(u32 imageIndex)
 
 void Renderer::cleanup()
 {
+	vkDeviceWaitIdle(_context.device);
+
+	for (vk::Pipeline &pipeline : _pipelineArray)
+		vk::destroyPipeline(_context, pipeline);
+
+	for (vk::Shader &shader : _shaderArray)
+		vk::destroyShader(_context, shader);
+
 	for (vk::FrameSync &frameSync : _frameSyncArray)
 		vk::destroyFrameSync(_context, frameSync);
 
@@ -182,7 +264,17 @@ void Renderer::reacreateSwapchain()
 	_swapchain = vk::createSwapchain(_context, swapchainInfo);
 
 	_renderTarget = vk::createRenderTarget(_context, _swapchain, renderTargetAllocator);
-}
 
+	// Recreate Pipelines
+	for (vk::Pipeline &pipeline : _pipelineArray)
+	{
+		vk::PipelineCreateInfo info = {};
+		info.allocator = pipeline.allocator;
+		info.shaderHandles = pipeline.shaderHandles;
+
+		vk::destroyPipeline(_context, pipeline);	
+		pipeline = vk::createPipeline(_context, _swapchain, _renderTarget, _shaderArray, info);
+	}
+}
 
 }
