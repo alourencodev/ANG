@@ -1,7 +1,7 @@
 
 #include <Core/Log/Log.h>
 
-#include <AGE/Renderer/Vulkan/VulkanData.h>
+#include <AGE/Renderer/Vulkan/VulkanContext.h>
 #include <AGE/Renderer/Vulkan/VulkanMemory.h>
 #include <AGE/Renderer/Vulkan/VulkanUtils.h>
 
@@ -30,9 +30,10 @@ u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryProp
 
 
 
-Buffer allocBuffer(const Context &context, size_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+Buffer allocBuffer(const Context &context, size_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkAllocationCallbacks *allocator /*= nhullptr*/)
 {
 	Buffer buffer;
+	buffer.allocator = allocator;
 
 	{	// Create Buffer
 		VkBufferCreateInfo bufferInfo = {};
@@ -42,7 +43,7 @@ Buffer allocBuffer(const Context &context, size_t size, VkBufferUsageFlags usage
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		AGE_VK_CHECK(vkCreateBuffer(context.device, &bufferInfo, nullptr, &buffer.buffer));
+		AGE_VK_CHECK(vkCreateBuffer(context.device, &bufferInfo, buffer.allocator, &buffer.buffer));
 	}
 
 
@@ -56,7 +57,7 @@ Buffer allocBuffer(const Context &context, size_t size, VkBufferUsageFlags usage
 		allocInfo.memoryTypeIndex = findMemoryType(context.physicalDevice, memoryRequirements.memoryTypeBits, properties);
 
 		// TODO: Have a custom allocator
-		AGE_VK_CHECK(vkAllocateMemory(context.device, &allocInfo, nullptr, &buffer.memory));
+		AGE_VK_CHECK(vkAllocateMemory(context.device, &allocInfo, buffer.allocator, &buffer.memory));
 
 		vkBindBufferMemory(context.device, buffer.buffer, buffer.memory, 0);
 	}
@@ -117,7 +118,7 @@ void copyBuffer(const Context &context, const Buffer &src, const Buffer &dst, Vk
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
-	VkQueue transferQueue = context.queues[static_cast<u8>(e_QueueFamily::Transfer)];
+	VkQueue transferQueue = context.queues[static_cast<u8>(EQueueFamily::Transfer)];
 	vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(transferQueue);
 }
@@ -126,8 +127,8 @@ void copyBuffer(const Context &context, const Buffer &src, const Buffer &dst, Vk
 
 void freeBuffer(const Context &context, const Buffer &buffer)
 {
-	vkDestroyBuffer(context.device, buffer.buffer, nullptr);
-	vkFreeMemory(context.device, buffer.memory, nullptr);
+	vkDestroyBuffer(context.device, buffer.buffer, buffer.allocator);
+	vkFreeMemory(context.device, buffer.memory, buffer.allocator);
 }
 
 }
