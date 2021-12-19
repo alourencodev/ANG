@@ -156,6 +156,7 @@ void createCommandPools(Context &context)
 	{	// Create Graphics Command Pool
 		VkCommandPoolCreateInfo commandPoolInfo = {};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		commandPoolInfo.queueFamilyIndex = context.queueIndices[static_cast<i32>(EQueueFamily::Graphics)];
 
 		AGE_VK_CHECK(vkCreateCommandPool(context.device, &commandPoolInfo, context.allocator, &context.graphicsCommandPool));
@@ -221,6 +222,7 @@ void destroyContext(Context &context)
 	}
 #endif
 
+	vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
 	vkDestroyInstance(context.instance, context.allocator);
 }
 
