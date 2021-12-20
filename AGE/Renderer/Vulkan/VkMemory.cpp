@@ -1,9 +1,9 @@
 
 #include <Core/Log/Log.h>
 
-#include <AGE/Renderer/Vulkan/VulkanContext.h>
-#include <AGE/Renderer/Vulkan/VulkanMemory.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VkContext.h>
+#include <AGE/Renderer/Vulkan/VkMemory.h>
+#include <AGE/Renderer/Vulkan/VkUtils.h>
 
 
 

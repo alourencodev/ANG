@@ -159,16 +159,16 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanFrameSync.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanMesh.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanPipeline.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanRenderTarget.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanContext.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanMemory.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanPhysicalDevice.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanShader.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanSwapchain.cpp" />
-    <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkFrameSync.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkMesh.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkPipeline.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkRenderTarget.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkContext.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkMemory.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkPhysicalDevice.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkShader.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkSwapchain.cpp" />
+    <ClCompile Include="Renderer\Vulkan\VkUtils.cpp" />
     <ClCompile Include="Systems\CommandSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,16 +176,16 @@
     <ClInclude Include="AGEAPI.hpp" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Vertex.hpp" />
-    <ClInclude Include="Renderer\Vulkan\VulkanContext.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanFrameSync.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanMemory.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanMesh.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanPhysicalDevice.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanPipeline.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanRenderTarget.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanShader.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanSwapchain.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanUtils.h" />
+    <ClInclude Include="Renderer\Vulkan\VkContext.h" />
+    <ClInclude Include="Renderer\Vulkan\VkFrameSync.h" />
+    <ClInclude Include="Renderer\Vulkan\VkMemory.h" />
+    <ClInclude Include="Renderer\Vulkan\VkMesh.h" />
+    <ClInclude Include="Renderer\Vulkan\VkPhysicalDevice.h" />
+    <ClInclude Include="Renderer\Vulkan\VkPipeline.h" />
+    <ClInclude Include="Renderer\Vulkan\VkRenderTarget.h" />
+    <ClInclude Include="Renderer\Vulkan\VkShader.h" />
+    <ClInclude Include="Renderer\Vulkan\VkSwapchain.h" />
+    <ClInclude Include="Renderer\Vulkan\VkUtils.h" />
     <ClInclude Include="Shaders\meshCore.frag.glsl" />
     <ClInclude Include="Shaders\meshCore.vert.glsl" />
     <ClInclude Include="Systems\CommandSystem.h" />

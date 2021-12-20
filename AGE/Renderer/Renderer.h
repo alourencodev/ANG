@@ -2,12 +2,12 @@
 
 #include <Core/SArray.hpp>
 
-#include <AGE/Renderer/Vulkan/VulkanContext.h>
-#include <AGE/Renderer/Vulkan/VulkanFrameSync.h>
-#include <AGE/Renderer/Vulkan/VulkanShader.h>
-#include <AGE/Renderer/Vulkan/VulkanSwapchain.h>
-#include <AGE/Renderer/Vulkan/VulkanRenderTarget.h>
-#include <AGE/Renderer/Vulkan/VulkanPipeline.h>
+#include <AGE/Renderer/Vulkan/VkContext.h>
+#include <AGE/Renderer/Vulkan/VkFrameSync.h>
+#include <AGE/Renderer/Vulkan/VkPipeline.h>
+#include <AGE/Renderer/Vulkan/VkRenderTarget.h>
+#include <AGE/Renderer/Vulkan/VkShader.h>
+#include <AGE/Renderer/Vulkan/VkSwapchain.h>
 
 #include <Core/DArray.hpp>
 #include <Core/SArray.hpp>

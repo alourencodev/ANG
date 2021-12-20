@@ -1,6 +1,6 @@
 #pragma once
 
-#include <AGE/Renderer/Vulkan/VulkanMemory.h>
+#include <AGE/Renderer/Vulkan/VkMemory.h>
 #include <AGE/Renderer/Vertex.hpp>
 
 #include <Core/DArray.hpp>

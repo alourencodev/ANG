@@ -1,7 +1,7 @@
 
-#include <AGE/Renderer/Vulkan/VulkanContext.h>
-#include <AGE/Renderer/Vulkan/VulkanPhysicalDevice.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VkContext.h>
+#include <AGE/Renderer/Vulkan/VkPhysicalDevice.h>
+#include <AGE/Renderer/Vulkan/VkUtils.h>
 #include <AGE/Vendor/GLFW.hpp>
 
 #include <Core/DArray.hpp>

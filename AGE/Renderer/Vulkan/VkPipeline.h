@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <AGE/Renderer/Vulkan/VulkanShader.h>
+#include <AGE/Renderer/Vulkan/VkShader.h>
 
 #include <Core/Handle.hpp>
 

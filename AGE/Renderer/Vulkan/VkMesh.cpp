@@ -1,5 +1,5 @@
 
-#include <AGE/Renderer/Vulkan/VulkanMesh.h>
+#include <AGE/Renderer/Vulkan/VkMesh.h>
 
 #include <Core/Log/Log.h>
 

@@ -1,7 +1,7 @@
-#include <AGE/Renderer/Vulkan/VulkanSwapchain.h>
+#include <AGE/Renderer/Vulkan/VkSwapchain.h>
 
-#include <AGE/Renderer/Vulkan/VulkanContext.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VkContext.h>
+#include <AGE/Renderer/Vulkan/VkUtils.h>
 
 
 namespace age::vk

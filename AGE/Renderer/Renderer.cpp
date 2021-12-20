@@ -1,8 +1,8 @@
 #include <AGE/Renderer/Renderer.h>
 
-#include <AGE/Renderer/Vulkan/VulkanMesh.h>
-#include <AGE/Renderer/Vulkan/VulkanShader.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VkMesh.h>
+#include <AGE/Renderer/Vulkan/VkShader.h>
+#include <AGE/Renderer/Vulkan/VkUtils.h>
 #include <AGE/Renderer/Vertex.hpp>
 #include <AGE/Vendor/GLFW.hpp>
 

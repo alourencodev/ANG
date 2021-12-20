@@ -1,13 +1,13 @@
 
-#include <AGE/Renderer/Vulkan/VulkanPhysicalDevice.h>
+#include <AGE/Renderer/Vulkan/VkPhysicalDevice.h>
 
 #include <vulkan/vulkan.h>
 
 #include <Core/BitField.hpp>
 #include <Core/DArray.hpp>
 
-#include <AGE/Renderer/Vulkan/VulkanContext.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VkContext.h>
+#include <AGE/Renderer/Vulkan/VkUtils.h>
 
 
 namespace age::vk

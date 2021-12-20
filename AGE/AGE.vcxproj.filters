@@ -25,7 +25,7 @@
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanUtils.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkUtils.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="Systems\CommandSystem.cpp">
@@ -34,31 +34,31 @@
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanMemory.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkMemory.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanContext.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkContext.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanPhysicalDevice.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkPhysicalDevice.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanSwapchain.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkSwapchain.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanRenderTarget.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkRenderTarget.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanFrameSync.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkFrameSync.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanPipeline.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkPipeline.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Vulkan\VulkanMesh.cpp">
+    <ClCompile Include="Renderer\Vulkan\VkMesh.cpp">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Vulkan\VkShader.cpp">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,7 +75,7 @@
     <ClInclude Include="Vendor\GLFW.hpp">
       <Filter>Source Files\Vendor</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanUtils.h">
+    <ClInclude Include="Renderer\Vulkan\VkUtils.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="Systems\CommandSystem.h">
@@ -90,32 +90,34 @@
     <ClInclude Include="Shaders\meshCore.vert.glsl">
       <Filter>Shader Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanMemory.h">
+    <ClInclude Include="Renderer\Vulkan\VkMemory.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanContext.h">
+    <ClInclude Include="Renderer\Vulkan\VkContext.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanPhysicalDevice.h">
+    <ClInclude Include="Renderer\Vulkan\VkPhysicalDevice.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanSwapchain.h">
+    <ClInclude Include="Renderer\Vulkan\VkSwapchain.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanRenderTarget.h">
+    <ClInclude Include="Renderer\Vulkan\VkRenderTarget.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanFrameSync.h">
+    <ClInclude Include="Renderer\Vulkan\VkFrameSync.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanShader.h" />
-    <ClInclude Include="Renderer\Vulkan\VulkanPipeline.h">
+    <ClInclude Include="Renderer\Vulkan\VkPipeline.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Vertex.hpp">
       <Filter>Source Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Vulkan\VulkanMesh.h">
+    <ClInclude Include="Renderer\Vulkan\VkMesh.h">
+      <Filter>Source Files\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Vulkan\VkShader.h">
       <Filter>Source Files\Renderer\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

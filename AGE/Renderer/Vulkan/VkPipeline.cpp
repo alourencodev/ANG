@@ -1,10 +1,10 @@
 
-#include <AGE/Renderer/Vulkan/VulkanPipeline.h>
+#include <AGE/Renderer/Vulkan/VkPipeline.h>
 
-#include <AGE/Renderer/Vulkan/VulkanContext.h>
-#include <AGE/Renderer/Vulkan/VulkanRenderTarget.h>
-#include <AGE/Renderer/Vulkan/VulkanSwapchain.h>
-#include <AGE/Renderer/Vulkan/VulkanUtils.h>
+#include <AGE/Renderer/Vulkan/VkContext.h>
+#include <AGE/Renderer/Vulkan/VkRenderTarget.h>
+#include <AGE/Renderer/Vulkan/VkSwapchain.h>
+#include <AGE/Renderer/Vulkan/VkUtils.h>
 #include <AGE/Renderer/Vertex.hpp>
 
 #include <Core/StackArray.hpp>
