@@ -1,7 +1,8 @@
 import argparse
 import os
+import subprocess
 
-# glslc or glslangValidator
+# tools
 compiler = "glslc"
 
 # Setup arguments
@@ -25,16 +26,28 @@ def compile_shader(shader_file_name, include_dirs):
 
 	shader_dir = args.source + shader_file_name
 	output_shader_dir = args.output + shader_file_name + ".spv";
-	compile_command = compiler + " " + shader_dir + " -o " + output_shader_dir
+	compile_command = [compiler, shader_dir, "-o", output_shader_dir]
 
 	if args.optimize:
-		compile_command = compile_command + " -O"
+		compile_command.append("-O")
 
 	if include_dirs:
 		compile_command = compile_command + include_dirs
-	
+
 	log("Compiling " + shader_dir)
-	os.system(compile_command)
+
+	result = subprocess.run(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	error = result.stderr.decode('utf-8')
+	if error:
+		log("Error running " + str(compile_command))
+		log(error.replace('\n', ''))
+		return False
+	else:
+		stdOutput = result.stdout.decode('utf-8')
+		if stdOutput:
+			log(stdOutput.replace('\n',''))
+
+	return True
 
 
 def main():
@@ -46,12 +59,12 @@ def main():
 		log("Optimize enabled.")
 
 	# Build list of include Directories
-	include_dirs = ""
+	include_dirs = []
 	if not args.includes is None:
 		log("Include Directories:")
 		for include_dir in args.includes:
 			log(" - " + include_dir)
-			include_dirs = include_dirs + " -I " + include_dir
+			include_dirs = include_dirs + ["-I", include_dir]
 
 	# Create output directory if necessary
 	if not os.path.exists(args.output):
@@ -61,8 +74,13 @@ def main():
 	# Compile shaders
 	for file_name in os.listdir(args.source):
 		extension = os.path.splitext(file_name)[-1];
+
 		if (extension == ".vert") or (extension == ".frag"):
-			compile_shader(file_name, include_dirs);
+			result = compile_shader(file_name, include_dirs);
+
+			if not result:
+				log("Compilation Failed")
+				return
 
 	log("Compilation Complete", True)
 
