@@ -25,6 +25,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{A415E5DC
 		Tools\compileShaders.py = Tools\compileShaders.py
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vendor", "Vendor", "{25357D5A-B063-4EB0-9713-2C05EB8B7B9D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yaml-cpp", "Vendor\yaml-cpp\yaml-cpp.vcxproj", "{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,12 +75,23 @@ Global
 		{FEBE0C34-08A1-4983-A402-593395EB5C1A}.ReleaseDbgInfo|x64.ActiveCfg = ReleaseDbgInfo|x64
 		{FEBE0C34-08A1-4983-A402-593395EB5C1A}.ReleaseDbgInfo|x64.Build.0 = ReleaseDbgInfo|x64
 		{FEBE0C34-08A1-4983-A402-593395EB5C1A}.ReleaseDbgInfo|x86.ActiveCfg = ReleaseDbgInfo|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.Debug|x64.ActiveCfg = Debug|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.Debug|x64.Build.0 = Debug|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.Debug|x86.ActiveCfg = Debug|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.Release|x64.ActiveCfg = Release|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.Release|x64.Build.0 = Release|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.Release|x86.ActiveCfg = Release|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.ReleaseDbgInfo|x64.ActiveCfg = Release|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.ReleaseDbgInfo|x64.Build.0 = Release|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.ReleaseDbgInfo|x86.ActiveCfg = Debug|x64
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8}.ReleaseDbgInfo|x86.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FEBE0C34-08A1-4983-A402-593395EB5C1A} = {DEC84305-F168-4FB5-AF8C-CCDA68F45CE7}
+		{C1D5AE6F-231B-3148-B6E3-B6FBDF5E17C8} = {25357D5A-B063-4EB0-9713-2C05EB8B7B9D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CA28F6E-FEFE-475D-BB37-92B5483322F7}

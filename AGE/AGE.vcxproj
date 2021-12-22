@@ -76,7 +76,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDbgInfo|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDIr)Bin\Lib\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDIr)Bin\Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Bin\$(Configuration)\Interm\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -85,15 +85,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions);AGE_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Lib\vulkan\Include;$(ProjectDIr)Lib\glfw3\include;$(SolutionDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Lib\vulkan\Include;$(ProjectDIr)Lib\yaml-cpp\include;$(ProjectDIr)Lib\glfw3\include;$(SolutionDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201;4390;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDIr)Lib\yaml-cpp\lib;C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories);$(ProjectDIr)Lib\yaml-cpp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;yaml-cppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)Bin\Lib\$(Configuration)\$(ProjectName).dll $(SolutionDIr)\Bin\$(Configuration)\ /K /D /Y</Command>
@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions);AGE_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Lib\vulkan\Include;$(ProjectDIr)Lib\glfw3\include;$(SolutionDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Lib\vulkan\Include;$(ProjectDIr)Lib\yaml-cpp\include;$(ProjectDIr)Lib\glfw3\include;$(SolutionDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201;4390;</DisableSpecificWarnings>
     </ClCompile>
@@ -119,8 +119,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories);$(ProjectDIr)Lib\yaml-cpp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)Bin\Lib\$(Configuration)\$(ProjectName).dll $(SolutionDIr)\Bin\$(Configuration)\ /K /D /Y</Command>
@@ -137,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions);AGE_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Lib\vulkan\Include;$(ProjectDIr)Lib\glfw3\include;$(SolutionDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Lib\vulkan\Include;$(ProjectDIr)Lib\yaml-cpp\include;$(ProjectDIr)Lib\glfw3\include;$(SolutionDIr);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201;4390;</DisableSpecificWarnings>
     </ClCompile>
@@ -146,8 +146,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)Bin\Lib\$(Configuration);$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)Bin\Lib\$(Configuration);$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories);$(ProjectDIr)Lib\yaml-cpp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)Bin\Lib\$(Configuration)\$(ProjectName).dll $(SolutionDIr)\Bin\$(Configuration)\ /K /D /Y</Command>
