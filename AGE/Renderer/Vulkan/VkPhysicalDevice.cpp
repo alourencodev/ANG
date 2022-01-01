@@ -40,32 +40,40 @@ QueueIndexBitMap getDeviceQueueIndices(VkPhysicalDevice physicalDevice, VkSurfac
 
 		// Graphics Queue
 		{
-			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-				const u8 graphicsIndex = static_cast<u8>(EQueueFamily::Graphics);
+			const u8 graphicsIndex = static_cast<u8>(EQueueFamily::Graphics);
+			if ((queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && !queueIndices.map.isSet(graphicsIndex)) {
 				queueIndices.map.set(graphicsIndex);
 				queueIndices.indices[graphicsIndex] = i;
+				continue;
 			}
 		}
 
 		// Presentation Queue
 		{
-			VkBool32 supportsPresentation = false;
-			AGE_VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportsPresentation));
+			const u8 presentationIndex = static_cast<u8>(EQueueFamily::Presentation);
+			if (!queueIndices.map.isSet(presentationIndex))
+			{
+				VkBool32 supportsPresentation = false;
+				AGE_VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportsPresentation));
 
-			if (supportsPresentation) {
-				const u8 presentationIndex = static_cast<u8>(EQueueFamily::Presentation);
-				queueIndices.map.set(presentationIndex);
-				queueIndices.indices[presentationIndex] = i;
+				if (supportsPresentation) {
+					queueIndices.map.set(presentationIndex);
+					queueIndices.indices[presentationIndex] = i;
+					continue;
+				}
 			}
 		}
 
 		// Transfer Queue
 		{
+			const u8 transferIndex = static_cast<u8>(EQueueFamily::Transfer);
+
 			const VkQueueFlags queueFlags = queueFamilies[i].queueFlags;
-			if ((queueFlags & VK_QUEUE_TRANSFER_BIT) && !(queueFlags & VK_QUEUE_GRAPHICS_BIT) && !(queueFlags & VK_QUEUE_COMPUTE_BIT)) {
-				const u8 transferIndex = static_cast<u8>(EQueueFamily::Transfer);
+			const bool isTransferExclusive = (queueFlags & VK_QUEUE_TRANSFER_BIT) && !(queueFlags & VK_QUEUE_GRAPHICS_BIT) && !(queueFlags & VK_QUEUE_COMPUTE_BIT);
+			if (isTransferExclusive && !queueIndices.map.isSet(transferIndex)) {
 				queueIndices.map.set(transferIndex);
 				queueIndices.indices[transferIndex] = i;
+				continue;
 			}
 		}
 	}
