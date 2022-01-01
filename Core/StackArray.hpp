@@ -323,7 +323,7 @@ private:
 		_count += count;
 	}
 
-	t_type _data[t_maxSize];
+	t_type _data[t_maxSize] = {};
 	size_t _count = 0;
 };
 
