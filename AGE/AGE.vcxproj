@@ -92,7 +92,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDIr)Lib\yaml-cpp\lib;C:\VulkanSDK\1.2.189.2\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories);$(ProjectDIr)Lib\yaml-cpp\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDIr)Lib\yaml-cpp\lib;C:\VulkanSDK\Lib;$(SolutionDIr)\Bin\Lib\$(Configuration)\;$(ProjectDir)Lib\glfw3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;Core.lib;vulkan-1.lib;yaml-cppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
