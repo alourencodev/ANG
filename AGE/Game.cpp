@@ -31,8 +31,7 @@ void runGameArguments(int argc, char *argv[])
 		age_assert(wasCommandFound, "Command %s could not be found.", command);
 	};
 
-	for (int i = 1; i < argc; i++)
-	{
+	for (int i = 1; i < argc; i++) {
 		// arguments that start with '-' are commands, otherwise they are arguments
 		if (argv[i][0] == '-') {
 			if (command != nullptr)
