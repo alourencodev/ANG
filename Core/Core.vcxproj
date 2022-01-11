@@ -168,6 +168,7 @@
     <ClInclude Include="StackArray.hpp" />
     <ClInclude Include="StringMap.hpp" />
     <ClInclude Include="StringView.hpp" />
+    <ClInclude Include="Timer.hpp" />
     <ClInclude Include="Types.hpp" />
     <ClInclude Include="Version.hpp" />
   </ItemGroup>
