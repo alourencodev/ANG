@@ -74,6 +74,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDIr)Bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Bin\$(Configuration)\Interm\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -106,8 +107,9 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -v -I $(ProjectDir)Shaders\ $(SolutionDir)AGE\Shaders\</Command>
-      <Message>Building Shaders</Message>
+      <Command>$(SolutionDir)Tools\ShaderCompiler_d.exe $(ProjectDir)Shaders\ $(OutDIr)Shaders\ $(ProjectDir)Shaders\ $(SolutionDir)AGE\Shaders\</Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,8 +137,9 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -O</Command>
-      <Message>Building Shaders</Message>
+      <Command>$(SolutionDir)Tools\ShaderCompiler.exe $(ProjectDir)Shaders\ $(OutDIr)Shaders\ $(ProjectDir)Shaders\ $(SolutionDir)AGE\Shaders\</Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDbgInfo|x64'">
@@ -160,8 +163,9 @@
       <AdditionalDependencies>Core.lib;AGE.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>py $(SolutionDir)Tools\compileShaders.py $(ProjectDir)Shaders\ $(OutDIr)Shaders\ -O</Command>
-      <Message>Building Shaders</Message>
+      <Command>$(SolutionDir)Tools\ShaderCompiler.exe $(ProjectDir)Shaders\ $(OutDIr)Shaders\ $(ProjectDir)Shaders\ $(SolutionDir)AGE\Shaders\</Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>
