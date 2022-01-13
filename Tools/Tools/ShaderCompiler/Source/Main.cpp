@@ -1,5 +1,6 @@
 
 #include <filesystem>
+#include <string>
 
 #include <shaderc/shaderc.h>
 
@@ -60,32 +61,25 @@ constexpr char k_reflexionExtension[] = "ageshader";
 
 void listShaders(const char *dir, const fs::path &outputDir, DArray<Shader>& o_shaders)
 {
-	DArray<fs::path> directories = {};
-
-	for (const auto& entry : fs::directory_iterator(dir)) {
-		if (entry.is_directory()) { 
-			directories.add(entry.path());
+	for (const auto& entry : fs::recursive_directory_iterator(dir)) {
+		if (entry.is_directory())
 			continue;
-		}
 
-		auto extensionString = entry.path().extension().string();
+		std::string extensionString = entry.path().extension().string();
 		const char* extension = extensionString.c_str();
+		const EShaderStage* stagePtr = k_extensionMap.at(extension);
+
+		// Ignore files with invalid extensions
+		if (stagePtr == nullptr)
+			continue;
 
 		Shader shader = {};
 		shader.sourcePath = entry.path();
 		shader.outputPath = outputDir;
-		shader.stage = k_extensionMap[extension];
+		shader.stage = *stagePtr;
 
 		age_log(k_verboseTag, "Shader: %s", shader.sourcePath.string().c_str());
 		o_shaders.add(shader);
-	}
-
-	for (const auto& subdir : directories) {
-		const u32 rootDirectorySize = ConstStringView(dir).calcSize();
-
-		fs::path outputSubdir = outputDir;
-		outputSubdir.concat(&dir[rootDirectorySize]);
-		listShaders(subdir.string().c_str(), outputSubdir, o_shaders);
 	}
 }
 
@@ -94,7 +88,7 @@ void listShaders(const char *dir, const fs::path &outputDir, DArray<Shader>& o_s
 int main(int argc, char *argv[])
 {
 	// Expected argument layout:
-	// SahaderCompiler <Source_Dir> <Output_Dir> <Include_Dir_1> <Include_Dir_2>
+	// ShaderCompiler <Source_Dir> <Output_Dir> <Include_Dir_1> <Include_Dir_2>
 
 #ifdef AGE_DEBUG
 	age::logger::enable(k_verboseTag);
