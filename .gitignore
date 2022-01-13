@@ -11,9 +11,15 @@ Bin/
 Build/
 Interm/
 
-# Emacs temp files
-*~
-*#
+# Dependencies
 AGE/Lib/yaml-cpp/Lib/yaml-cpp.lib
 AGE/Lib/yaml-cpp/Lib/yaml-cppd.lib
 AGE/Lib/yaml-cpp/Lib/yaml-cppd.pdb
+
+# Emacs temp files
+*~
+*#
+
+# Misc
+Tools/*.exe
+Tools/*.pdb
