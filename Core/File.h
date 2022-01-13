@@ -12,6 +12,9 @@ class DArray;
 namespace age::file
 {
 
-DArray<char> readBinary(const char *path);
+DArray<byte> readBinary(const char *path);
+DArray<char> readText(const char *path);
+
+void writeBinary(const char *path, const byte *data, size_t size);
 
 }
