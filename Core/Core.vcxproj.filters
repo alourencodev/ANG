@@ -106,6 +106,9 @@
     <ClInclude Include="Timer.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="String.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

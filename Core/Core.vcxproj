@@ -166,6 +166,7 @@
     <ClInclude Include="Range.hpp" />
     <ClInclude Include="SArray.hpp" />
     <ClInclude Include="StackArray.hpp" />
+    <ClInclude Include="String.hpp" />
     <ClInclude Include="StringMap.hpp" />
     <ClInclude Include="StringView.hpp" />
     <ClInclude Include="Timer.hpp" />
