@@ -79,4 +79,7 @@
       <Filter>Source Files\TestUtils</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
 </Project>

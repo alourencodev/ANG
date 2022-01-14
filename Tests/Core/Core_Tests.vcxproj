@@ -155,6 +155,9 @@
     <ClCompile Include="StringView_Tests.cpp" />
     <ClCompile Include="String_Tests.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -19,7 +19,7 @@ static char k_emptyString[] = "";
 
 
 
-size_t strlen(const char* str)
+size_t strSize(const char* str)
 {
 	size_t len = 0;
 	for (; str[len]; len++);
@@ -29,31 +29,27 @@ size_t strlen(const char* str)
 
 
 
-template<class t_allocator = DefaultHeapAllocator<char>>
-class StringBuilder;
-
-
-
-template<class t_allocator = DefaultHeapAllocator<char>>
 class String
 {
+	using allocator = DefaultHeapAllocator<char>;
+
 public:
 	String() = default;
 	String(const char* str)
 	{
-		_size = strlen(str);
-		_str = t_allocator::alloc(_size);
-		memcpy(_str, str, _size);
+		_size = strSize(str);
+		_str = allocator::alloc(_size + 1);
+		memcpy(_str, str, _size + 1);
 	}
 
 	String(const String& other)
 	{
-		if (other.isEmpty) {
+		if (other.isEmpty()) {
 			_str = k_emptyString;
 		} else {
-			_str = t_allocator::alloc(other._size);
+			_str = allocator::alloc(other._size + 1);
 			_size = other._size;
-			memcpy(_str, other._str, _size);
+			memcpy(_str, other._str, _size + 1);
 		}
 	}
 
@@ -65,7 +61,7 @@ public:
 		other._size = 0;
 	}
 
-	~String() { if (_size > 0) t_allocator::dealloc(_str); }
+	~String() { if (_size > 0) allocator::dealloc(_str); }
 
 	_force_inline operator const char* () const { return _str;  }
 
@@ -86,76 +82,118 @@ public:
 	void operator = (const String &other)
 	{
 		if (_str != k_emptyString)
-			t_allocator::free(_str);
+			allocator::dealloc(_str);
 
-		if (other.isEmpty) {
+		if (other.isEmpty()) {
 			_str = k_emptyString;
+			_size = 0;
 		} else {
-			_str = t_allocator::alloc(other._size);
+			_str = allocator::alloc(other._size + 1);
 			_size = other._size;
-			memcpy(_str, other._str, _size);
+			memcpy(_str, other._str, _size + 1);
 		}
 	}
 
 	void operator = (String&& other)
 	{
 		if (_str != k_emptyString)
-			t_allocator::free(_str);
+			allocator::dealloc(_str);
 
 		_str = other._str;
 		other._str = k_emptyString;
 		_size = other._size;
 		other._size = 0;
 	}
+	
+	void operator = (const char* other)
+	{
+		if (_str != k_emptyString)
+			allocator::dealloc(_str);
+
+		size_t otherSize = strSize(other);
+		if (otherSize == 0) {
+			_str = k_emptyString;
+			_size = 0;
+		} else {
+			_str = allocator::alloc(otherSize + 1);
+			_size = otherSize;
+			memcpy(_str , other, _size + 1);
+		}
+	}
+
+	_force_inline bool operator == (const String &other) const { return operator == (other._str); }
+	_force_inline bool operator != (const String &other) const { return operator != (other._str); }
+
+	bool operator == (const char* other) const
+	{
+		int i;
+		for (i = 0; other[i]; i++) {
+			if (i >= _size || _str[i] != other[i])
+				return false;
+		}
+
+		return i == _size;
+	}
+
+	bool operator != (const char* other) const
+	{
+		int i;
+		for (i = 0; other[i]; i++) {
+			if (i >= _size || _str[i] != other[i])
+				return true;
+		}
+
+		return i != _size;
+	}
 
 	_force_inline size_t size() const { return _size; }
 
-	static String Empty;
+	static const String empty;
 
-	template<class t_allocator>
 	friend class StringBuilder;
 
 private:
 	char *_str = k_emptyString;
-	size_t _size = 0;
+	size_t _size = 0;	// Size without '\0'
 };
 
+const String String::empty = String();
 
 
-template<class t_allocator>
+
 class StringBuilder
 {
-	using StringType = String<t_allocator>;
+	using allocator = DefaultHeapAllocator<char>;
 
 public:
 	StringBuilder() = default;
 
 	_force_inline void reserve(size_t count) { _segments.reserve(count); }
 	_force_inline void clear() { _segments.clear(); }
-	_force_inline void append(const StringType &str) 
+	_force_inline void append(const String &str) 
 	{ 
 		_segments.add(&str); 
 		_totalLength += str.size();
 	}
 
-	StringType build()
+	_nodiscard String build()
 	{
-		StringType string;
+		String string;
 		
 		// This memory will then be freed when the String's lifetime ends.
-		string._str = t_allocator::alloc(_totalLength);
+		string._str = allocator::alloc(_totalLength);
 
 		size_t offset = 0;
-		for (const StringType *segment : _segments) {
-			memcpy(&string._str[offset], segment._str, segment._size);
-			offset += segment._size;
+		for (const String *segment : _segments) {
+			memcpy(&string._str[offset], segment->_str, segment->_size);
+			offset += segment->_size;
 		}
 
 		return string;
 	}
 
 private:
-	DArray<const StringType *, t_allocator> _segments;
+	DArray<const String *> _segments;
 	size_t _totalLength = 0;
 };
 
