@@ -7,6 +7,8 @@
 
 constexpr static char k_tag[] = "[SArray]";
 
+using namespace age;
+
 TEST_CASE("StaticaArray Constructors", k_tag)
 {
 	// Default Constructor
