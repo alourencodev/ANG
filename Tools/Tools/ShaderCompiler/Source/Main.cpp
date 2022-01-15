@@ -2,16 +2,17 @@
 #include <filesystem>
 #include <string>
 
-#include <shaderc/shaderc.h>
-
 #include <Core/BuildScheme.hpp>
 #include <Core/DArray.hpp>
+#include <Core/File.h>
 #include <Core/SArray.hpp>
 #include <Core/String.hpp>
 #include <Core/StringBuilder.hpp>
 #include <Core/StringMap.hpp>
 #include <Core/StringUtils.hpp>
 #include <Core/Timer.hpp>
+
+#include "Compiler.h"
 
 
 using namespace age;
@@ -101,7 +102,22 @@ DArray<Shader> listShaders()
 
 
 
-void compileShader(shaderc_compiler_t compiler, const Shader& shader)
+shaderc_include_result* resolveInclude(void* user_data, const char* requested_source, int type, const char* requesting_source, size_t include_depth)
+{
+	// TODO
+	return nullptr;
+}
+
+
+
+void releaseIncludeResult(void* user_data, shaderc_include_result* include_result)
+{
+	delete include_result;
+}
+
+
+
+void resolveShader(const Compiler &compiler, const Shader& shader)
 {
 	constexpr u8 k_segmentCount = 3;	// root + relativePath + filename + extension
 	StringBuilder builder;
@@ -139,20 +155,22 @@ void compileShader(shaderc_compiler_t compiler, const Shader& shader)
 
 		reflexionDir = builder.build();
 	}
+	
+	auto sourceCode = age::file::readText(sourceDir);
 
+	const Compiler::Result compilationResult = compiler.compile(sourceCode, shader.fileName, shader.stage);
+	age::file::writeBinary(outputDir, compilationResult.bin().data(), compilationResult.bin().count());
 }
 
 
 
-
-void compileShaders(const DArray<Shader>& shaders)
+void resolveShaderList(const DArray<Shader>& shaders)
 {
-	shaderc_compiler_t compiler = shaderc_compiler_initialize();
+	Compiler compiler;
+	//shaderc_compile_options_set_include_callbacks(options, resolveInclude, releaseIncludeResult, nullptr);
 
 	for (const Shader &shader : shaders)
-		compileShader(compiler, shader);
-
-	shaderc_compiler_release(compiler);
+		resolveShader(compiler, shader);
 }
 
 
@@ -196,7 +214,7 @@ int main(int argc, char *argv[])
 	}
 	
 	DArray<Shader> shaders = listShaders();
-	compileShaders(shaders);
+	resolveShaderList(shaders);
 
 	age_log(k_tag, "Shader compilation complete. Duration %.2f", (compilationTimer.millis() / 1000.0f));
 
