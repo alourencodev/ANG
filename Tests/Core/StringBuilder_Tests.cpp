@@ -23,5 +23,18 @@ TEST_CASE("Build String With StringBuilder", k_tag)
 	String result = builder.build();
 
 	REQUIRE(result == "str1str2str3str4");
+
+	builder.append("more");
+	String result2 = builder.build();
+	REQUIRE(result2 == "str1str2str3str4more");
+
+	builder.clear();
+	builder.append(anotherString);
+	String result3 = builder.build();
+	REQUIRE(result3 == "str2");
+
+	builder.clear();
+	String emptyResult = builder.build();
+	REQUIRE(emptyResult == "");
 }
 
