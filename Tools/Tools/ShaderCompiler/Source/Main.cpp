@@ -8,6 +8,7 @@
 #include <Core/DArray.hpp>
 #include <Core/SArray.hpp>
 #include <Core/String.hpp>
+#include <Core/StringBuilder.hpp>
 #include <Core/StringMap.hpp>
 #include <Core/StringUtils.hpp>
 #include <Core/Timer.hpp>
@@ -46,23 +47,26 @@ static const age::SArray<const char*, 2> k_validExtensions = {
 
 
 // Output Extensions
-constexpr char k_spirvExtension[] = "spv";
-constexpr char k_reflexionExtension[] = "ageshader";
+constexpr char k_spirvExtension[] = ".spv";
+constexpr char k_reflexionExtension[] = ".ageshader";
 
 
 
 // Globals
+static ConstStringView g_sourceDir;
 static size_t g_sourceDirLength = 0;
+
+static ConstStringView g_outputDir;
 static size_t g_outputDirLength = 0;
 
 
 
-DArray<Shader> listShaders(const ConstStringView &sourceDir, const ConstStringView &outDir)
+DArray<Shader> listShaders()
 {
 	DArray<Shader> shaderList = {};
 	shaderList.reserve(16);
 
-	for (const auto& entry : fs::recursive_directory_iterator(sourceDir.str())) {
+	for (const auto& entry : fs::recursive_directory_iterator(g_sourceDir.str())) {
 		if (entry.is_directory())
 			continue;
 
@@ -78,7 +82,8 @@ DArray<Shader> listShaders(const ConstStringView &sourceDir, const ConstStringVi
 			Shader shader = {};
 
 			std::string shaderPath = entry.path().parent_path().string();
-			copyStr(shader.relativePath, shaderPath.c_str() + g_sourceDirLength);
+			if (shaderPath.size() > g_sourceDirLength)
+				copyStr(shader.relativePath, shaderPath.c_str() + g_sourceDirLength);
 
 			std::string fileName = entry.path().filename().string();
 			copyStr(shader.fileName, fileName.c_str());
@@ -92,6 +97,62 @@ DArray<Shader> listShaders(const ConstStringView &sourceDir, const ConstStringVi
 
 	shaderList.shrinkToFit();
 	return shaderList;
+}
+
+
+
+void compileShader(shaderc_compiler_t compiler, const Shader& shader)
+{
+	constexpr u8 k_segmentCount = 3;	// root + relativePath + filename + extension
+	StringBuilder builder;
+	builder.reserve(k_segmentCount);
+
+	String sourceDir;
+	String outputDir;
+	String reflexionDir;
+
+	{	// Build Source Dir
+		builder.append(g_sourceDir);
+		builder.append(shader.relativePath);
+		builder.append("\\");
+		builder.append(shader.fileName);
+
+		sourceDir = builder.build();
+	}
+
+
+	{	// Build Output Dir
+		builder.clear();
+		builder.append(g_outputDir);
+		builder.append(shader.relativePath);
+		builder.append("\\");
+		builder.append(shader.fileName);
+		builder.append(k_spirvExtension);
+
+		outputDir = builder.build();
+	}
+
+
+	{	// Reflexion Output Dir
+		builder.pop();
+		builder.append(k_reflexionExtension);
+
+		reflexionDir = builder.build();
+	}
+
+}
+
+
+
+
+void compileShaders(const DArray<Shader>& shaders)
+{
+	shaderc_compiler_t compiler = shaderc_compiler_initialize();
+
+	for (const Shader &shader : shaders)
+		compileShader(compiler, shader);
+
+	shaderc_compiler_release(compiler);
 }
 
 
@@ -114,14 +175,14 @@ int main(int argc, char *argv[])
 
 
 	// Setup io dirs
-	ConstStringView sourceDir(argv[1]);
-	g_sourceDirLength = sourceDir.calcSize();
+	g_sourceDir = ConstStringView(argv[1]);
+	g_sourceDirLength = g_sourceDir.calcSize();
 	
-	ConstStringView outputDir(argv[2]);
-	g_outputDirLength = outputDir.calcSize();
+	g_outputDir = ConstStringView(argv[2]);
+	g_outputDirLength = g_outputDir.calcSize();
 	
-	age_log(k_verboseTag, "SourceDir: %s", static_cast<const char *>(sourceDir));
-	age_log(k_verboseTag, "OutputDir: %s", static_cast<const char *>(outputDir));
+	age_log(k_verboseTag, "SourceDir: %s", g_sourceDir.str());
+	age_log(k_verboseTag, "OutputDir: %s", g_outputDir.str());
 
 
 	const u8 includeDirectoryCount = argc - 2;
@@ -134,7 +195,8 @@ int main(int argc, char *argv[])
 		includeDirectories.add(argv[i]);
 	}
 	
-	DArray<Shader> shaders = listShaders(sourceDir, outputDir);
+	DArray<Shader> shaders = listShaders();
+	compileShaders(shaders);
 
 	age_log(k_tag, "Shader compilation complete. Duration %.2f", (compilationTimer.millis() / 1000.0f));
 
