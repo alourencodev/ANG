@@ -15,6 +15,7 @@ public:
 	using Iterator = t_type *;
 	using ConstIterator = const t_type *;
 
+	Range() = default;
 	Range(t_type *data, size_t count) : _data(data), _count(count) {}
 	Range(Range && other) : Range(other._data, other._count) {}
 	Range(const Range &other) : Range(other._data, other._count) {}
@@ -29,6 +30,12 @@ public:
 	{
 		age_assertFatal(index < _count, "Range out of bounds! Trying to access index %d of Range with size %d", index, _count);
 		return _data[index];
+	}
+
+	void operator = (const Range<t_type>& other)
+	{
+		_data = other._data;
+		_count = other._count;
 	}
 
 	_force_inline const t_type *data() const { return _data; }
@@ -122,8 +129,8 @@ public:
 	_force_inline bool containsBackwards(const t_type &value) const { return findBackwards(value) != end(); }
 
 private:
-	t_type * const _data = nullptr;
-	const size_t _count = 0;
+	t_type * _data = nullptr;
+	size_t _count = 0;
 };
 
 template<typename t_type>
