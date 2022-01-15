@@ -49,6 +49,12 @@ public:
 		_totalLength += segment.size;
 	}
 
+	_force_inline void pop()
+	{
+		_totalLength -= _segments.back().size;
+		_segments.removeIndex(_segments.count() - 1);
+	}
+
 	_nodiscard String build()
 	{
 		String string;
