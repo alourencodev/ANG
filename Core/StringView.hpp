@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Core/Attributes.hpp>
 #include <Core/Log/Assert.hpp>
+#include <Core/StringUtils.hpp>
 
 namespace age
 {
@@ -52,12 +54,7 @@ public:
 
 	bool operator != (const StringViewBase &other) { return !operator==(other); }
 
-	u32 calcSize() const 
-	{
-		int i = 0;
-		for (; _str[i] != '\0'; i++) {}
-		return i;
-	}
+	_force_inline size_t calcSize() const { return strSize(_str); }
 
 	void getSubString(char *o_str, u32 length, u32 offset = 0) const
 	{
@@ -75,16 +72,16 @@ public:
 
 	void getSufix(char *o_str, u32 length) const
 	{
-		u32 size = calcSize();
+		size_t size = calcSize();
 		age_assertFatal(length <= size, "Trying to get sufix of length %d of a string that only has size %d", length, size);
 
-		u32 offset = size - length;
+		size_t offset = size - length;
 		memcpy(o_str, _str + offset, length);
 		o_str[length] = '\0';
 	}
 
-	t_charType *str() { return _str; }
-	const t_charType *str() const { return _str; }
+	_force_inline t_charType *str() { return _str; }
+	_force_inline const t_charType *str() const { return _str; }
 
 protected:
 	t_charType *_str = nullptr;

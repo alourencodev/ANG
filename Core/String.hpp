@@ -6,6 +6,7 @@
 #include <Core/DArray.hpp>
 #include <Core/Log/Assert.hpp>
 #include <Core/Memory/Allocator.hpp>
+#include <Core/StringUtils.hpp>
 
 
 
@@ -16,16 +17,6 @@ namespace
 {
 static char k_emptyString[] = "";
 }	// namespace anon
-
-
-
-size_t strSize(const char* str)
-{
-	size_t len = 0;
-	for (; str[len]; len++);
-
-	return len;
-}
 
 
 
