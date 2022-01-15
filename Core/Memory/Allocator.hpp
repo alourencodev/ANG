@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Meta.hpp"
+#include "Log/Log.h"
+
 
 template<typename t_type>
 class DefaultHeapAllocator

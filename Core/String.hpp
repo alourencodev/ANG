@@ -13,13 +13,6 @@
 namespace age
 {
 
-namespace
-{
-static char k_emptyString[] = "";
-}	// namespace anon
-
-
-
 class String
 {
 	using allocator = DefaultHeapAllocator<char>;
@@ -36,7 +29,7 @@ public:
 	String(const String& other)
 	{
 		if (other.isEmpty()) {
-			_str = k_emptyString;
+			_str = nullptr;
 		} else {
 			_str = allocator::alloc(other._size + 1);
 			_size = other._size;
@@ -47,7 +40,7 @@ public:
 	String(String&& other)
 	{
 		_str = other._str;
-		other._str = k_emptyString;
+		other._str = nullptr;
 		_size = other._size;
 		other._size = 0;
 	}
@@ -72,11 +65,11 @@ public:
 
 	void operator = (const String &other)
 	{
-		if (_str != k_emptyString)
+		if (_str != nullptr)
 			allocator::dealloc(_str);
 
 		if (other.isEmpty()) {
-			_str = k_emptyString;
+			_str = nullptr;
 			_size = 0;
 		} else {
 			_str = allocator::alloc(other._size + 1);
@@ -87,23 +80,23 @@ public:
 
 	void operator = (String&& other)
 	{
-		if (_str != k_emptyString)
+		if (_str != nullptr)
 			allocator::dealloc(_str);
 
 		_str = other._str;
-		other._str = k_emptyString;
+		other._str = nullptr;
 		_size = other._size;
 		other._size = 0;
 	}
 	
 	void operator = (const char* other)
 	{
-		if (_str != k_emptyString)
+		if (_str != nullptr)
 			allocator::dealloc(_str);
 
 		size_t otherSize = strSize(other);
 		if (otherSize == 0) {
-			_str = k_emptyString;
+			_str = nullptr;
 			_size = 0;
 		} else {
 			_str = allocator::alloc(otherSize + 1);
@@ -139,53 +132,10 @@ public:
 
 	_force_inline size_t size() const { return _size; }
 
-	static const String empty;
-
 	friend class StringBuilder;
-
 private:
-	char *_str = k_emptyString;
+	char *_str = nullptr;
 	size_t _size = 0;	// Size without '\0'
-};
-
-const String String::empty = String();
-
-
-
-class StringBuilder
-{
-	using allocator = DefaultHeapAllocator<char>;
-
-public:
-	StringBuilder() = default;
-
-	_force_inline void reserve(size_t count) { _segments.reserve(count); }
-	_force_inline void clear() { _segments.clear(); }
-	_force_inline void append(const String &str) 
-	{ 
-		_segments.add(&str); 
-		_totalLength += str.size();
-	}
-
-	_nodiscard String build()
-	{
-		String string;
-		
-		// This memory will then be freed when the String's lifetime ends.
-		string._str = allocator::alloc(_totalLength);
-
-		size_t offset = 0;
-		for (const String *segment : _segments) {
-			memcpy(&string._str[offset], segment->_str, segment->_size);
-			offset += segment->_size;
-		}
-
-		return string;
-	}
-
-private:
-	DArray<const String *> _segments;
-	size_t _totalLength = 0;
 };
 
 }	// namespace age

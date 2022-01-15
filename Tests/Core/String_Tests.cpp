@@ -1,6 +1,7 @@
 #include <Tests/Vendor/Catch2/catch.hpp>
 
 #include <Core/String.hpp>
+#include <Core/StringBuilder.hpp>
 
 using namespace age;
 
@@ -29,7 +30,6 @@ TEST_CASE("String Boolean Operators", k_tag)
 	SECTION("Comparison with empty string")
 	{
 		String str;
-		REQUIRE(str == String::empty);
 		REQUIRE(str != "other");
 		REQUIRE_FALSE(str == "other");
 		REQUIRE(str == "");
@@ -98,3 +98,4 @@ TEST_CASE("String Assign Operators", k_tag)
 	REQUIRE(str.size() == 12);
 	REQUIRE(str.size() == strSize(str));
 }
+

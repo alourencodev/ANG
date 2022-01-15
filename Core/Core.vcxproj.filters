@@ -112,6 +112,9 @@
     <ClInclude Include="StringUtils.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="StringBuilder.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

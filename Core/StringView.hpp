@@ -14,20 +14,31 @@ template<typename t_charType>
 class StringViewBase
 {
 public:
+	StringViewBase() = default;
+
 	StringViewBase(t_charType str[])
 	{
 		age_assertFatal(str != nullptr, "Cannot construct a StringView with a nullptr.");
 		_str = str;
 	}
 
-	StringViewBase(const StringViewBase &) = delete;
+	StringViewBase(const StringViewBase& other)
+	{
+		_str = other._str;
+	}
+
 	StringViewBase(StringViewBase &&other) noexcept
 	{
 		_str = other._str;
 		other._str = nullptr;
 	}
 
-	StringViewBase &operator = (const StringViewBase &) = delete;
+	StringViewBase &operator = (const StringViewBase &other)
+	{
+		_str = other._str;
+		return *this;
+	}
+
 	StringViewBase &operator = (StringViewBase &&other) noexcept
 	{
 		_str = other._str;
@@ -92,6 +103,7 @@ protected:
 class StringView : public StringViewBase<char>
 {
 public:
+	StringView() = default;
 	StringView(char str[]) : StringViewBase(str) {}
 };
 
@@ -99,6 +111,7 @@ public:
 class ConstStringView : public StringViewBase<const char>
 {
 public:
+	ConstStringView() = default;
 	ConstStringView(const char str[]) : StringViewBase(str) {}
 };
 

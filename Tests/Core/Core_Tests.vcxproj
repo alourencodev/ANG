@@ -152,6 +152,7 @@
     <ClCompile Include="Range_Tests.cpp" />
     <ClCompile Include="SArray_Tests.cpp" />
     <ClCompile Include="StackArray_Tests.cpp" />
+    <ClCompile Include="StringBuilder_Tests.cpp" />
     <ClCompile Include="StringView_Tests.cpp" />
     <ClCompile Include="String_Tests.cpp" />
   </ItemGroup>
