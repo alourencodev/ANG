@@ -21,6 +21,8 @@ public:
 	String() = default;
 	String(const char* str)
 	{
+		age_assert(str != nullptr, "Cannot create String with nullptr array of chars");
+
 		_size = strSize(str);
 		_str = allocator::alloc(_size + 1);
 		memcpy(_str, str, _size + 1);
