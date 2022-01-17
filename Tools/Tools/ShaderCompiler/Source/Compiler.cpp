@@ -3,6 +3,10 @@
 #include <Core/Log/Log.h>
 #include <Core/StringUtils.hpp>
 
+#include "Includer.h"
+
+
+
 namespace age
 {
 
@@ -30,6 +34,13 @@ Compiler::~Compiler()
 {
 	shaderc_compile_options_release(_options);
 	shaderc_compiler_release(_compiler);
+}
+
+
+
+void Compiler::bindIncluder(Includer &includer)
+{
+	shaderc_compile_options_set_include_callbacks(_options, resolveInclude, releaseIncludeResult, &includer);
 }
 
 

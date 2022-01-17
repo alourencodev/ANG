@@ -13,6 +13,9 @@
 #include <Core/Timer.hpp>
 
 #include "Compiler.h"
+#include "Extensions.hpp"
+#include "Includer.h"
+
 
 
 using namespace age;
@@ -22,9 +25,6 @@ constexpr char k_tag[] = "ShaderCompiler";
 constexpr char k_verboseTag[] = "DShaderCompiler";
 
 
-// Input Extensions
-constexpr char k_vertexExtension[] = ".vert";
-constexpr char k_fragmentExtension[] = ".frag";
 
 
 
@@ -33,16 +33,6 @@ struct Shader
 	char relativePath[128] = {};
 	char fileName[64] = {};
 	shaderc_shader_kind stage;
-};
-
-static const age::StringMap<shaderc_shader_kind> k_extensionMap = {
-	{k_vertexExtension, shaderc_vertex_shader},
-	{k_fragmentExtension, shaderc_fragment_shader}
-};
-
-static const age::SArray<const char*, 2> k_validExtensions = {
-	k_vertexExtension,
-	k_fragmentExtension
 };
 
 
@@ -62,6 +52,7 @@ static size_t g_outputDirLength = 0;
 
 
 
+
 DArray<Shader> listShaders()
 {
 	DArray<Shader> shaderList = {};
@@ -71,9 +62,8 @@ DArray<Shader> listShaders()
 		if (entry.is_directory())
 			continue;
 
-		std::string extensionString = entry.path().extension().string();
-		const char* extension = extensionString.c_str();
-		const shaderc_shader_kind *stagePtr = k_extensionMap.at(extension);
+		std::string extension = entry.path().extension().string();
+		const shaderc_shader_kind *stagePtr = k_extensionMap.at(extension.c_str());
 
 		// Ignore files with invalid extensions
 		if (stagePtr == nullptr)
@@ -100,20 +90,6 @@ DArray<Shader> listShaders()
 	return shaderList;
 }
 
-
-
-shaderc_include_result* resolveInclude(void* user_data, const char* requested_source, int type, const char* requesting_source, size_t include_depth)
-{
-	// TODO
-	return nullptr;
-}
-
-
-
-void releaseIncludeResult(void* user_data, shaderc_include_result* include_result)
-{
-	delete include_result;
-}
 
 
 
@@ -164,10 +140,10 @@ void resolveShader(const Compiler &compiler, const Shader& shader)
 
 
 
-void resolveShaderList(const DArray<Shader>& shaders)
+void resolveShaderList(Includer &includer, const DArray<Shader>& shaders)
 {
 	Compiler compiler;
-	//shaderc_compile_options_set_include_callbacks(options, resolveInclude, releaseIncludeResult, nullptr);
+	compiler.bindIncluder(includer);
 
 	for (const Shader &shader : shaders)
 		resolveShader(compiler, shader);
@@ -202,19 +178,18 @@ int main(int argc, char *argv[])
 	age_log(k_verboseTag, "SourceDir: %s", g_sourceDir.str());
 	age_log(k_verboseTag, "OutputDir: %s", g_outputDir.str());
 
-
 	const u8 includeDirectoryCount = argc - 2;
-	DArray<const char*> includeDirectories = {};
-	includeDirectories.reserve(includeDirectoryCount);
+	Includer includer;
+	includer.reserveIncludeDir(includeDirectoryCount);
 
 	// Store include directories
 	for (int i = 3; i < argc; i++) {
 		age_log(k_verboseTag, "IncludeDir: %s", argv[i]);
-		includeDirectories.add(argv[i]);
+		includer.addIncludeDir(argv[i]);
 	}
 	
 	DArray<Shader> shaders = listShaders();
-	resolveShaderList(shaders);
+	resolveShaderList(includer, shaders);
 
 	age_log(k_tag, "Shader compilation complete. Duration %.2f", (compilationTimer.millis() / 1000.0f));
 

@@ -8,6 +8,8 @@
 namespace age
 {
 
+class Includer;
+
 class Compiler
 {
 public:
@@ -29,6 +31,7 @@ public:
 	Compiler();
 	~Compiler();
 	
+	void bindIncluder(Includer &includer);
 	Result compile(const DArray<byte> &sourceCode, const char *fileName, shaderc_shader_kind stage) const;
 
 private:
