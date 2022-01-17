@@ -130,7 +130,12 @@ public:
 	_force_inline size_t count() const { return _count; }
 	_force_inline bool isEmpty() const { return _count == 0; }
 
-	bool add(const t_keyType &key, const t_valueType &value)
+
+
+	/**
+	* Returns true if new element added.
+	**/
+	bool add(const t_keyType &key, const t_valueType &value, t_valueType **valuePtr = nullptr)
 	{
 		const float loadFactor = (_count + 1) / static_cast<float>(_capacity);
 		if (_capacity == 0 || loadFactor >= k_rehashThreshold)
@@ -148,6 +153,9 @@ public:
 
 		_data[index] = {t_keyType(key), t_valueType(value), e_HashNodeState::Full };
 		_count++;
+
+		if (valuePtr != nullptr)
+			*valuePtr = &(_data[index].value);
 
 		return true;
 	}
@@ -220,14 +228,16 @@ private:
 	}
 
 	_force_inline i32 _findExistingIndex(const t_keyType &key) const
-	{
-		i32 index = _hashValue(key);
-		while(_data[index].state != e_HashNodeState::Empty) {
-			if (_data[index].state == e_HashNodeState::Full && t_behavior{}.isEqual(_data[index].key, key))
-				return index;
+	{	
+		if (_data != nullptr) {
+			i32 index = _hashValue(key);
+			while(_data[index].state != e_HashNodeState::Empty) {
+				if (_data[index].state == e_HashNodeState::Full && t_behavior{}.isEqual(_data[index].key, key))
+					return index;
 
-			// If Removed it continues
-			index = (index + 1) % _capacity;
+				// If Removed it continues
+				index = (index + 1) % _capacity;
+			}
 		}
 
 		return -1;
