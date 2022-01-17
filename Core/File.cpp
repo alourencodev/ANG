@@ -35,7 +35,7 @@ DArray<byte> readBinary(const char *path)
 
 DArray<char> readText(const char *path)
 {
-	std::ifstream file(path, std::ios::ate);
+	std::ifstream file(path, std::ios::ate | std::ios::binary);
 
 	if (!file.is_open()) {
 		std::string currentPath = std::filesystem::current_path().string();
@@ -43,12 +43,14 @@ DArray<char> readText(const char *path)
 	}
 		
 	size_t fileSize = file.tellg();
-	DArray<char> buffer(fileSize);
+	DArray<char> buffer(fileSize + 1);
 	buffer.addEmpty(fileSize);
 
 	file.seekg(0);
 	file.read(buffer.data(), fileSize);
 	file.close();
+
+	buffer.add('\0');
 
 	return buffer;
 }

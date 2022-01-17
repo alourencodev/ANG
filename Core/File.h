@@ -1,13 +1,9 @@
 #pragma once
 
+#include "DArray.hpp"
+#include "Types.hpp"
 
-namespace age
-{
 
-template<typename, typename>
-class DArray;
-
-}
 
 namespace age::file
 {
@@ -17,4 +13,4 @@ DArray<char> readText(const char *path);
 
 void writeBinary(const char *path, const byte *data, size_t size);
 
-}
+}	// namespace age::file
