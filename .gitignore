@@ -23,3 +23,4 @@ AGE/Lib/yaml-cpp/Lib/yaml-cppd.pdb
 # Misc
 Tools/*.exe
 Tools/*.pdb
+Tools/Tools/ShaderCompiler/TestShaders/Out/
