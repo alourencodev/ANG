@@ -95,6 +95,8 @@ void Compiler::compile(const char *sourceDir, const char *fileName, shaderc_shad
 	const char *bin = shaderc_result_get_bytes(result);
 
 	file::writeBinary(outputDir, bin, binSize);
+
+	shaderc_result_release(result);
 }
 
 }
