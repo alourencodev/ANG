@@ -70,8 +70,8 @@ const String *Includer::getSource(const char* requestedSource)
 			for (const auto &entry : fs::directory_iterator(includeDir)) {
 				fs::path sourcePath(entry.path());
 
-				std::string extensionString = sourcePath.extension().string();
-				if (k_validExtensions.contains(extensionString.c_str())) {
+				std::string filename = sourcePath.filename().string();
+				if (strEqual(requestedSource, filename.c_str())) {
 					sourceCodeRaw = file::readText(sourcePath.string().c_str());
 					break;				
 				}
