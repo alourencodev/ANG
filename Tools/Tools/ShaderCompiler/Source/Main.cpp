@@ -122,6 +122,10 @@ void resolveShader(const Compiler &compiler, const Shader& shader)
 		builder.append(k_spirvExtension);
 
 		outputDir = builder.build();
+
+		fs::path outputDirPath(outputDir.str());
+		if (!fs::exists(outputDirPath.parent_path()))
+			fs::create_directory(outputDirPath.parent_path());
 	}
 
 
@@ -132,10 +136,7 @@ void resolveShader(const Compiler &compiler, const Shader& shader)
 		reflexionDir = builder.build();
 	}
 	
-	auto sourceCode = age::file::readText(sourceDir);
-
-	const Compiler::Result compilationResult = compiler.compile(sourceCode, shader.fileName, shader.stage);
-	age::file::writeBinary(outputDir, compilationResult.bin().data(), compilationResult.bin().count());
+	compiler.compile(sourceDir, shader.fileName, shader.stage, outputDir);
 }
 
 

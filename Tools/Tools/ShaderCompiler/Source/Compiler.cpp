@@ -1,6 +1,7 @@
 #include "Compiler.h"
 
 #include <Core/Log/Log.h>
+#include <Core/File.h>
 #include <Core/StringUtils.hpp>
 
 #include "Includer.h"
@@ -44,9 +45,9 @@ void Compiler::bindIncluder(Includer &includer)
 }
 
 
-
-Compiler::Result Compiler::compile(const DArray<byte>& sourceCode, const char *fileName, shaderc_shader_kind stage) const
+void Compiler::compile(const char *sourceDir, const char *fileName, shaderc_shader_kind stage, const char *outputDir) const
 {
+	auto sourceCode = age::file::readBinary(sourceDir);
 	auto result = shaderc_compile_into_spv(_compiler, sourceCode.data(), sourceCode.count(), stage, fileName, "main", _options);
 	
 	if (shaderc_result_get_num_errors(result) > 0)
@@ -93,11 +94,7 @@ Compiler::Result Compiler::compile(const DArray<byte>& sourceCode, const char *f
 	size_t binSize = shaderc_result_get_length(result);
 	const char *bin = shaderc_result_get_bytes(result);
 
-	Result compilerResult = {};
-	compilerResult._bin = Range<const char>(bin, binSize);
-	compilerResult._result = result;
-
-	return compilerResult;
+	file::writeBinary(outputDir, bin, binSize);
 }
 
 }

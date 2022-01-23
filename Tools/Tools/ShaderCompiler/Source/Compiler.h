@@ -13,26 +13,11 @@ class Includer;
 class Compiler
 {
 public:
-	class Result
-	{
-	public:
-		Result() = default;
-		~Result() { if (_result != nullptr) shaderc_result_release(_result); }
-
-		_force_inline const Range<const char> bin() const { return _bin; }
-
-		friend class Compiler;
-
-	private:
-		Range<const char> _bin = {};
-		shaderc_compilation_result_t _result = nullptr;
-	};
-
 	Compiler();
 	~Compiler();
 	
 	void bindIncluder(Includer &includer);
-	Result compile(const DArray<byte> &sourceCode, const char *fileName, shaderc_shader_kind stage) const;
+	void compile(const char *sourceDir, const char *fileName, shaderc_shader_kind stage, const char *outputDir) const;
 
 private:
 	shaderc_compiler_t _compiler = nullptr;
