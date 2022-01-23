@@ -5,6 +5,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Vendor">
+      <UniqueIdentifier>{6b85242d-bc5b-4ce6-b39f-ea1cde59ceab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -15,6 +18,9 @@
     </ClCompile>
     <ClCompile Include="Source\Includer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vendor\SPIRV-Reflect\spirv_reflect.c">
+      <Filter>Vendor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
