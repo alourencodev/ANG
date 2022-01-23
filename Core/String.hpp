@@ -134,7 +134,11 @@ public:
 
 	_force_inline size_t size() const { return _size; }
 
+	const char *str() const { return _str; }
+	char *str() { return _str; }
+
 	friend class StringBuilder;
+
 private:
 	char *_str = nullptr;
 	size_t _size = 0;	// Size without '\0'
