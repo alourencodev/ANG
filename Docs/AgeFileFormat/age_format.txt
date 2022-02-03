@@ -1,0 +1,18 @@
+- The files must have a format version and a serialization version.
+- [x] Use new line to break objects?
+- [x] How to distinguish between ints and floats?
+    - This can be defined by the variable that corresponds to this value in runtime. 
+      This means that serialization wise, ints and floats would be always stored as floats.
+        - The issue with this is that we need at least an extra '.' and '0' per int that is serialized.
+    - We need a way to tie what is beign serialized with what is used in runtime on write and read.
+- For lists, if there is a ',', it means that there will be another element. Otherwise it's the last element on the list.
+- Sections can have sub sections. This can be used to describe data structures.
+- [-] What about references to other serialized objects? UUID, path?
+    - Let's take care of the entity system first to understand the better way to do this.
+- [x] Do we really need the '"' for strings? We can just rely on the runtime defined type right?
+    - Nope.
+- [x] Is there a value between a string and a literal value? E.g. key: "String" vs key: EnumValue?
+    - There shouldn't. This seems to be one more thing that can be defined by who reads/writes it.
+- [ ] Can it be useful to add type data for debug reasons?
+
+- Briefly, we don't need to have any type information in the serialized data. This can all be handled by the layout of the runtime objects.

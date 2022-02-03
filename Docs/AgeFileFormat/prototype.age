@@ -1,0 +1,22 @@
+age: 0.1.0
+v: 0.1.0
+section:
+    int: 1
+    float: 1.0
+otherSection:
+    list:
+        element1,
+        element2,
+        element3
+    list2:
+        1,
+        2,
+        3
+parent_section:
+    sub_section:
+        map:
+            key: value,
+            key2: value2,
+            key3: value3,
+        name: YaName
+        type: EnumType
