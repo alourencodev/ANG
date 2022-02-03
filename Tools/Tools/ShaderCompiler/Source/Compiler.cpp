@@ -104,6 +104,18 @@ void Compiler::compile(const char *sourceDir, const char *fileName, shaderc_shad
 
 
 
+#define ENUMERATE_HELPER(func, module, darray, fileName)															\
+{																													\
+	u32 count = 0;																									\
+	SpvReflectResult result = func(&module, &count, nullptr);														\
+	age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to enumerate variables for shader %s", fileName);	\
+	darray.reserveWithEmpty(count);																					\
+	result = func(&module, &count, darray.data());																	\
+	age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to enumerate variables for shader %s", fileName);	\
+}														
+
+
+
 void Compiler::reflect(const char* bin, size_t size, const char *fileName) const
 {
 	SpvReflectShaderModule module;
@@ -111,31 +123,12 @@ void Compiler::reflect(const char* bin, size_t size, const char *fileName) const
 	SpvReflectResult result = spvReflectCreateShaderModule(size, bin, &module);
 	age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to reflect shader %s", fileName);
 
-	{	// Input Variables
-		u32 count = 0;
-		result = spvReflectEnumerateInputVariables(&module, &count, nullptr);
-		age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to enumerate input variables for shader %s", fileName);
+	DArray<SpvReflectInterfaceVariable *> inputVariables;
+	ENUMERATE_HELPER(spvReflectEnumerateInputVariables, module, inputVariables, fileName);
 
-		DArray<SpvReflectInterfaceVariable *> inputVariables;
-		inputVariables.reserveWithEmpty(count);
+	DArray<SpvReflectInterfaceVariable *> outputVariables;
+	ENUMERATE_HELPER(spvReflectEnumerateOutputVariables, module, outputVariables, fileName);
 
-		result = spvReflectEnumerateInputVariables(&module, &count, inputVariables.data());
-		age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to enumerate input variables for shader %s", fileName);
-	}
-
-	{	// Output Variables
-		u32 count = 0;
-		result = spvReflectEnumerateOutputVariables(&module, &count, nullptr);
-		age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to enumerate output variables for shader %s", fileName);
-
-		DArray<SpvReflectInterfaceVariable *> outputVariables;
-		outputVariables.reserveWithEmpty(count);
-
-		result = spvReflectEnumerateOutputVariables(&module, &count, outputVariables.data());
-		age_assertFatal(result == SPV_REFLECT_RESULT_SUCCESS, "Failed to enumerate output variables for shader %s", fileName);
-	}
-
-	// TODO: Get some kind of enumerate helper, since every query looks the same codewise.
 	// TODO: Write reflexion to file.
 
 	spvReflectDestroyShaderModule(&module);

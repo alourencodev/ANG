@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AGEFile\AGEFile.h" />
     <ClInclude Include="Attributes.hpp" />
     <ClInclude Include="BitField.hpp" />
     <ClInclude Include="BuildScheme.hpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Version.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AGEFile\AGEFile.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Log\Log.cpp" />
   </ItemGroup>

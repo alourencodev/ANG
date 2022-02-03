@@ -14,6 +14,9 @@
     <Filter Include="Source Files\Memory">
       <UniqueIdentifier>{cee42d7f-87f7-4ed6-a069-bbc9469ba9f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\AGEFile">
+      <UniqueIdentifier>{730461ff-4dd4-45f1-aae9-a1af3cacf06b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -115,6 +118,9 @@
     <ClInclude Include="StringBuilder.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="AGEFile\AGEFile.h">
+      <Filter>Source Files\AGEFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">
@@ -122,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="File.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AGEFile\AGEFile.cpp">
+      <Filter>Source Files\AGEFile</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
