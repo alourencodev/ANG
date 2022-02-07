@@ -35,8 +35,4 @@ public:
 }
 
 
-
-template<typename t_first, typename t_second, typename t_valueType, typename t_allocator = DefaultHashMapAllocator<Pair<t_first, t_second>, t_valueType>>
-using PairMap = HashMap<Pair<t_first, t_second>, t_valueType, PairHashMapBehavior, t_allocator>;
-
 }
