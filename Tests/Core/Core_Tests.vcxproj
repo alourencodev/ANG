@@ -136,6 +136,7 @@
     <ClInclude Include="TestUtils\TestNonCopyable.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AGEFile_Tests.cpp" />
     <ClCompile Include="BitField_Tests.cpp" />
     <ClCompile Include="DArray_Tests.cpp" />
     <ClCompile Include="Function_Tests.cpp" />

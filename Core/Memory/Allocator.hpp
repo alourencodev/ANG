@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Meta.hpp"
-#include "Log/Log.h"
+#include "Core/Meta.hpp"
+#include "Core/Log/Log.h"
 
 
 template<typename t_type>

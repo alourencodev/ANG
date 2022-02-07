@@ -10,6 +10,7 @@
 Bin/
 Build/
 Interm/
+Tests/Core/Out/*
 
 # Dependencies
 AGE/Lib/yaml-cpp/Lib/yaml-cpp.lib
