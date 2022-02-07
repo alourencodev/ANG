@@ -74,4 +74,21 @@ void writeBinary(const char *path, const byte *data, size_t size)
 }
 
 
+
+void writeText(const char *path, const char *data, size_t size)
+{
+	std::ofstream file(path, std::ios::out);
+
+	if (!file.is_open()) {
+		std::string currentPath = std::filesystem::current_path().string();
+		age_error(k_tag, "Failed to open file %s from directory %s", path, currentPath.c_str());
+	}
+
+	file.write(data, size);
+	file.close();
+
+	if (!file.good())
+		age_error(k_tag, "Error occurred when writing to %s", path);
+}
+
 }

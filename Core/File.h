@@ -12,5 +12,6 @@ DArray<byte> readBinary(const char *path);
 DArray<char> readText(const char *path);
 
 void writeBinary(const char *path, const byte *data, size_t size);
+void writeText(const char *path, const char *data, size_t size);
 
 }	// namespace age::file
