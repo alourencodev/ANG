@@ -10,9 +10,17 @@
 - [-] What about references to other serialized objects? UUID, path?
     - Let's take care of the entity system first to understand the better way to do this.
 - [x] Do we really need the '"' for strings? We can just rely on the runtime defined type right?
-    - Nope.
+    - Yes because there might be spaces or even reserved characters, e.g. ':' or ','.
 - [x] Is there a value between a string and a literal value? E.g. key: "String" vs key: EnumValue?
     - There shouldn't. This seems to be one more thing that can be defined by who reads/writes it.
 - [ ] Can it be useful to add type data for debug reasons?
+- [ ] There must be a way to diferentiate a '\n' that stays in the same scope or goes back a scope.
+    - Can we use ';' for this?
 
 - Briefly, we don't need to have any type information in the serialized data. This can all be handled by the layout of the runtime objects.
+
+
+There can be three different kinds of nodes.
+1- Key: <Node>
+2- value
+3- <Node, Node, Node> 
