@@ -24,7 +24,7 @@ public:
 	AGEFile(const String &dir, const Version &version);
 
 	Node *requestNode();
-	void setRoot(Node *root) { _root = root; }
+	Node *getRoot() { return _root; }
 
 	void read();
 	void write();

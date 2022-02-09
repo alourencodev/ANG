@@ -11,22 +11,23 @@ TEST_CASE("Write Minimal AGEFile")
 	AGEFile file("Out/Minimal.age", {1, 2, 3});
 	auto *node = file.requestNode();
 	node->value = "Name";
-	file.setRoot(node);
+	file.getRoot()->children.add(node);
 	file.write();
 }
+
+
 
 TEST_CASE("Write AGEFile with all types")
 {
 	AGEFile file("Out/AllTypes.age", {1, 2, 3});
 
-	// Root Node
-	auto *root = file.requestNode();
-	root->value = "Root";
-	file.setRoot(root);
+	auto *nameNode = file.requestNode();
+	file.getRoot()->children.add(nameNode);
+	nameNode->value = "Name";
 
 	// Key Node
 	auto *keyNode = file.requestNode();
-	root->children.add(keyNode);
+	nameNode->children.add(keyNode);
 	keyNode->value = "Key";
 
 	// Value Node
@@ -36,7 +37,7 @@ TEST_CASE("Write AGEFile with all types")
 
 	// List Node
 	auto *listNode = file.requestNode();
-	root->children.add(listNode);
+	file.getRoot()->children.add(listNode);
 	listNode->value = "List";
 
 	auto *elementA = file.requestNode();
@@ -51,8 +52,9 @@ TEST_CASE("Write AGEFile with all types")
 	listNode->children.add({elementA, elementB, elementC});
 
 	file.write();
-
 }
+
+
 
 TEST_CASE("Write AGEFile with list of Objects")
 {

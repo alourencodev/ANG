@@ -20,6 +20,7 @@ constexpr Version k_version = {0, 1, 0};
 AGEFile::AGEFile(const String& dir, const Version &version) : _dir(dir), _version(version)
 {
 	_nodePool.reserve(k_preallocNodes);
+	_root = requestNode();
 }
 
 
@@ -46,22 +47,42 @@ void AGEFile::read()
 
 
 
-void writeNode(std::stringstream &stream, AGEFile::Node *node)
+void writeNode(std::stringstream &stream, AGEFile::Node *node, int scopeDepth = 0)
 {
+	for (int i = 0; i < scopeDepth; i++)
+		stream << '\t';
+
 	stream << node->value;
 	
-	if (node->children.isEmpty()) {
-		stream << '\n';
-	} else {
+	if (!node->children.isEmpty()) {
 		stream << ':';
-		writeNode(stream, node->children[0]);
 
-		for (int i = 1; i < node->children.count(); i++) {
-			stream << ',';
-			writeNode(stream, node->children[i]);
+		{	// Write First Element
+
+			/* One is considered complex value if it's other than a "key:value".
+			 * E.g. 
+			 * Name:
+			 *		key:value,
+			 *		key:value,
+			 *		...
+			 */
+			const bool isComplexValue = node->children.count() > 1 || !node->children[0]->children.isEmpty();
+			if (isComplexValue) {
+				stream << '\n';
+				writeNode(stream, node->children[0], scopeDepth + 1);
+			} else {
+				/* If we are a simple key value, at this stage we should have "key:" so we just 
+				 * write the value and add a new line.
+				 */
+				writeNode(stream, node->children[0]);
+				stream << '\n';
+			}
 		}
 
-		stream << '\n';
+		for (int i = 1; i < node->children.count(); i++) {
+			stream << ",\n";
+			writeNode(stream, node->children[i], scopeDepth + 1);
+		}
 	}
 }
 
@@ -78,7 +99,9 @@ void AGEFile::write()
 	stream << "age:" << k_version << '\n';
 	stream << "v:" << _version << '\n';
 
-	writeNode(stream, _root);
+	for (Node *child : _root->children)
+		writeNode(stream, child);
+
 	const std::string &str = stream.str();
 	file::writeText(_dir, str.c_str(), str.size());
 }
