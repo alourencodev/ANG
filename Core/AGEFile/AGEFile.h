@@ -2,12 +2,13 @@
 
 #include "Core/DArray.hpp"
 #include "Core/String.hpp"
-#include "Core/Version.hpp"
 
 
 
 namespace age
 {
+
+struct Version;
 
 // TODO: Use pool allocator for Strings and DArrays
 class AGEFile
@@ -21,19 +22,20 @@ public:
 		DArray<Node *> children;
 	};
 
-	AGEFile(const String &dir, const Version &version);
+	AGEFile();
 
-	Node *requestNode();
 	Node *getRoot() { return _root; }
 
 	void read();
-	void write();
+	void write(const char *dir, const Version &version);
+
+	Node *add(const String &value, Node *parent = nullptr);
 
 private:
+	Node *requestNode();
+
 	Node *_root = nullptr;
 	DArray<Node> _nodePool = {};
-	String _dir = {};
-	Version _version = {0, 0, 0};
 };
 
 }

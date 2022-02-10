@@ -6,6 +6,7 @@
 #include "Core/File.h"
 #include "Core/Log/Log.h"
 #include "Core/StringBuilder.hpp"
+#include "Core/Version.hpp"
 
 
 
@@ -17,7 +18,7 @@ constexpr u8 k_preallocNodes = 32;
 
 constexpr Version k_version = {0, 1, 0};
 
-AGEFile::AGEFile(const String& dir, const Version &version) : _dir(dir), _version(version)
+AGEFile::AGEFile()
 {
 	_nodePool.reserve(k_preallocNodes);
 	_root = requestNode();
@@ -47,63 +48,82 @@ void AGEFile::read()
 
 
 
-void writeNode(std::stringstream &stream, AGEFile::Node *node, int scopeDepth = 0)
+void writeNode(std::stringstream &stream, AGEFile::Node *node, u8 scopeDepth = 0)
 {
 	for (int i = 0; i < scopeDepth; i++)
 		stream << '\t';
 
 	stream << node->value;
 	
-	if (!node->children.isEmpty()) {
-		stream << ':';
+	if (node->children.isEmpty())
+		return;
 
-		{	// Write First Element
+	{	// Write Children
+		const bool isList = node->children.count() > 1;
 
-			/* One is considered complex value if it's other than a "key:value".
-			 * E.g. 
-			 * Name:
-			 *		key:value,
-			 *		key:value,
-			 *		...
-			 */
-			const bool isComplexValue = node->children.count() > 1 || !node->children[0]->children.isEmpty();
-			if (isComplexValue) {
+		if (isList) {
+			stream << "{\n";
+
+			const u8 childScopeDepth = scopeDepth + 1;
+			writeNode(stream, node->children[0], childScopeDepth);
+			for (int i = 1; i < node->children.count(); i++) {
+				stream << ",\n";
+				writeNode(stream, node->children[i], childScopeDepth);
+			}
+
+			stream << '\n';
+			for (int i = 0; i < scopeDepth; i++)
+				stream << '\t';
+
+			stream << "}";
+
+		} else {
+			const bool childIsValue = node->children[0]->children.isEmpty();
+			if (!childIsValue) {
 				stream << '\n';
 				writeNode(stream, node->children[0], scopeDepth + 1);
 			} else {
-				/* If we are a simple key value, at this stage we should have "key:" so we just 
-				 * write the value and add a new line.
-				 */
+				stream << ':';
 				writeNode(stream, node->children[0]);
-				stream << '\n';
 			}
-		}
-
-		for (int i = 1; i < node->children.count(); i++) {
-			stream << ",\n";
-			writeNode(stream, node->children[i], scopeDepth + 1);
 		}
 	}
 }
 
 
 
-void AGEFile::write()
+void AGEFile::write(const char *dir, const Version &version)
 {
-	if (_root == nullptr) {
+	if (_root == nullptr || _root->children.isEmpty()) {
 		age_error(k_tag, "Trying to write empty AGEFile.");
 		return;
 	}
 
 	std::stringstream stream;
 	stream << "age:" << k_version << '\n';
-	stream << "v:" << _version << '\n';
+	stream << "v:" << version << '\n';
 
-	for (Node *child : _root->children)
-		writeNode(stream, child);
+	writeNode(stream, _root->children[0]);
+	for (int i = 1; i < _root->children.count(); i++) {
+		stream << '\n';
+		writeNode(stream, _root->children[i]);
+	}
 
 	const std::string &str = stream.str();
-	file::writeText(_dir, str.c_str(), str.size());
+	file::writeText(dir, str.c_str(), str.size());
+}
+
+
+
+AGEFile::Node *AGEFile::add(const String &value, Node *parent /*= nullptr*/)
+{
+	Node *node = requestNode();
+	node->value = value;
+
+	Node *parentNode = parent == nullptr ? _root : parent;
+	parentNode->children.add(node);
+
+	return node;
 }
 
 }	// namespace age
