@@ -19,6 +19,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DEC84305-F168-4FB5-AF8C-CCDA68F45CE7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core_Tests", "Tests\Core\Core_Tests.vcxproj", "{FEBE0C34-08A1-4983-A402-593395EB5C1A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0FB76F60-C9D9-4D4C-A05E-3CEF293D2C34} = {0FB76F60-C9D9-4D4C-A05E-3CEF293D2C34}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{A415E5DC-5AB4-4FD5-A848-60127FDFD42B}"
 	ProjectSection(SolutionItems) = preProject
