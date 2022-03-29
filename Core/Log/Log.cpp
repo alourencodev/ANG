@@ -31,6 +31,7 @@ void rawLog(const LogSetting &setting, const char *file, long line, const std::s
 }
 
 
+
 void enable(const std::string &tag)
 {
     if (s_loggerRegister.find(tag) != s_loggerRegister.end())
@@ -41,6 +42,8 @@ void enable(const std::string &tag)
 
     s_loggerRegister.insert(tag);
 }
+
+
 
 void disable(const std::string &tag)
 {
