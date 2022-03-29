@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/DArray.hpp>
 #include <Core/Timer.hpp>
 #include <Core/BuildScheme.hpp>
 
@@ -27,8 +28,9 @@ public:
 	};
 
 private:
+	DArray<u64> _durations = {};
 	const char *_tag = nullptr;
-	u64 _micros = 0;
+	u64 _nanos = 0;
 	u32 _count = 0;
 };
 
