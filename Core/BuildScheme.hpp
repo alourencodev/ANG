@@ -11,7 +11,11 @@
 
 #ifdef AGE_DEBUG
 #	define IF_DEBUG(X) X
+
+#ifndef AGE_RELEASE_DBG_INFO
 #	define AGE_RELEASE_DBG_INFO
+#endif
+
 #	define AGE_MEMORY_DBG
 #else
 #	define IF_DEBUG(X)
