@@ -138,7 +138,7 @@ public:
 	**/
 	bool add(const t_keyType &key, const t_valueType &value, t_valueType **valuePtr = nullptr)
 	{
-		AGE_PROFILE_TIME_TAG();
+		AGE_PROFILE_TIME();
 
 		const float loadFactor = (_count + 1) / static_cast<float>(_capacity);
 		if (_capacity == 0 || loadFactor >= k_rehashThreshold)

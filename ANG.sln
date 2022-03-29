@@ -33,6 +33,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderCompiler", "Tools\Too
 		{0FB76F60-C9D9-4D4C-A05E-3CEF293D2C34} = {0FB76F60-C9D9-4D4C-A05E-3CEF293D2C34}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Analysis", "Analysis\Analysis.vcxproj", "{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0FB76F60-C9D9-4D4C-A05E-3CEF293D2C34} = {0FB76F60-C9D9-4D4C-A05E-3CEF293D2C34}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +96,15 @@ Global
 		{7F55457E-6200-41EF-895F-7098FDE22746}.ReleaseDbgInfo|x64.Build.0 = Release|x64
 		{7F55457E-6200-41EF-895F-7098FDE22746}.ReleaseDbgInfo|x86.ActiveCfg = Release|Win32
 		{7F55457E-6200-41EF-895F-7098FDE22746}.ReleaseDbgInfo|x86.Build.0 = Release|Win32
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.Debug|x64.ActiveCfg = Debug|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.Debug|x64.Build.0 = Debug|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.Debug|x86.ActiveCfg = Debug|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.Release|x64.ActiveCfg = Release|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.Release|x64.Build.0 = Release|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.Release|x86.ActiveCfg = Release|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.ReleaseDbgInfo|x64.ActiveCfg = ReleaseDbgInfo|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.ReleaseDbgInfo|x64.Build.0 = ReleaseDbgInfo|x64
+		{7BCFBEEF-8A90-4A90-8874-CC4F4FD6CCB4}.ReleaseDbgInfo|x86.ActiveCfg = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
