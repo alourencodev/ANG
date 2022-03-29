@@ -131,8 +131,6 @@ public:
 	_force_inline size_t count() const { return _count; }
 	_force_inline bool isEmpty() const { return _count == 0; }
 
-
-
 	/**
 	* Returns true if new element added.
 	**/
@@ -140,8 +138,7 @@ public:
 	{
 		AGE_PROFILE_TIME();
 
-		const float loadFactor = (_count + 1) / static_cast<float>(_capacity);
-		if (_capacity == 0 || loadFactor >= k_rehashThreshold)
+		if (_hasLoadFactorBeenReached() || _capacity == 0)
 			_grow();
 
 		u32 index = _hashValue(key);
@@ -206,19 +203,29 @@ public:
 
 private:
 
+	_force_inline void _growthAdd(const t_keyType &key, const t_valueType &value)
+	{
+		u32 index = _hashValue(key);
+		while (_data[index].state == e_HashNodeState::Full)
+			index++;
+
+		_data[index] = {t_keyType(key), t_valueType(value), e_HashNodeState::Full };
+	}
+
 	_force_inline void _grow()
 	{
+		AGE_PROFILE_TIME();
+
 		size_t oldCapacity = _capacity;
 		Node *oldData = _data;
 
 		_capacity = math::max(k_defaultCapacity, _capacity *2);
 		_data = t_allocator::alloc(_capacity);
-		_count = 0;
 		memset(_data, 0, sizeof(Node) * _capacity);
 
 		for (int i = 0; i < oldCapacity; i++) {
 			if (oldData[i].state == e_HashNodeState::Full)
-				add(oldData[i].key, oldData[i].value);
+				_growthAdd(oldData[i].key, oldData[i].value);
 		}
 
 		t_allocator::dealloc(oldData);
@@ -245,6 +252,8 @@ private:
 
 		return -1;
 	}
+
+	_force_inline bool _hasLoadFactorBeenReached() const { return (_count + 1) / static_cast<float>(_capacity) >= k_rehashThreshold; }
 
 	Node *_data = nullptr;
 	size_t _capacity = 0;
