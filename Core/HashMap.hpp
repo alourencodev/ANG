@@ -15,6 +15,8 @@
 namespace age
 {
 
+// TODO: Implement reserve method
+
 template<typename t_type>
 struct HashMapBehavior
 {
@@ -45,27 +47,27 @@ public:
 
 	HashMap(const HashMap &other)
 	{
-		if (!t_allocator::realloc(&_states, other._capacity * k_elementSize))
+		if (!t_allocator::realloc(&_flags, other._capacity * k_elementSize))
 			age_error(k_tag, "Unable to reallocate memory during copy constructor");
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		memcpy(_states, other._states, _capacity * sizeof(k_elementSize));
+		memcpy(_flags, other._flags, _capacity * sizeof(k_elementSize));
 	}
 
 	HashMap(HashMap &&other)
 	{
 		_dealloc();
 
-		_states = other._states;
+		_flags = other._flags;
 		_keys = other._keys;
 		_values = other._values;
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		other._states = nullptr;
+		other._flags = nullptr;
 		other._keys = nullptr;
 		other._values = nullptr;
 
@@ -85,27 +87,27 @@ public:
 
 	void operator = (const HashMap &other)
 	{
-		if (!t_allocator::realloc(&_states, other._capacity * k_elementSize))
+		if (!t_allocator::realloc(&_flags, other._capacity * k_elementSize))
 			age_error(k_tag, "Unable to reallocate memory during copy assignment");
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		memcpy(_states, other._states, _capacity * sizeof(k_elementSize));
+		memcpy(_flags, other._flags, _capacity * sizeof(k_elementSize));
 	}
 
 	void operator = (HashMap &&other) noexcept
 	{
 		_dealloc();
 
-		_states = other._states;
+		_flags = other._flags;
 		_keys = other._keys;
 		_values = other._values;
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		other._states = nullptr;
+		other._flags = nullptr;
 		other._keys = nullptr;
 		other._values = nullptr;
 
@@ -128,7 +130,7 @@ public:
 			_grow();
 
 		u32 index = _hashValue(key);
-		while (_states[index] == EKeyState::Full)
+		while (_flags[index])
 		{
 			// If already exists
 			if (_keys[index] == key)
@@ -153,7 +155,7 @@ public:
 			_grow();
 
 		u32 index = _hashValue(key);
-		while (_states[index] == EKeyState::Full)
+		while (_flags[index])
 		{
 			// If already exists
 			if (_keys[index] == key)
@@ -189,14 +191,14 @@ public:
 		if (index < 0)
 			return false;
 
-		_states[index] = EKeyState::Empty;
+		_flags[index] = false;
 		_count--;
 		return true;
 	}
 	
 	_force_inline void clear()
 	{
-		memset(_states, static_cast<int>(EKeyState::Empty), _capacity);
+		memset(_flags, 0 /* false */, _capacity);
 		_count = 0;
 	}
 
@@ -209,16 +211,10 @@ public:
 	}
 
 private:
-	enum class EKeyState : u8
-	{
-		Empty = 0,
-		Full
-	};
-
 	_force_inline void _growthAdd(const t_keyType &key, const t_valueType &value)
 	{
 		u32 index = _hashValue(key);
-		while (_states[index] == EKeyState::Full)
+		while (_flags[index])
 			index++;
 
 		_setElement(index, key, value);
@@ -228,20 +224,27 @@ private:
 	{
 		AGE_PROFILE_TIME();
 
+		// For the first add, allocating is enough, since there are no old elements to readd
+		if (_capacity == 0) {
+			_capacity = k_defaultCapacity;
+			_alloc();
+			return;
+		}
+
 		size_t oldCapacity = _capacity;
-		EKeyState *oldStates = _states;
+		bool *oldFlags = _flags;
 		t_keyType *oldKeys = _keys;
 		t_valueType *oldValues = _values;
 
-		_capacity = math::max(k_defaultCapacity, _capacity * 2);
+		_capacity *= 2;
 		_alloc();
 
 		for (int i = 0; i < oldCapacity; i++) {
-			if (oldStates[i] == EKeyState::Full)
+			if (oldFlags[i])
 				_growthAdd(oldKeys[i], oldValues[i]);
 		}
 
-		t_allocator::dealloc(reinterpret_cast<u8 *>(oldStates));
+		t_allocator::dealloc(reinterpret_cast<u8 *>(oldFlags));
 	}
 
 	_force_inline u32 _hashValue(const t_keyType &key) const
@@ -252,11 +255,11 @@ private:
 
 	_force_inline i32 _findExistingIndex(const t_keyType &key) const
 	{	
-		if (_states == nullptr)
+		if (_flags == nullptr)
 			return -1;
 
 		i32 index = _hashValue(key);
-		while(_states[index] != EKeyState::Empty) {
+		while(_flags[index]) {
 			if (t_behavior{}.isEqual(_keys[index], key))
 				return index;
 
@@ -283,7 +286,7 @@ private:
 
 		// Use bytePtr to make sure the pointer arithmetic is done at the byte level
 		u8 *bytePtr = t_allocator::alloc(k_elementSize * _capacity); 
-		_states = reinterpret_cast<EKeyState *>(bytePtr);
+		_flags = reinterpret_cast<bool *>(bytePtr);
 
 		bytePtr += _capacity;
 		_keys = reinterpret_cast<t_keyType *>(bytePtr);
@@ -293,22 +296,22 @@ private:
 		_values = reinterpret_cast<t_valueType *>(bytePtr);
 		IF_MEMORY_DBG(*bytePtr = 187 /*BB*/);
 		
-		memset(_states, static_cast<int>(EKeyState::Empty), _capacity);
+		memset(_flags, 0 /* false */, _capacity);
 	}
 
 	_force_inline void _dealloc()
 	{
-		t_allocator::dealloc(reinterpret_cast<u8 *>(_states));
+		t_allocator::dealloc(reinterpret_cast<u8 *>(_flags));
 	}
 
 	_force_inline void _setElement(int index, const t_keyType& key, const t_valueType& value)
 	{
-		_states[index] = EKeyState::Full;
+		_flags[index] = 1;
 		_keys[index] = t_keyType(key);
 		_values[index] = t_valueType(value);
 	}
 
-	EKeyState *_states = nullptr;		// TODO: state only needs a bit, maybe we can encode this somewhere
+	bool *_flags = nullptr;		// True when offset is being used. // TODO: state only needs a bit, maybe we can encode this somewhere
 	t_keyType *_keys = nullptr;
 	t_valueType *_values = nullptr;
 
