@@ -1,11 +1,10 @@
 
 #include "HashMap_Analysis.h"
 
-#include <Core/HashMap.hpp>
+#include <Core/StringMap.hpp>
 #include <Core/Log/Log.h>
 #include <Core/Profiler/TimeProfiler.h>
-
-#include <string>
+#include <Core/String.hpp>
 
 namespace age::hashMap
 {
@@ -14,7 +13,7 @@ constexpr char k_tag[] = "HashMapAnalysis";
 
 void runAddAnalysis()
 {
-	HashMap<std::string, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+	StringMap<int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
 	map.add("first", 4);
 	map.add("second", 5);
 	map.add("resize", 6);

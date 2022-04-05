@@ -33,7 +33,7 @@ public:
 
 }
 
-template<typename t_valueType, typename t_allocator = DefaultHashMapAllocator<const char *, t_valueType>>
-using StringMap = HashMap<const char *, t_valueType, StringHashMapBehavior, t_allocator>;
+template<typename t_valueType>
+using StringMap = HashMap<const char *, t_valueType, StringHashMapBehavior>;
 
 }
