@@ -13,18 +13,20 @@ constexpr char k_tag[] = "TimeProfiler";
 
 TimeProfiler::~TimeProfiler()
 {
-	float avg = static_cast<float>(_nanos) / static_cast<float>(_count);
+	const float micros = static_cast<float>(_nanos) * 0.001f;
+	const float avg = micros / _count;
 
+	age_forceLog(k_tag, " ---------- // ---------- // ---------- ");
 	age_forceLog(k_tag, "Profiling %s", _tag);
-	age_forceLog(k_tag, "Total Time = %d ns | Count = %d | Average = %.f ns", _nanos, _count, avg);
+	age_forceLog(k_tag, "Total Time = %.3f us | Count = %d | Average = %.3f us", micros, _count, avg);
 
 	std::stringstream sstream;
 	sstream << _durations;
 	std::string durationsStr = sstream.str();
 
-	age_forceLog(k_tag, "%s", durationsStr.c_str());
+	age_forceLog(k_tag, "Samples in ns: %s", durationsStr.c_str());
 
-	age_forceLog(k_tag, " ----- // ----- // ----- ");
+	age_forceLog(k_tag, " ---------- // ---------- // ---------- \n");
 }
 
 
@@ -50,6 +52,5 @@ TimeProfiler::Instance::~Instance()
 {
 	_profiler->ping(_timer.nanos());
 }
-
 
 }
