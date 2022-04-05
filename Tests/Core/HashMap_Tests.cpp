@@ -1,8 +1,8 @@
 #include <Tests/Vendor/Catch2/catch.hpp>
 
-#include <string>
 
 #include <Core/HashMap.hpp>
+#include <Core/StringMap.hpp>
 
 
 using namespace age;
@@ -13,7 +13,7 @@ TEST_CASE("Hash Map Constructor", k_tag)
 {
 	SECTION("Default Constructor")
 	{
-		HashMap<std::string, int> map;
+		StringMap<int> map;
 		
 		REQUIRE(map.capacity() == 0);
 		REQUIRE(map.count() == 0);
@@ -22,13 +22,13 @@ TEST_CASE("Hash Map Constructor", k_tag)
 
 	SECTION("Capacity Constructor")
 	{
-		HashMap<std::string, int> map(4);
+		StringMap<int> map(4);
 		
 		REQUIRE(map.capacity() == 8);
 		REQUIRE(map.count() == 0);
 		REQUIRE(map.isEmpty());
 
-		HashMap<std::string, int> map2(10);
+		StringMap<int> map2(10);
 		REQUIRE(map2.capacity() == 16);
 		REQUIRE(map2.count() == 0);
 		REQUIRE(map2.isEmpty());
@@ -36,7 +36,7 @@ TEST_CASE("Hash Map Constructor", k_tag)
 
 	SECTION("Initializer List Constructor")
 	{
-		HashMap<std::string, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+		StringMap<int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
 
 		REQUIRE(map.capacity() == 8);
 		REQUIRE(map.count() == 3);
@@ -54,7 +54,7 @@ TEST_CASE("Hash Map Constructor", k_tag)
 
 TEST_CASE("HashMap Resize", k_tag)
 {
-	HashMap<std::string, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+	StringMap<int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
 	map.add("first", 4);
 	map.add("second", 5);
 
@@ -74,7 +74,7 @@ TEST_CASE("HashMap Resize", k_tag)
 
 TEST_CASE("HashMap Clear", k_tag)
 {
-	HashMap<std::string, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+	StringMap<int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
 	map.clear();
 
 	REQUIRE(map.capacity() == 8);
