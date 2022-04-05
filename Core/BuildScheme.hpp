@@ -30,7 +30,6 @@
 #endif
 
 
-
 #if defined(AGE_DEBUG)
 #	define BUILD_SCHEME_STR "Debug"
 #elif defined(AGE_RELEASE_DBG_INFO)
@@ -39,6 +38,12 @@
 #	define BUILD_SCHEME_STR ""
 #endif
 
+
+#ifdef AGE_MEMORY_DBG
+#define IF_MEMORY_DBG(X) X
+#else
+#define IF_MEMORY_DBG(X)
+#endif
 
 
 #if !defined(AGE_DEBUG) && !defined(AGE_RELEASE_DBG_INFO)
