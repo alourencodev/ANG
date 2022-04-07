@@ -25,7 +25,7 @@ class HashMap
 	constexpr static char k_tag[] = "HashMap";
 	constexpr static size_t k_defaultCapacity = 8;
 	constexpr static float k_rehashThreshold = 0.7f;
-	constexpr static u32 k_elementSize = sizeof(t_keyType) + sizeof(u8) + sizeof(t_valueType);
+	constexpr static u32 k_elementSize = sizeof(t_keyType) + sizeof(byte) + sizeof(t_valueType);
 
 public:
 	HashMap() = default;
@@ -234,7 +234,7 @@ private:
 				_growthAdd(oldKeys[i], oldValues[i]);
 		}
 
-		t_allocator::dealloc(reinterpret_cast<u8 *>(oldFlags));
+		t_allocator::dealloc(reinterpret_cast<byte *>(oldFlags));
 	}
 
 	_force_inline u32 _hashValue(const t_keyType &key) const
@@ -274,7 +274,7 @@ private:
 		// Values come last because we always need to check states and keys first.
 
 		// Use bytePtr to make sure the pointer arithmetic is done at the byte level
-		u8 *bytePtr = t_allocator::alloc(k_elementSize * _capacity); 
+		byte *bytePtr = t_allocator::alloc(k_elementSize * _capacity); 
 		_flags = reinterpret_cast<bool *>(bytePtr);
 
 		bytePtr += _capacity;
@@ -290,7 +290,7 @@ private:
 
 	_force_inline void _dealloc()
 	{
-		t_allocator::dealloc(reinterpret_cast<u8 *>(_flags));
+		t_allocator::dealloc(reinterpret_cast<byte *>(_flags));
 	}
 
 	_force_inline void _setElement(int index, const t_keyType& key, const t_valueType& value)
