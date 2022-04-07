@@ -40,7 +40,7 @@ public:
 		}
 	}
 
-	String(String&& other)
+	String(String&& other) noexcept
 	{
 		_str = other._str;
 		other._str = nullptr;
