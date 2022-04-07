@@ -296,8 +296,10 @@ private:
 	_force_inline void _setElement(int index, const t_keyType& key, const t_valueType& value)
 	{
 		_flags[index] = 1;
-		_keys[index] = t_keyType(key);
-		_values[index] = t_valueType(value);
+
+		// Call constructors in the already allocated memory
+		new (&_keys[index]) t_keyType(key);
+		new (&_values[index]) t_valueType(value);
 	}
 
 	bool *_flags = nullptr;		// True when offset is being used. // TODO: state only needs a bit, maybe we can encode this somewhere
