@@ -18,7 +18,7 @@ class HashCollider
 {
 public:
 	HashCollider(int i) : _i(i) { }
-	bool operator == (const HashCollider& other) const { return _i == other._i; }
+	bool operator == (const HashCollider &other) const { return _i == other._i; }
 
 private:
 	int _i = 0;
@@ -26,7 +26,7 @@ private:
 
 
 template<>
-size_t hash::hash<HashCollider>(const HashCollider &collider) { return 1; }
+u64 hash::hash<HashCollider>(const HashCollider &collider) { return 1; }
 
 
 TEST_CASE("Hash Map Constructor", k_tag)

@@ -22,15 +22,15 @@ template<typename t_keyType,
 class HashMap
 {
 	constexpr static char k_tag[] = "HashMap";
-	constexpr static size_t k_defaultCapacity = 8;
+	constexpr static u32 k_defaultCapacity = 8;
 	constexpr static float k_rehashThreshold = 0.7f;
-	constexpr static u32 k_elementSize = sizeof(t_keyType) + sizeof(byte) + sizeof(t_valueType);
+	constexpr static u64 k_elementSize = sizeof(t_keyType) + sizeof(byte) + sizeof(t_valueType);
 
 public:
 	HashMap() = default;
-	HashMap(size_t capacity)
+	HashMap(u32 capacity)
 	{
-		_capacity = math::max(math::nextPow2(capacity), k_defaultCapacity);
+		_capacity = math::max(static_cast<u32>(math::nextPow2(capacity)), k_defaultCapacity);
 		alloc();
 	}
 
@@ -64,7 +64,7 @@ public:
 		other._count = 0;
 	}
 
-	HashMap(std::initializer_list<std::pair<t_keyType, t_valueType>> &&list) : HashMap(list.size())
+	HashMap(std::initializer_list<std::pair<t_keyType, t_valueType>> &&list) : HashMap(static_cast<u32>(list.size()))
 	{
 		for (const auto &pair : list) {
 			if (!add(pair.first, pair.second))
@@ -202,8 +202,8 @@ public:
 	}
 
 
-	_force_inline size_t capacity() const { return _capacity; }
-	_force_inline size_t count() const { return _count; }
+	_force_inline u32 capacity() const { return _capacity; }
+	_force_inline u32 count() const { return _count; }
 	_force_inline bool isEmpty() const { return _count == 0; }
 
 private:
@@ -227,7 +227,7 @@ private:
 			return;
 		}
 
-		const size_t oldCapacity = _capacity;
+		const u32 oldCapacity = _capacity;
 
 		EKeyState *oldStates = _states;
 		const t_keyType *oldKeys = _keys;
@@ -241,7 +241,7 @@ private:
 		// We can do this with a lightweight version of add, since we can be sure of some facts:
 		// - Every element in the old map has a unique key;
 		// - We won't reach the load factor
-		for (int i = 0; i < oldCapacity; i++) {
+		for (u32 i = 0; i < oldCapacity; i++) {
 			if (oldStates[i] != EKeyState::Set)
 				continue;
 
@@ -323,8 +323,8 @@ private:
 	t_keyType *_keys = nullptr;
 	t_valueType *_values = nullptr;
 
-	size_t _capacity = 0;
-	size_t _count = 0;
+	u32 _capacity = 0;
+	u32 _count = 0;
 };
 
 }    // namespace age
