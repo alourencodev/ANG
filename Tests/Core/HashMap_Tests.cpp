@@ -9,6 +9,26 @@ using namespace age;
 
 constexpr static char k_tag[] = "[HashMap]";
 
+
+/*
+ * Class with custom hash function that always returns the same value.
+ * The purpose of this is to test HashMap collision behaviour
+ */
+class HashCollider
+{
+public:
+	HashCollider(int i) : _i(i) { }
+	bool operator == (const HashCollider& other) const { return _i == other._i; }
+
+private:
+	int _i = 0;
+};
+
+
+template<>
+size_t hash::hash<HashCollider>(const HashCollider &collider) { return 1; }
+
+
 TEST_CASE("Hash Map Constructor", k_tag)
 {
 	SECTION("Default Constructor")
@@ -72,6 +92,7 @@ TEST_CASE("HashMap Resize", k_tag)
 	REQUIRE(map["resize"] == 6);
 }
 
+
 TEST_CASE("HashMap Clear", k_tag)
 {
 	HashMap<String, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
@@ -81,4 +102,19 @@ TEST_CASE("HashMap Clear", k_tag)
 	REQUIRE(map.count() == 0);
 }
 
-// TODO: Test move and copy constructors
+
+TEST_CASE("HashMap Removal", k_tag)
+{
+	HashMap<HashCollider, int> map;
+	map.add(HashCollider(1), 1);
+	map.add(HashCollider(2), 2);
+
+	REQUIRE(map.contains(HashCollider(1)));
+	REQUIRE(map.contains(HashCollider(2)));
+
+	map.remove(HashCollider(1));
+
+	REQUIRE_FALSE(map.contains(HashCollider(1)));
+	REQUIRE(map.contains(HashCollider(2)));
+}
+

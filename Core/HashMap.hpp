@@ -37,27 +37,27 @@ public:
 
 	HashMap(const HashMap &other)
 	{
-		if (!t_allocator::realloc(&_flags, other._capacity * k_elementSize))
+		if (!t_allocator::realloc(&_states, other._capacity * k_elementSize))
 			age_error(k_tag, "Unable to reallocate memory during copy constructor");
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		memcpy(_flags, other._flags, _capacity * sizeof(k_elementSize));
+		memcpy(_states, other._states, _capacity * sizeof(k_elementSize));
 	}
 
 	HashMap(HashMap &&other)
 	{
 		_dealloc();
 
-		_flags = other._flags;
+		_states = other._states;
 		_keys = other._keys;
 		_values = other._values;
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		other._flags = nullptr;
+		other._states = nullptr;
 		other._keys = nullptr;
 		other._values = nullptr;
 
@@ -77,27 +77,27 @@ public:
 
 	void operator = (const HashMap &other)
 	{
-		if (!t_allocator::realloc(&_flags, other._capacity * k_elementSize))
+		if (!t_allocator::realloc(&_states, other._capacity * k_elementSize))
 			age_error(k_tag, "Unable to reallocate memory during copy assignment");
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		memcpy(_flags, other._flags, _capacity * sizeof(k_elementSize));
+		memcpy(_states, other._states, _capacity * sizeof(k_elementSize));
 	}
 
 	void operator = (HashMap &&other) noexcept
 	{
 		_dealloc();
 
-		_flags = other._flags;
+		_states = other._states;
 		_keys = other._keys;
 		_values = other._values;
 
 		_capacity = other._capacity;
 		_count = other._count;
 
-		other._flags = nullptr;
+		other._states = nullptr;
 		other._keys = nullptr;
 		other._values = nullptr;
 
@@ -120,7 +120,7 @@ public:
 			_grow();
 
 		u32 index = _hashValue(key);
-		while (_flags[index])
+		while (_states[index] == EKeyState::Set)
 		{
 			// If already exists
 			if (hash::isKeyEqual(_keys[index], key))
@@ -145,7 +145,7 @@ public:
 			_grow();
 
 		u32 index = _hashValue(key);
-		while (_flags[index])
+		while (_states[index] == EKeyState::Set)
 		{
 			// If already exists
 			if (hash::isKeyEqual(_keys[index], key))
@@ -181,14 +181,14 @@ public:
 		if (index < 0)
 			return false;
 
-		_flags[index] = false;
+		_states[index] = EKeyState::Removed;
 		_count--;
 		return true;
 	}
 	
 	_force_inline void clear()
 	{
-		memset(_flags, 0 /* false */, _capacity);
+		memset(_states, static_cast<byte>(EKeyState::Empty), _capacity);
 		_count = 0;
 	}
 
@@ -201,10 +201,18 @@ public:
 	}
 
 private:
+
+	enum class EKeyState : u8
+	{
+		Empty,
+		Set,
+		Removed
+	};
+
 	_force_inline void _growthAdd(const t_keyType &key, const t_valueType &value)
 	{
 		u32 index = _hashValue(key);
-		while (_flags[index])
+		while (_states[index] == EKeyState::Set)
 			index++;
 
 		_setElement(index, key, value);
@@ -222,7 +230,7 @@ private:
 		}
 
 		size_t oldCapacity = _capacity;
-		bool *oldFlags = _flags;
+		EKeyState *oldFlags = _states;
 		t_keyType *oldKeys = _keys;
 		t_valueType *oldValues = _values;
 
@@ -230,7 +238,7 @@ private:
 		_alloc();
 
 		for (int i = 0; i < oldCapacity; i++) {
-			if (oldFlags[i])
+			if (oldFlags[i] == EKeyState::Set)
 				_growthAdd(oldKeys[i], oldValues[i]);
 		}
 
@@ -244,12 +252,12 @@ private:
 
 	_force_inline i32 _findExistingIndex(const t_keyType &key) const
 	{	
-		if (_flags == nullptr)
+		if (_states == nullptr)
 			return -1;
 
 		i32 index = _hashValue(key);
-		while(_flags[index]) {
-			if (hash::isKeyEqual(_keys[index], key))
+		while(_states[index] != EKeyState::Empty) {
+			if (_states[index] == EKeyState::Set && hash::isKeyEqual(_keys[index], key))
 				return index;
 
 			// If empty it continues
@@ -275,7 +283,7 @@ private:
 
 		// Use bytePtr to make sure the pointer arithmetic is done at the byte level
 		byte *bytePtr = t_allocator::alloc(k_elementSize * _capacity); 
-		_flags = reinterpret_cast<bool *>(bytePtr);
+		_states = reinterpret_cast<EKeyState *>(bytePtr);
 
 		bytePtr += _capacity;
 		_keys = reinterpret_cast<t_keyType *>(bytePtr);
@@ -285,24 +293,24 @@ private:
 		_values = reinterpret_cast<t_valueType *>(bytePtr);
 		IF_MEMORY_DBG(*bytePtr = 187 /*BB*/);
 		
-		memset(_flags, 0 /* false */, _capacity);
+		memset(_states, static_cast<byte>(EKeyState::Empty), _capacity);
 	}
 
 	_force_inline void _dealloc()
 	{
-		t_allocator::dealloc(reinterpret_cast<byte *>(_flags));
+		t_allocator::dealloc(reinterpret_cast<byte *>(_states));
 	}
 
 	_force_inline void _setElement(int index, const t_keyType& key, const t_valueType& value)
 	{
-		_flags[index] = 1;
+		_states[index] = EKeyState::Set;
 
 		// Call constructors in the already allocated memory
 		new (&_keys[index]) t_keyType(key);
 		new (&_values[index]) t_valueType(value);
 	}
 
-	bool *_flags = nullptr;		// True when offset is being used. // TODO: state only needs a bit, maybe we can encode this somewhere
+	EKeyState *_states = nullptr;		// True when offset is being used. // TODO: state only needs a bit, maybe we can encode this somewhere
 	t_keyType *_keys = nullptr;
 	t_valueType *_values = nullptr;
 
