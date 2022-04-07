@@ -127,6 +127,9 @@
     <ClInclude Include="Profiler\TimeProfiler.h">
       <Filter>Source Files\Profiler</Filter>
     </ClInclude>
+    <ClInclude Include="Hash.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">

@@ -1,35 +1,25 @@
 #pragma once
 
-#include "Attributes.hpp"
+#include "Core/Attributes.hpp"
+#include "Core/Hash.h"
 #include "Core/Math/Math.hpp"
 #include "Core/Meta.hpp"
 #include "Core/Range.hpp"
 #include "Core/Types.hpp"
-#include "Log/Assert.hpp"
-#include "Log/Log.h"
-#include "Memory/Allocator.hpp"
-#include <Core/Profiler/TimeProfiler.h>
+#include "Core/Log/Assert.hpp"
+#include "Core/Log/Log.h"
+#include "Core/Memory/Allocator.hpp"
+#include "Core/Profiler/TimeProfiler.h"
 
-#include <functional>
+
 
 namespace age
 {
 
-// TODO: Implement reserve method
-
-template<typename t_type>
-struct HashMapBehavior
-{
-public:
-	virtual bool isEqual(const t_type &a, const t_type &b) const { return a == b; }
-	virtual size_t hash(const t_type &value) const { return std::hash<t_type>{}(value); }
-};
-
 
 template<typename t_keyType, 
 		 typename t_valueType,
-		 typename t_behavior = HashMapBehavior<t_keyType>, 
-		 typename t_allocator = DefaultHeapAllocator<u8>>
+		 typename t_allocator = DefaultHeapAllocator<byte>>
 class HashMap
 {
 	constexpr static char k_tag[] = "HashMap";
@@ -133,7 +123,7 @@ public:
 		while (_flags[index])
 		{
 			// If already exists
-			if (_keys[index] == key)
+			if (hash::isKeyEqual(_keys[index], key))
 				return false; 
 
 			index = (index + 1) % _capacity;
@@ -158,7 +148,7 @@ public:
 		while (_flags[index])
 		{
 			// If already exists
-			if (_keys[index] == key)
+			if (hash::isKeyEqual(_keys[index], key))
 				return false; 
 
 			index = (index + 1) % _capacity;
@@ -249,8 +239,7 @@ private:
 
 	_force_inline u32 _hashValue(const t_keyType &key) const
 	{
-		size_t hash = t_behavior{}.hash(key);
-		return static_cast<u32>(hash & (_capacity - 1));
+		return static_cast<u32>(hash::hash(key) & (_capacity - 1));
 	}
 
 	_force_inline i32 _findExistingIndex(const t_keyType &key) const
@@ -260,7 +249,7 @@ private:
 
 		i32 index = _hashValue(key);
 		while(_flags[index]) {
-			if (t_behavior{}.isEqual(_keys[index], key))
+			if (hash::isKeyEqual(_keys[index], key))
 				return index;
 
 			// If empty it continues
