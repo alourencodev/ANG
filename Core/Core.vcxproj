@@ -171,7 +171,6 @@
     <ClInclude Include="StackArray.hpp" />
     <ClInclude Include="String.hpp" />
     <ClInclude Include="StringBuilder.hpp" />
-    <ClInclude Include="StringMap.hpp" />
     <ClInclude Include="StringUtils.hpp" />
     <ClInclude Include="StringView.hpp" />
     <ClInclude Include="Timer.hpp" />

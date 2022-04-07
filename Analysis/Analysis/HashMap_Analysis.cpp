@@ -1,7 +1,7 @@
 
 #include "HashMap_Analysis.h"
 
-#include <Core/StringMap.hpp>
+#include <Core/HashMap.hpp>
 #include <Core/Log/Log.h>
 #include <Core/Profiler/TimeProfiler.h>
 #include <Core/String.hpp>
@@ -13,7 +13,7 @@ constexpr char k_tag[] = "HashMapAnalysis";
 
 void runAddAnalysis()
 {
-	StringMap<int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
+	HashMap<const char *, int> map = {{"aba", 1}, {"baba", 1}, {"other", 3}};
 	map.add("first", 4);
 	map.add("second", 5);
 	map.add("resize", 6);

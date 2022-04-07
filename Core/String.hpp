@@ -4,6 +4,7 @@
 
 #include <Core/Attributes.hpp>
 #include <Core/DArray.hpp>
+#include <Core/Hash.h>
 #include <Core/Log/Assert.hpp>
 #include <Core/Memory/Allocator.hpp>
 #include <Core/StringUtils.hpp>
@@ -142,6 +143,13 @@ public:
 private:
 	char *_str = nullptr;
 	size_t _size = 0;	// Size without '\0'
+};
+
+
+template<>
+_force_inline size_t hash::hash<String>(const String &value)
+{
+	return hash::hash<const char *>(value.str());
 };
 
 }	// namespace age

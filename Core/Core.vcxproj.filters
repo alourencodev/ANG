@@ -94,9 +94,6 @@
     <ClInclude Include="Function.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="StringMap.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="File.h">
       <Filter>Source Files</Filter>
     </ClInclude>

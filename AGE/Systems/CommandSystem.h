@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Core/BuildScheme.hpp>
-#include <Core/StringMap.hpp>
-
+#include <Core/HashMap.hpp>
 
 namespace age
 {
@@ -30,7 +29,7 @@ public:
 	bool runCommand(const char *commandKey, const CommandArgs &args);
 
 private:
-	using CommandMap = StringMap<Command *>;
+	using CommandMap = HashMap<const char *, Command*>;
 	CommandMap _commandMap;
 };
 
