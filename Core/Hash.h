@@ -18,7 +18,7 @@ _force_inline bool isKeyEqual(const t_keyType &a, const t_keyType &b)
 
 
 template<>
-_force_inline bool isKeyEqual<const char*>(const char* const& a, const char* const& b)
+_force_inline bool isKeyEqual<cStr>(const cStr &a, const cStr &b)
 {
 	i32 i = 0;
 	for (; a[i] != '\0'; i++) {
@@ -38,7 +38,7 @@ _force_inline u64 hash(const t_keyType &value)
 
 
 template<>
-_force_inline size_t hash::hash<const char *>(const char * const &value)
+_force_inline u64 hash::hash<cStr>(const cStr &value)
 {
 	// Values recommended at http://isthe.com/chongo/tech/comp/fnv/
 	constexpr u32 k_prime = 16777619; 

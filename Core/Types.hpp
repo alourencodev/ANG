@@ -19,3 +19,4 @@ using u64 = uint64_t;
 using byte = char;
 using f32 = float;
 using f64 = double;
+using cStr = const char *;
