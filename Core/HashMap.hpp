@@ -9,11 +9,8 @@
 #include "Core/Log/Assert.hpp"
 #include "Core/Log/Log.h"
 #include "Core/Memory/Allocator.hpp"
-
-#ifdef AGE_PROFILE_ENABLED
 #include "Core/Profiler/TimeProfiler.h"
 #include "Core/Profiler/HitProfiler.h"
-#endif
 
 
 namespace age
@@ -21,12 +18,13 @@ namespace age
 
 template<typename t_keyType, 
 		 typename t_valueType,
-		 typename t_allocator = DefaultHeapAllocator<byte>>
+		 typename t_allocator = DefaultHeapAllocator<byte>,
+		 u32 t_loadFactorPercentage = 70>
 class HashMap
 {
 	constexpr static char k_tag[] = "HashMap";
 	constexpr static u32 k_defaultCapacity = 8;
-	constexpr static float k_rehashThreshold = 0.7f;
+	constexpr static float k_loadFactor = t_loadFactorPercentage * 0.01f;
 	constexpr static u64 k_elementSize = sizeof(t_keyType) + sizeof(byte) + sizeof(t_valueType);
 
 public:
@@ -288,7 +286,7 @@ private:
 	}
 
 
-	_force_inline bool reachedLoadFactor() const { return (_count + 1) / static_cast<float>(_capacity) >= k_rehashThreshold; }
+	_force_inline bool reachedLoadFactor() const { return (_count + 1) / static_cast<float>(_capacity) >= k_loadFactor; }
 	_force_inline u32 calcProbe(const t_keyType &key) const { return static_cast<u32>(hash::hash(key) & (_capacity - 1)); }
 	_force_inline u32 reProbe(u32 index) const { return (index + 1) % (_capacity - 1); }
 
