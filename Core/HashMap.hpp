@@ -9,8 +9,11 @@
 #include "Core/Log/Assert.hpp"
 #include "Core/Log/Log.h"
 #include "Core/Memory/Allocator.hpp"
-#include "Core/Profiler/TimeProfiler.h"
 
+#ifdef AGE_PROFILE_ENABLED
+#include "Core/Profiler/TimeProfiler.h"
+#include "Core/Profiler/HitProfiler.h"
+#endif
 
 
 namespace age

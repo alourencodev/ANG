@@ -165,6 +165,7 @@
     <ClInclude Include="NonCopyable.hpp" />
     <ClInclude Include="Pair.hpp" />
     <ClInclude Include="Platform.hpp" />
+    <ClInclude Include="Profiler\HitProfiler.h" />
     <ClInclude Include="Profiler\TimeProfiler.h" />
     <ClInclude Include="Range.hpp" />
     <ClInclude Include="SArray.hpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="AGEFile\AGEFile.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Log\Log.cpp" />
+    <ClCompile Include="Profiler\HitProfiler.cpp" />
     <ClCompile Include="Profiler\TimeProfiler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

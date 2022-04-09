@@ -127,6 +127,9 @@
     <ClInclude Include="Hash.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Profiler\HitProfiler.h">
+      <Filter>Source Files\Profiler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log\Log.cpp">
@@ -139,6 +142,9 @@
       <Filter>Source Files\AGEFile</Filter>
     </ClCompile>
     <ClCompile Include="Profiler\TimeProfiler.cpp">
+      <Filter>Source Files\Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiler\HitProfiler.cpp">
       <Filter>Source Files\Profiler</Filter>
     </ClCompile>
   </ItemGroup>

@@ -36,8 +36,8 @@ private:
 
 
 #ifdef AGE_PROFILE_ENABLED
-#define AGE_PROFILE_TIME_TAG(TAG)													\
-	static TimeProfiler __time_profiler(TAG);						\
+#define AGE_PROFILE_TIME_TAG(TAG)										\
+	static TimeProfiler __time_profiler(TAG);							\
 	TimeProfiler::Instance __time_profiler_instance(&__time_profiler)
 
 #define AGE_PROFILE_TIME() AGE_PROFILE_TIME_TAG(__FUNCTION__)
