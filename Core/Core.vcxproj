@@ -167,6 +167,7 @@
     <ClInclude Include="Platform.hpp" />
     <ClInclude Include="Profiler\HitProfiler.h" />
     <ClInclude Include="Profiler\TimeProfiler.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="Range.hpp" />
     <ClInclude Include="SArray.hpp" />
     <ClInclude Include="StackArray.hpp" />
