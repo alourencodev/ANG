@@ -81,7 +81,7 @@ public:
 		}
 	}
 
-	void operator = (String&& other)
+	void operator = (String&& other) noexcept
 	{
 		if (_str != nullptr)
 			allocator::dealloc(_str);
