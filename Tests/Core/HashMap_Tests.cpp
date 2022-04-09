@@ -111,10 +111,12 @@ TEST_CASE("HashMap Removal", k_tag)
 
 	REQUIRE(map.contains(HashCollider(1)));
 	REQUIRE(map.contains(HashCollider(2)));
+	REQUIRE(map.count() == 2);
 
 	map.remove(HashCollider(1));
 
 	REQUIRE_FALSE(map.contains(HashCollider(1)));
 	REQUIRE(map.contains(HashCollider(2)));
+	REQUIRE(map.count() == 1);
 }
 
