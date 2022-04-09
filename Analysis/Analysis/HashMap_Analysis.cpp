@@ -4,7 +4,9 @@
 #include <Core/HashMap.hpp>
 #include <Core/Log/Log.h>
 #include <Core/Profiler/TimeProfiler.h>
+#include <Core/Random.h>
 #include <Core/String.hpp>
+
 
 namespace age::hashMap
 {
@@ -32,14 +34,35 @@ void runAddAnalysis()
 	map.add("another3", 8);
 }
 
+
+void runHitAnalysis()
+{
+	DArray<u32> existing;
+	HashMap<u32, u32> map(100);
+
+	for (int i = 0; i < 100; i++) {
+		u32 rand = randomInt<u32>(0, 999);
+		
+		if (existing.contains(rand)) {
+			i--;
+			continue;
+		}
+
+		existing.add(rand);
+		map.add(rand, 0);
+	}
+}
+
+
 void runAnalysis()
 {
 	age::logger::enable(k_tag);
 
-	runAddAnalysis();
-	runAddAnalysis();
-	runAddAnalysis();
-	runAddAnalysis();
+	//for (int i = 0; i < 5; i++)
+	//	runAddAnalysis();
+
+	for (int i = 0; i < 10; i++)
+		runHitAnalysis();
 }
 
 }

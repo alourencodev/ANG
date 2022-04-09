@@ -288,7 +288,7 @@ private:
 
 	_force_inline bool reachedLoadFactor() const { return (_count + 1) / static_cast<float>(_capacity) >= k_loadFactor; }
 	_force_inline u32 calcProbe(const t_keyType &key) const { return static_cast<u32>(hash::hash(key) & (_capacity - 1)); }
-	_force_inline u32 reProbe(u32 index) const { return (index + 1) % (_capacity - 1); }
+	_force_inline u32 reProbe(u32 index) const { AGE_PROFILE_HIT(); return (index + 1) % (_capacity); }
 
 
 	// Allocates the necessary memory for the current capacity and sets every pointer to the respective offset
