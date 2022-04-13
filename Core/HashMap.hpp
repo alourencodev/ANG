@@ -22,6 +22,8 @@ template<typename t_keyType,
 		 u32 t_loadFactorPercentage = 70>
 class HashMap
 {
+	static_assert(t_loadFactorPercentage > 0 && t_loadFactorPercentage <= 100, "HashMap load factor needs to be > 0 and <= 100.");
+
 	constexpr static char k_tag[] = "HashMap";
 	constexpr static u32 k_defaultCapacity = 8;
 	constexpr static float k_loadFactor = t_loadFactorPercentage * 0.01f;
