@@ -14,6 +14,9 @@
     <Filter Include="Source Files\TestUtils">
       <UniqueIdentifier>{a3f763d0-9dea-4bf8-b62d-d78f54e66b05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Memory">
+      <UniqueIdentifier>{e7aed1df-a77c-4083-bd22-7a606da3cec5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main_Tests.cpp">
@@ -75,6 +78,9 @@
     </ClCompile>
     <ClCompile Include="AGEFile_Tests.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\Allocator_Tests.cpp">
+      <Filter>Source Files\Memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

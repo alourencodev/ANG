@@ -148,6 +148,7 @@
     <ClCompile Include="Math\Vec2_Test.cpp" />
     <ClCompile Include="Math\Vec3_Test.cpp" />
     <ClCompile Include="Math\Vec4_Test.cpp" />
+    <ClCompile Include="Memory\Allocator_Tests.cpp" />
     <ClCompile Include="Meta_Tests.cpp" />
     <ClCompile Include="Preprocessor\Utils_Tests.cpp" />
     <ClCompile Include="Range_Tests.cpp" />
