@@ -31,9 +31,10 @@ class HashMap
 
 public:
 	HashMap() = default;
+
 	HashMap(u32 desiredMaxElements)
 	{
-		u32 desiredCapacity = desiredMaxElements / k_loadFactor;
+		u32 desiredCapacity = static_cast<u32>(desiredMaxElements / k_loadFactor);
 		_capacity = math::max(static_cast<u32>(math::nextPow2(desiredCapacity)), k_defaultCapacity);
 		alloc();
 	}
