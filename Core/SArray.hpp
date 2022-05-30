@@ -25,7 +25,7 @@ public:
 	SArray(const SArray& other) { memcpy(_data, other._data, sizeof(t_type) * t_size); }
 	SArray(const Range<t_type>& range) { memcpy(_data, range.daya(), sizeof(t_type) * t_size); }
 
-	template<typename t_type, typename ...t_others>
+	template<typename ...t_others>
 	SArray(t_type first, t_others ...others) : _data{ std::forward<t_type>(first), std::forward<t_others>(others)... }
 	{
 		static_assert(sizeof...(t_others) == (t_size - 1), "Trying to initialize a StaticArray with a different amount of elements than the ones defined.");
