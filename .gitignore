@@ -25,3 +25,4 @@ AGE/Lib/yaml-cpp/Lib/yaml-cppd.pdb
 Tools/*.exe
 Tools/*.pdb
 Tools/Tools/ShaderCompiler/TestShaders/Out/
+*.swp
