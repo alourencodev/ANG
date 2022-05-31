@@ -5,6 +5,7 @@
 
 #include <Core/BitField.hpp>
 #include <Core/DArray.hpp>
+#include <Core/StringUtils.hpp>
 
 #include <AGE/Renderer/Vulkan/VkContext.h>
 #include <AGE/Renderer/Vulkan/VkUtils.h>
@@ -103,7 +104,7 @@ bool isDeviceCompatible(VkPhysicalDevice physicalDevice,
 		DArray<const char *> missingRequiredExtensions(extensions);
 		for (const auto &extension : availableExtensions) {
 			for (int i = 0; i < missingRequiredExtensions.count(); i++) {
-				if (strcmp(missingRequiredExtensions[i], extension.extensionName) == 0) {
+				if (strEqual(missingRequiredExtensions[i], extension.extensionName) == 0) {
 					// It's ok to remove from the iterated array because the it breaks the loop after.
 					missingRequiredExtensions.swapPopIndex(i);
 					break;

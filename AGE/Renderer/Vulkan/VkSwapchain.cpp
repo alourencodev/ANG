@@ -135,7 +135,7 @@ void createImageViews(const Context &context, Swapchain &swapchain)
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		AGE_VK_CHECK(vkCreateImageView(context.device, &createInfo, swapchain.allocator, &swapchain.imageViews[i]))
+		AGE_VK_CHECK(vkCreateImageView(context.device, &createInfo, swapchain.allocator, &swapchain.imageViews[i]));
 	}
 
 	age_log(k_tag, "Created %d image views", swapchain.imageViews.count());
