@@ -9,3 +9,4 @@ file(GLOB_RECURSE CORE_SOURCE "*.h" "*.hpp" "*.cpp")
 
 add_library(Core STATIC ${CORE_SOURCE})
 target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR})
+target_compile_options(Core PRIVATE ${AGE_COMPILE_OPTIONS})
