@@ -4,9 +4,9 @@
 #include <Core/Log/Log.h>
 #include <Core/StackArray.hpp>
 
-#include "AGE/Vendor/GLFW.hpp"
-#include "AGE/Renderer/Renderer.h"
-#include "AGE/Systems/CommandSystem.h"
+#include <AGE/Vendor/GLFW.hpp>
+#include <AGE/Renderer/Renderer.h>
+#include <AGE/Systems/CommandSystem.h>
 
 #ifndef AGE_RELEASE
 #include <cstdio>
