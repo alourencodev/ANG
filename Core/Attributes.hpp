@@ -5,7 +5,7 @@
 #	include <intrin.h>
 #	define _force_inline __forceinline
 #elif defined(__GNUC__)
-#	define _force_inline __attribute__((always_inline))
+#	define _force_inline __attribute__((always_inline)) inline
 #else
 #	warning ("Attributes are only available for MSVC.")
 #	define _force_inline
