@@ -26,6 +26,7 @@ u32 findMemoryType(VkPhysicalDevice physicalDevice, u32 typeFilter, VkMemoryProp
     }
 
     age_error(k_tag, "Unable to find suitable memory type.");
+	return 0;
 }
 
 
