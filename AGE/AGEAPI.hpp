@@ -9,5 +9,5 @@
 #		define AGE_API __declspec(dllimport)
 #	endif
 #else
-#	error AGE Doesn't Support the current platform
+#	error AGE Doesnt Support the current platform
 #endif
