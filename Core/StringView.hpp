@@ -7,9 +7,6 @@
 namespace age
 {
 
-namespace
-{
-
 template<typename t_charType>
 class StringViewBase
 {
@@ -97,8 +94,6 @@ public:
 protected:
 	t_charType *_str = nullptr;
 };
-
-}	// namespace anon
 
 class StringView : public StringViewBase<char>
 {
