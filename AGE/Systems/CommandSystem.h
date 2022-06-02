@@ -2,18 +2,16 @@
 
 #include <Core/BuildScheme.hpp>
 #include <Core/HashMap.hpp>
+#include <Core/StackArray.hpp>
+
+
+#ifdef AGE_RELEASE_DBG_INFO
 
 namespace age
 {
-#ifdef AGE_RELEASE_DBG_INFO
-
-template<typename t_type, size_t t_size>
-class StackArray;
 
 template<typename t_type>
 class Function;
-
-class ConstWeakStringView;
 
 class CommandSystem
 {
@@ -35,5 +33,21 @@ private:
 
 static CommandSystem s_commandSystem;
 
-#endif
 }
+
+#define AGE_DECLARE_COMMAND(STR, FUNCTION)				\
+	static const char FUNCTION ## _str[] = STR;			\
+	static CommandSystem::Command FUNCTION ## _func
+	
+#define AGE_ADD_COMMAND(FUNCTION)																\
+	age_assertFatal(FUNCTION ## _str[0] == '-', k_commandNameAssertMessage, FUNCTION ## _str);	\
+	FUNCTION ## _func = Command(FUNCTION);														\
+	_commandMap.add(FUNCTION ## _str, &FUNCTION ## _func)
+
+#else
+
+#define AGE_DECLARE_COMMAND(STR, FUNCTION)
+#define AGE_ADD_COMMAND(FUNCTION)
+
+#endif // AGE_RELEASE_DBG_INFO
+

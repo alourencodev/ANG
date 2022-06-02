@@ -2,23 +2,15 @@
 #include <AGE/Systems/CommandSystem.h>
 
 #include <Core/Function.hpp>
-#include <Core/StackArray.hpp>
 #include <Core/StringView.hpp>
+
+
+#ifdef AGE_RELEASE_DBG_INFO
 
 namespace age
 {
 
 constexpr const char k_commandNameAssertMessage[] = "Command %s doesn't start with '-'. Every command must start with '-'";
-
-#define AGE_DECLARE_COMMAND(STR, FUNCTION)				\
-	static const char FUNCTION ## _str[] = STR;			\
-	static CommandSystem::Command FUNCTION ## _func
-	
-#define AGE_ADD_COMMAND(FUNCTION)																\
-	age_assertFatal(FUNCTION ## _str[0] == '-', k_commandNameAssertMessage, FUNCTION ## _str);	\
-	FUNCTION ## _func = Command(FUNCTION);														\
-	_commandMap.add(FUNCTION ## _str, &FUNCTION ## _func)
-
 
 constexpr u8 k_preallocatedCommandMapCapacity = 8;
 
@@ -52,4 +44,6 @@ bool CommandSystem::runCommand(const char *commandKey, const CommandArgs &args)
 }
 
 }
+
+#endif
 
