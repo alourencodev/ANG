@@ -26,3 +26,4 @@ Tools/*.exe
 Tools/*.pdb
 Tools/Tools/ShaderCompiler/TestShaders/Out/
 *.swp
+.cache/
