@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #include "Core/Attributes.hpp"
 #include "Core/Hash.h"
 #include "Core/Math/Math.hpp"
