@@ -16,5 +16,5 @@ find_package(glfw3 3.3 REQUIRED)
 
 target_include_directories(AGE PUBLIC ${CMAKE_SOURCE_DIR} ${Vulkan_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIR})
 target_link_libraries(AGE PUBLIC Core Vulkan::Vulkan ${GLFW3_LIBRARY})
-target_compile_definitions(AGE PRIVATE AGE_BUILD)
+target_compile_definitions(AGE PRIVATE AGE_BUILD ${AGE_BUILD_CONFIG})
 target_compile_options(AGE PRIVATE ${AGE_COMPILE_OPTIONS})

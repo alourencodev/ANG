@@ -12,6 +12,17 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(AGE_COMPILE_OPTIONS ${AGE_COMPILE_OPTIONS} -Wattributes)
 endif ()
 
+
+# Set build scheme macro based on cmake config
+set (AGE_BUILD_CONFIG)
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+	set(AGE_BUILD_CONFIG AGE_DEBUG)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+	set(AGE_BUILD_CONFIG AGE_RELEASE)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "ReleaseWithDbgInfo")
+	set(AGE_BUILD_CONFIG AGE_RELEASE_DBG_INFO)
+endif()
+
 project(ANG)
 
 add_subdirectory(Core)

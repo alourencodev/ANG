@@ -12,4 +12,5 @@ add_executable(ANG ${ANG_SOURCE})
 target_include_directories(ANG PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(ANG PRIVATE Core AGE)
 target_compile_options(ANG PRIVATE ${AGE_COMPILE_OPTIONS})
+target_compile_definitions(ANG PRIVATE ${AGE_BUILD_CONFIG})
 
