@@ -4,7 +4,7 @@
 
 #include <Core/DArray.hpp>
 #include <Core/String.hpp>
-#include <Core/StringMap.hpp>
+#include <Core/HashMap.hpp>
 
 
 
@@ -29,7 +29,7 @@ public:
 private:
 
 	DArray<const char *> _includeDirs = {};
-	StringMap<String> _sourceMap = {};
+	HashMap<String, String> _sourceMap = {};
 };
 
 }

@@ -3,7 +3,7 @@
 #include <shaderc/shaderc.h>
 
 #include <Core/String.hpp>
-#include <Core/StringMap.hpp>
+#include <Core/HashMap.hpp>
 
 
 
@@ -19,7 +19,7 @@ static const String k_glslExtension = ".glsl";		// Non stage specific headers mi
 
 
 
-static const age::StringMap<shaderc_shader_kind> k_extensionMap = {
+static const age::HashMap<String, shaderc_shader_kind> k_extensionMap = {
 	{k_vertexExtension, shaderc_vertex_shader},
 	{k_fragmentExtension, shaderc_fragment_shader}
 };
