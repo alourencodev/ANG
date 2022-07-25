@@ -1,15 +1,10 @@
 #include "Includer.h"
 
-#include <filesystem>
 
 #include <Core/File.h>
 #include <Core/String.hpp>
 
 #include "Extensions.hpp"
-
-
-
-namespace fs = std::filesystem;
 
 
 
@@ -67,15 +62,15 @@ const String *Includer::getSource(const char* requestedSource)
 			DArray<char> sourceCodeRaw = {};
 
 			// Search for file in includeDirectories
-			for (const auto &entry : fs::directory_iterator(includeDir)) {
-				fs::path sourcePath(entry.path());
+			//for (const auto &entry : fs::directory_iterator(includeDir)) {
+			//	fs::path sourcePath(entry.path());
 
-				std::string filename = sourcePath.filename().string();
-				if (strEqual(requestedSource, filename.c_str())) {
-					sourceCodeRaw = file::readText(sourcePath.string().c_str());
-					break;				
-				}
-			}
+			//	std::string filename = sourcePath.filename().string();
+			//	if (strEqual(requestedSource, filename.c_str())) {
+			//		sourceCodeRaw = file::readText(sourcePath.string().c_str());
+			//		break;				
+			//	}
+			//}
 
 			if (!sourceCodeRaw.isEmpty()) {
 				String *sourceCode = nullptr;

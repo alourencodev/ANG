@@ -1,5 +1,5 @@
 
-#include <filesystem>
+//#include <filesystem>
 #include <string>
 
 #include <Core/BuildScheme.hpp>
@@ -8,7 +8,6 @@
 #include <Core/SArray.hpp>
 #include <Core/String.hpp>
 #include <Core/StringBuilder.hpp>
-#include <Core/StringMap.hpp>
 #include <Core/StringUtils.hpp>
 #include <Core/Timer.hpp>
 
@@ -19,13 +18,10 @@
 
 
 using namespace age;
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
 constexpr char k_tag[] = "ShaderCompiler";
 constexpr char k_verboseTag[] = "DShaderCompiler";
-
-
-
 
 
 struct Shader
@@ -58,33 +54,33 @@ DArray<Shader> listShaders()
 	DArray<Shader> shaderList = {};
 	shaderList.reserve(16);
 
-	for (const auto& entry : fs::recursive_directory_iterator(g_sourceDir.str())) {
-		if (entry.is_directory())
-			continue;
+	//for (const auto& entry : fs::recursive_directory_iterator(g_sourceDir.str())) {
+	//	if (entry.is_directory())
+	//		continue;
 
-		std::string extension = entry.path().extension().string();
-		const shaderc_shader_kind *stagePtr = k_extensionMap.at(extension.c_str());
+	//	std::string extension = entry.path().extension().string();
+	//	const shaderc_shader_kind *stagePtr = k_extensionMap.at(extension.c_str());
 
-		// Ignore files with invalid extensions
-		if (stagePtr == nullptr)
-			continue;
+	//	// Ignore files with invalid extensions
+	//	if (stagePtr == nullptr)
+	//		continue;
 
-		{	// Fill shader struct
-			Shader shader = {};
+	//	{	// Fill shader struct
+	//		Shader shader = {};
 
-			std::string shaderPath = entry.path().parent_path().string();
-			if (shaderPath.size() > g_sourceDirLength)
-				copyStr(shader.relativePath, shaderPath.c_str() + g_sourceDirLength);
+	//		std::string shaderPath = entry.path().parent_path().string();
+	//		if (shaderPath.size() > g_sourceDirLength)
+	//			copyStr(shader.relativePath, shaderPath.c_str() + g_sourceDirLength);
 
-			std::string fileName = entry.path().filename().string();
-			copyStr(shader.fileName, fileName.c_str());
+	//		std::string fileName = entry.path().filename().string();
+	//		copyStr(shader.fileName, fileName.c_str());
 
-			shader.stage = *stagePtr;
+	//		shader.stage = *stagePtr;
 
-			age_log(k_verboseTag, "Shader: %s", shader.relativePath);
-			shaderList.add(shader);
-		}
-	}
+	//		age_log(k_verboseTag, "Shader: %s", shader.relativePath);
+	//		shaderList.add(shader);
+	//	}
+	//}
 
 	shaderList.shrinkToFit();
 	return shaderList;
@@ -123,9 +119,9 @@ void resolveShader(const Compiler &compiler, const Shader& shader)
 
 		outputDir = builder.build();
 
-		fs::path outputDirPath(outputDir.str());
-		if (!fs::exists(outputDirPath.parent_path()))
-			fs::create_directory(outputDirPath.parent_path());
+		//fs::path outputDirPath(outputDir.str());
+		//if (!fs::exists(outputDirPath.parent_path()))
+		//	fs::create_directory(outputDirPath.parent_path());
 	}
 
 

@@ -1,4 +1,4 @@
 
 # Tools CMakeFile
 
-add_subdirectory(Tools/ShaderCompiler)
+add_subdirectory(ShaderCompiler)
