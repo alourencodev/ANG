@@ -16,6 +16,7 @@ parser.add_argument("-B", "--Build", help="Build the project and runs the entire
 parser.add_argument("-c", "--clean", help="Clean Project.", action="store_true")
 parser.add_argument("-s", "--shaders", help="Build Shaders", action="store_true")
 parser.add_argument("-r", "--run", help="Run Game", action="store_true")
+parser.add_argument("-T", "--Tools", help="Compile Tools", action="store_true")
 parser.add_argument("-t", "--tests", help="Build and run unit tests.", action="store_true")
 parser.add_argument("-v", "--verbose", help="Display more log messages, for debug reasons.", action="store_true")
 parser.add_argument("build_config", help="On what configuration should the project be built. debug | releaseDbgInfo | release", type=str)
@@ -48,6 +49,9 @@ def build(config):
 
     if args.verbose:
         cmake_command.append("-DCMAKE_EXPORT_COMPILE_COMMANDS=1")
+
+    if args.Tools:
+        cmake_command.append("-DAGE_TOOLS=1")
 
     run_command(cmake_command)
 

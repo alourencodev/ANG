@@ -28,3 +28,7 @@ project(ANG)
 add_subdirectory(Core)
 add_subdirectory(AGE)
 add_subdirectory(ANG)
+
+if (AGE_TOOLS)
+	add_subdirectory(Tools)
+endif()
