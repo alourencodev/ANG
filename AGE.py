@@ -3,9 +3,9 @@ import os
 import subprocess
 
 # Global constants
+compiler = "Visual Studio 17 2022"
 build_dir = "Build"
-shader_compiler = "Tools\\ShaderCompiler.exe"
-shader_compiler_debug = "Tools\\ShaderCompiler.exe" #TODO: Change to ShaderCompiler_d when available
+tools_dir = "Tools" # Assumes it is inside build_dir
 shaders_dir = "Shaders"
 game_name = "ANG"
 
@@ -45,39 +45,39 @@ def build(config):
     cmake_build_config = "-DCMAKE_BUILD_TYPE=" + config
     cmake_build_dir_arg = "-B=" + build_dir
 
-    cmake_command = ["cmake", cmake_build_config, "-G", "MinGW Makefiles", cmake_build_dir_arg]
+    cmake_command = ["cmake", cmake_build_config, "-G", compiler, cmake_build_dir_arg]
 
     if args.verbose:
         cmake_command.append("-DCMAKE_EXPORT_COMPILE_COMMANDS=1")
+        cmake_command.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
 
-    if args.Tools:
-        cmake_command.append("-DAGE_TOOLS=1")
-
+    # Run CMake
     run_command(cmake_command)
 
     # Compile
     build_command = ["cmake", "--build", build_dir]
     run_command(build_command)
-    
-    # Copy dll to exe folder
-    age_dll_source_dir = build_dir + "\\AGE\\libAGE.dll"
-    age_dll_dest_dir = build_dir + "\\" + game_name + "\\libAGE.dll"
-    copy_command = ["cp", age_dll_source_dir, age_dll_dest_dir]
-    run_command(copy_command)
 
     return;
 
 def compile_shaders(config):
-    compiler = shader_compiler_debug
-    if config == "Release":
-        compiler = shader_compiler
-    
-    shader_source = game_name + "\\" + shaders_dir
-    shader_dest = build_dir + "\\" + game_name + "\\" + shaders_dir
-    engine_shaders = "AGE\\" + shaders_dir
 
-    compile_shaders_command = [compiler, shader_source, shader_dest, shader_source, engine_shaders]   
-    run_command(compile_shaders_command)
+    shader_source = game_name + "\\" + shaders_dir + "\\"
+    shader_dest = build_dir + "\\" + config + "\\" + shaders_dir + "\\"
+
+    command = ["py", "Tools\\compileShaders.py", shader_source, shader_dest]
+
+    # Set config specific flags
+    if config == "Debug":
+        command.append("-v")
+    else:
+        command.append("-O")
+
+    # Set the include directories
+    engine_shaders = "AGE\\" + shaders_dir + "\\"
+    command = command + ["-I", shader_source, engine_shaders]
+    
+    run_command(command)
 
     return
 
@@ -86,11 +86,17 @@ def run_tool_pipeline(config):
     return;
 
 def tests(config):
+    # TODO
     return
 
-def run():
-    exe_dir = build_dir + "\\" + game_name + "\\" + game_name + ".exe"
-    run_command([exe_dir])
+def run(config):
+    exe_dir = build_dir + "\\" + config + "\\"
+    root_dir = os.getcwd()
+    os.chdir(exe_dir)
+
+    run_command([game_name + ".exe"])
+
+    os.chdir(root_dir)
 
     return
 
@@ -112,7 +118,7 @@ def main():
         tests(args.build_config)
 
     if args.run:
-        run()
+        run(args.build_config)
     
     return
 
