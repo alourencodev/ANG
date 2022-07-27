@@ -46,6 +46,9 @@ def build(config):
         cmake_command.append("-DCMAKE_EXPORT_COMPILE_COMMANDS=1")
         cmake_command.append("-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON")
 
+    if args.tests:
+        cmake_command.append("-DAGE_TESTS=1")
+
     # Run CMake
     run_command(cmake_command)
 
@@ -79,11 +82,24 @@ def run_tool_pipeline(config):
     compile_shaders(config)
     return;
 
-def tests(config):
-    # TODO
+def run_tests(config):
+    log("Running Tests")
+
+    tests_exe_dir = build_dir + "\\" + config + "\\Tests\\" 
+
+    root_dir = os.getcwd()
+    os.chdir(tests_exe_dir)
+
+    files = os.listdir(".")
+    for file in files:
+        if os.path.splitext(file)[-1] == ".exe":
+            run_command([file])
+
     return
 
 def run(config):
+    log("Running Game")
+
     exe_dir = build_dir + "\\" + config + "\\"
     root_dir = os.getcwd()
     os.chdir(exe_dir)
@@ -105,13 +121,13 @@ def main():
     if args.build or args.Build:
         build(args.build_config)
 
-    if args.Build or args.Tools:
+    if args.Build or args.Tools or args.tests:
         run_tool_pipeline(args.build_config)
     elif args.shaders:
         compile_shaders(args.build_config)
 
     if args.tests:
-        tests(args.build_config)
+        run_tests(args.build_config)
 
     if args.run:
         run(args.build_config)
