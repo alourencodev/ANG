@@ -12,10 +12,8 @@ game_name = "ANG"
 # Setup Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--build", help="Build the project.", action="store_true")
-parser.add_argument("-B", "--Build", help="Build the project and runs the entire tools pipeline.", action="store_true")
 parser.add_argument("-s", "--shaders", help="Build Shaders", action="store_true")
 parser.add_argument("-r", "--run", help="Run Game", action="store_true")
-parser.add_argument("-T", "--Tools", help="Run Tools Pipeline", action="store_true")
 parser.add_argument("-t", "--tests", help="Build and run unit tests.", action="store_true")
 parser.add_argument("-v", "--verbose", help="Display more log messages, for debug reasons.", action="store_true")
 parser.add_argument("build_config", help="On what configuration should the project be built. Debug | ReleaseDbgInfo | Release", type=str)
@@ -78,10 +76,6 @@ def compile_shaders(config):
 
     return
 
-def run_tool_pipeline(config):
-    compile_shaders(config)
-    return;
-
 def run_tests(config):
     log("Running Tests")
 
@@ -118,12 +112,10 @@ def run(config):
 def main():
     global args   
 
-    if args.build or args.Build:
+    if args.build:
         build(args.build_config)
 
-    if args.Build or args.Tools or args.tests:
-        run_tool_pipeline(args.build_config)
-    elif args.shaders:
+    if args.shaders:
         compile_shaders(args.build_config)
 
     if args.tests:
