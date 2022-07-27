@@ -66,7 +66,6 @@ def list_shaders(source_dir):
             if extension in supported_extensions:
                 shaders.append(path_dir)
         else:
-            log("dir: " + path)
             dirs.append(path_dir + "\\")
 
     for dir in dirs:
@@ -98,7 +97,6 @@ def main():
 
     # Compile shaders
     shaders = list_shaders(args.source)
-    log("Listed Shaders: " + str(shaders))
 
     for shader in shaders:
         result = compile_shader(shader, include_dirs);
