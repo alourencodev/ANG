@@ -13,13 +13,13 @@ game_name = "ANG"
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--build", help="Build the project.", action="store_true")
 parser.add_argument("-B", "--Build", help="Build the project and runs the entire tools pipeline.", action="store_true")
-parser.add_argument("-c", "--clean", help="Clean Project.", action="store_true")
 parser.add_argument("-s", "--shaders", help="Build Shaders", action="store_true")
 parser.add_argument("-r", "--run", help="Run Game", action="store_true")
-parser.add_argument("-T", "--Tools", help="Compile Tools", action="store_true")
+parser.add_argument("-T", "--Tools", help="Run Tools Pipeline", action="store_true")
 parser.add_argument("-t", "--tests", help="Build and run unit tests.", action="store_true")
 parser.add_argument("-v", "--verbose", help="Display more log messages, for debug reasons.", action="store_true")
-parser.add_argument("build_config", help="On what configuration should the project be built. debug | releaseDbgInfo | release", type=str)
+parser.add_argument("build_config", help="On what configuration should the project be built. Debug | ReleaseDbgInfo | Release", type=str)
+parser.add_argument("-l", "--log", nargs='*', help="Enable logs for given tags")
 args = parser.parse_args()
 
 
@@ -32,13 +32,8 @@ def run_command(command):
     log("Running command: " + str(command))
     subprocess.run(command)
 
-def clean():
-    return
 
 def build(config):
-
-    #TODO: Track build time?
-
     log("Building [" + config + "]", True)
 
     # Generate Make File
@@ -61,7 +56,6 @@ def build(config):
     return;
 
 def compile_shaders(config):
-
     shader_source = game_name + "\\" + shaders_dir + "\\"
     shader_dest = build_dir + "\\" + config + "\\" + shaders_dir + "\\"
 
@@ -94,7 +88,12 @@ def run(config):
     root_dir = os.getcwd()
     os.chdir(exe_dir)
 
-    run_command([game_name + ".exe"])
+    command = [game_name + ".exe"]
+    if args.log:
+        command.append("-enableLog")
+        command = command + args.log
+
+    run_command(command)
 
     os.chdir(root_dir)
 
@@ -103,13 +102,10 @@ def run(config):
 def main():
     global args   
 
-    if args.clean:
-        clean()
-
     if args.build or args.Build:
         build(args.build_config)
 
-    if args.Build:
+    if args.Build or args.Tools:
         run_tool_pipeline(args.build_config)
     elif args.shaders:
         compile_shaders(args.build_config)
