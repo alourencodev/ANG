@@ -14,8 +14,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--build", help="Build the project.", action="store_true")
 parser.add_argument("-s", "--shaders", help="Build Shaders", action="store_true")
 parser.add_argument("-r", "--run", help="Run Game", action="store_true")
-parser.add_argument("-t", "--tests", help="Build and run unit tests.", action="store_true")
+parser.add_argument("--tests", help="Run unit tests.", action="store_true")
 parser.add_argument("-v", "--verbose", help="Display more log messages, for debug reasons.", action="store_true")
+parser.add_argument("-t", "--target", nargs=1, help="Project to build.")
 parser.add_argument("build_config", help="On what configuration should the project be built. Debug | ReleaseDbgInfo | Release", type=str)
 parser.add_argument("-l", "--log", nargs='*', help="Enable logs for given tags")
 args = parser.parse_args()
@@ -57,6 +58,10 @@ def build(config):
 
     # Compile
     build_command = ["cmake", "--build", build_folder, "--config", config]
+
+    if not args.target is None:
+        build_command = build_command + ["--target", args.target[0]]
+
     run_command(build_command)
 
     return;
