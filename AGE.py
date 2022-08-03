@@ -56,7 +56,7 @@ def build(config):
     run_command(cmake_command)
 
     # Compile
-    build_command = ["cmake", "--build", build_dir]
+    build_command = ["cmake", "--build", build_folder, "--config", config]
     run_command(build_command)
 
     return;
