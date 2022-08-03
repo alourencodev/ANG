@@ -257,7 +257,7 @@ void Renderer::cleanup()
 
 
 
-void Renderer::onWindowResize(GLFWwindow */*window*/, int width, int height)
+void Renderer::onWindowResize(int width, int height)
 {
 	age_log(k_tag, "Window resized to %d x %d.", width, height);
 

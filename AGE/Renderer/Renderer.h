@@ -32,7 +32,7 @@ public:
 
 	void setClearColot(math::color3 clearColor) { _clearValues[static_cast<u32>(EClearValueType::Color)].color = {{clearColor.r, clearColor.g, clearColor.b, 1.0f}}; }
 
-	void onWindowResize(GLFWwindow *window, int width, int height);
+	void onWindowResize(int width, int height);
 
 private:
 	enum class EClearValueType : u8

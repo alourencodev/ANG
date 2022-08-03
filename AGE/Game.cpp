@@ -51,9 +51,9 @@ void runGameArguments(int argc, char *argv[])
 #endif
 
 
-static void onFramebufferResize(GLFWwindow *window, int width, int height)
+static void onFramebufferResize(GLFWwindow *, int width, int height)
 {
-	Renderer::s_inst.onWindowResize(window, width, height);
+	Renderer::s_inst.onWindowResize(width, height);
 }
 
 void Game::Run(int argc, char *argv[])
